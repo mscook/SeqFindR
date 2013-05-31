@@ -1,1 +1,5 @@
 holding/*
+build/*  
+dist/* 
+SeqFindR.egg-info/*
+*.pyc
