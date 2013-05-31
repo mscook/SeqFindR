@@ -387,6 +387,7 @@ def main():
             print "Assemblies and mapping consensuses don't match"
             sys.exit(1)
     else:
+        args.reshape = False
         results_a = strip_id_from_matrix(results_a)
         matrix = np.array(results_a)
     # cluster if not ordered
