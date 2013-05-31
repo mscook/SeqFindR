@@ -62,7 +62,7 @@ make sure you're running the most recent SeqFindR version.**
 Example figure produced by SeqFindR
 -----------------------------------
 
-A SeqFindR CU fimbriae genes image. 110 *E. coli* strains investigated. Order is according to phylogenetic analysis.
+SeqFindR CU fimbriae genes image. 110 *E. coli* strains were investigated. Order is according to phylogenetic analysis.
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
     :alt: SeqFindR CU fimbriae genes image
@@ -128,6 +128,9 @@ Command::
     :align: center
 
 
+Link to full size `run1`_.
+
+
 Run 2 - Combining assembly and mapping consensus data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -140,6 +143,9 @@ Command::
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png
     :alt: run2
     :align: center
+
+
+Link to full size `run2`_.
 
 
 Run 3 - Combining assembly and mapping consensus data with differentiation between hits
@@ -163,6 +169,9 @@ The clustering dendrogram looks like this:
     :align: center
 
 
+Link to full size `dendrogram`_.
+
+
 Run 3 - Combining assembly and mapping consensus data with defined ordering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -176,6 +185,8 @@ Command::
     :alt: run4
     :align: center
 
+
+Link to full size `run4`_.
 
 
 SeqFindR usage options
@@ -206,10 +217,15 @@ Future
 ------
 
 Current plans:
-    * Make into a webapp
+    * Make into a Web Application
     * Trim off first N characters when using mapping consensuses
+    * More dynamic sizing labelling
 
 
 
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
-
+.. _run1: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
+.. _run2: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
+.. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
+.. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram.png
+.. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
