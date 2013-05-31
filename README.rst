@@ -134,7 +134,6 @@ Link to full size `run1`_.
 Run 2 - Combining assembly and mapping consensus data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 Command::
 
     SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
@@ -151,7 +150,6 @@ Link to full size `run2`_.
 Run 3 - Combining assembly and mapping consensus data with differentiation between hits
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 Command::
 
     SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
@@ -160,6 +158,9 @@ Command::
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3_small.png
     :alt: run3
     :align: center
+
+
+Link to full size `run3`_.
 
 
 The clustering dendrogram looks like this:
@@ -174,7 +175,6 @@ Link to full size `dendrogram`_.
 
 Run 3 - Combining assembly and mapping consensus data with defined ordering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 Command::
 
@@ -227,5 +227,5 @@ Current plans:
 .. _run1: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
 .. _run2: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
 .. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
-.. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram.png
+.. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
 .. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
