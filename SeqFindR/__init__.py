@@ -1,5 +1,5 @@
 __title__ = 'SeqFindR'
-__version__ = '0.0.1'
+__version__ = '0.1'
 __author__ = 'Mitchell Stanton-Cook'
 __license__ = 'ECL 2.0'
 __copyright__ = 'Copyright 2013 Mitchell Stanton-Cook'
