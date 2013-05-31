@@ -19,7 +19,7 @@ We also use the following python libraries:
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
 
-If you follow the instructions below these should be installed automatically.
+These should be installed automatically If you follow the instructions below.
 
 
 Installation
@@ -49,10 +49,10 @@ Option 2 (standard user) **replacing INSTALL/HERE with appropriate**::
 
 If the install went correctly::
 
-   user@bhost:~/> which SeqFindR
+   user@host:~/> which SeqFindR
    /INSTALL/HERE/bin/SeqFindR
    
-   user@bhost:~/> SeqFindR -h
+   user@host:~/> SeqFindR -h
 
 
 **Please regularly check back or git pull & python setup.py install to 
@@ -95,39 +95,65 @@ An example::
     CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
 
 
+Tutorial
+--------
 
-SeqFindR usage
---------------
+Navigate to the SeqFindR/example directory (from git clone). The following 
+files should be present:
+    * A database file called *Antibiotic_markers.fa* (-d option)
+    * A ordering file called *dummy.order* (-i option)
+    * An assemblies directory containing *strain1.fa, strain2.fa and strain3.fa*
+      (-a option)
+    * A consensus directory containing *strain1.fa, strain2.fa and strain3.fa*
+      (-m option)
+
+
+The toy assemblies and consesuses were generated such that:
+    * **strain1** was missing: 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
+      mis-assembly of 70-aphA(1)1310 & 70-tem8674
+    * **strain2** was missing: 70-oxa(7)295, 70-pse(4)348 70-ctx143, 
+      70-aadA1588, 70-aadB1778 and 70-aacC(2)200
+    * **strain2** was missing 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
+      mis-assembly of 70-aphA(1)1310, 70-tem8674 and 70-aadA1588
+
+
+Run 1 - Looking at only assemblies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+SeqFindR usage options
+----------------------
 
 Help listing::
 
-    Usage: SeqFindR.py [-h] [-v] [-o OUTPUT] [-d VFDB] [-a ASS] [-t TOL] [-m CONS]
+    Usage: SeqFindR.py -o OUTPUT -d DB -a ASS [-h] [-v] [-t TOL] [-m CONS]
                        [-i INDEX] [-l] [-c COLOR] [-r]
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -v, --verbose         verbose output
-      -o OUTPUT, --output OUTPUT
-                            output prefix (default = "")
-      -d VFDB, --vfdb VFDB  full path to database fasta file
-      -a ASS, --ass ASS     full path to dir containing assemblies
-      -t TOL, --tol TOL     cutoff (default = 0.95)
-      -m CONS, --cons CONS  full path to dir containing consensuses (default =
-                            None)
-      -i INDEX, --index INDEX
-                            maintain order of index (no cluster) (default = None)
-      -l, --label_genes     label the x axis (default = False)
-      -c COLOR, --color COLOR
-                            color index (default = None)
-      -r, --reshape         Differentiate between mapping and assemblies
+      -h, --help                 show this help message and exit
+      -v, --verbose              verbose output
+      -o OUTPUT, --output OUTPUT [Required] output prefix
+      -d DB, --db DB             [Required] full path database fasta file
+      -a ASS, --ass ASS          [Required] full path to dir containing assemblies
+      -t TOL, --tol TOL          Similarity cutoff (default = 0.95)
+      -m CONS, --cons CONS       full path to dir containing consensuses (default = None)
+      -i INDEX, --index INDEX    maintain order of index (no cluster) (default = None)
+      -l, --label_genes          label the x axis (default = False)
+      -c COLOR, --color COLOR    color index (default = None)
+      -r, --reshape              Differentiate between mapping and assembly hits
 
     Licence: ECL by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
 
 
-Tutorial
---------
+Future
+------
 
-TODO
+    * Make into a webapp
+    * Trim off first N characters when using mapping consensuses
 
 
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
