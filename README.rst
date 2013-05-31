@@ -120,21 +120,45 @@ Run 1 - Looking at only assemblies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Command::
+
     SeqFindR -o run1 -d Antibiotic_markers.fa -a assemblies/ -l
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
+    :alt: run1
+    :align: center
 
 
 Run 2 - Combining assembly and mapping consensus data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Command::
+
     SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
+    :alt: run2
+    :align: center
 
 
 Run 3 - Combining assembly and mapping consensus data with differentiation between hits
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Command::
+
     SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
+    :alt: run3
+    :align: center
+
+The clustering dendrogram looks like this:
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
+    :alt: run3 dendrogram
+    :align: center
 
 
 Run 3 - Combining assembly and mapping consensus data with defined ordering
@@ -142,6 +166,11 @@ Run 3 - Combining assembly and mapping consensus data with defined ordering
 
 Command::
     SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
+    :alt: run4
+    :align: center
 
 
 SeqFindR usage options
