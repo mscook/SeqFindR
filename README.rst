@@ -55,8 +55,8 @@ If the install went correctly::
    user@bhost:~/> SeqFindR -h
 
 
-.. notes:: Please regularly check back or git pull/python, setup.py install to 
-           make sure you're running the most recent SeqFindR version.
+**Please regularly check back or git pull & python setup.py install to 
+make sure you're running the most recent SeqFindR version.**
 
 
 Example figure produced by SeqFindR
