@@ -371,12 +371,12 @@ def main():
     try:
         os.mkdir("DBs")
     except:
-        print "Assuming DBs directory exists"
-    vfs_list, vfs_class = prepare_db(args.vfdb)
-    results_a, ylab = do_run(args.vfdb, args.ass, -0.15, args.index,           \
+        print "Assuming a DBs directory exists"
+    vfs_list, vfs_class = prepare_db(args.db)
+    results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
                                 args.tol, vfs_list)
     if args.cons != None:
-        results_m, _ = do_run(args.vfdb, args.cons, -0.85, args.index,         \
+        results_m, _ = do_run(args.db, args.cons, -0.85, args.index,         \
                                 args.tol, vfs_list)
         if len(results_m) == len(results_a):
             results_a, results_m = match_matrix_rows(results_a, results_m)
@@ -415,14 +415,15 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description=desc,epilog=epi)
         parser.add_argument('-v', '--verbose', action='store_true',            \
                                 default=False, help='verbose output')
-        parser.add_argument('-o','--output',action='store', default='',        \
-                                help='output prefix (default = "")')
-        parser.add_argument('-d', '--vfdb', action='store',                    \
-                                help='full path to database fasta file')
+        parser.add_argument('-o','--output',action='store',                    \
+                                help='[Required] output prefix')
+        parser.add_argument('-d', '--db', action='store',                    \
+                                help='[Required] full path database fasta file')
         parser.add_argument('-a', '--ass', action='store',                     \
-                                help='full path to dir containing assemblies')
+                                help='[Required] full path to dir containing '+\
+                                     'assemblies')
         parser.add_argument('-t', '--tol', action='store', default=0.95,       \
-                                help='cutoff (default = 0.95)')
+                                help='Similarity cutoff (default = 0.95)')
         parser.add_argument('-m', '--cons', action='store', default=None,      \
                                 help=('full path to dir containing consensuses'\
                                     +' (default = None)'))
@@ -436,9 +437,19 @@ if __name__ == '__main__':
                                 help='color index (default = None)')
         parser.add_argument('-r', '--reshape', action='store_false',           \
                                 default=True, help='Differentiate '
-                                            'between mapping and assemblies')
-
+                                        'between mapping and assembly hits')
         args = parser.parse_args()
+        msg = "Missing required arguments.\nPlease run: SeqFindR -h"
+        if args.db == None:
+            print msg
+            sys.exit(1)
+        if args.ass == None:
+            print msg
+            sys.exit(1)
+        if args.output == None:
+            print msg
+            sys.exit(1)
+
         if args.verbose: print "Executing @ " + time.asctime()
         main()
         if args.verbose: print "Ended @ " + time.asctime()
