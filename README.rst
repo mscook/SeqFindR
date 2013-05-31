@@ -3,8 +3,8 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots
 
-**This is an early release version of SeqFindR. It is still undergoing rapid
-development. We have only tested SeqFindR on Linux systems**
+**This is an early release version of SeqFindR.** The tool is still undergoing 
+rapid development. We have only tested SeqFindR on linux systems.
 
 
 Requirements
@@ -36,8 +36,16 @@ Option 2 (standard user)::
     TODO
 
 
+.. notes:: Please regularly check back or git pull/python setup.py to make sure
+           you're running the most recent SeqFindR version.
+
+
 Example figure produced by SeqFindR
 -----------------------------------
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
+    :alt: SeqFindR CU fimbriae genes image
+    :align: center
 
 
 
