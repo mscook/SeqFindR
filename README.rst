@@ -1,7 +1,7 @@
 SeqFindR
 ========
 
-SeqFindR - easily create informative genomic feature plots
+SeqFindR - easily create informative genomic feature plots.
 
 **This is an early release version of SeqFindR.** The tool is still undergoing 
 rapid development. We have only tested SeqFindR on linux systems.
@@ -10,11 +10,16 @@ rapid development. We have only tested SeqFindR on linux systems.
 Requirements
 ------------
 
-ncbiblast >= 2.2.27
-python >= 2.7 (not Python 3 supported)
-numpy >= 1.6.1
-scipy >= 0.10.1
-matplotlib >= 1.1.0
+You'll need to install/have installed:
+    * ncbiblast >= 2.2.27
+    * python >= 2.7 (not Python 3 supported)
+
+We also use the following python libraries:
+    * numpy >= 1.6.1
+    * scipy >= 0.10.1
+    * matplotlib >= 1.1.0
+
+If you follow the instructions below these should be installed automatically.
 
 
 Installation
@@ -43,11 +48,12 @@ Option 2 (standard user)::
 Example figure produced by SeqFindR
 -----------------------------------
 
+SeqFindR CU fimbriae genes image. 110 strains investigated (95 ST131 strains). 
+Order is according to phylogenetic analysis.
+
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
     :alt: SeqFindR CU fimbriae genes image
     :align: center
-
-
 
 
 SeqFindR usage
@@ -77,6 +83,11 @@ Help listing::
 
     Licence: ECL by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
 
+
+Tutorial
+--------
+
+TODO
 
 
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
