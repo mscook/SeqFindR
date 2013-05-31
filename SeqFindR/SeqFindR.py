@@ -349,7 +349,7 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
     Perform a VirFindR run
     """
     matrix, y_label = [], []
-    in_files = glob.glob(data_path+"/*")
+    in_files = glob.glob(data_path+"/*.fa")
     # Reorder if requested 
     if order != None:
         in_files = order_inputs(order, in_files)
