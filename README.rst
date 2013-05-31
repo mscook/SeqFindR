@@ -107,7 +107,6 @@ files should be present:
     * A consensus directory containing *strain1.fa, strain2.fa and strain3.fa*
       (-m option)
 
-
 The toy assemblies and consesuses were generated such that:
     * **strain1** was missing: 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
       mis-assembly of 70-aphA(1)1310 & 70-tem8674
@@ -120,9 +119,29 @@ The toy assemblies and consesuses were generated such that:
 Run 1 - Looking at only assemblies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Command::
+    SeqFindR -o run1 -d Antibiotic_markers.fa -a assemblies/ -l
 
 
+Run 2 - Combining assembly and mapping consensus data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Command::
+    SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
+
+
+Run 3 - Combining assembly and mapping consensus data with differentiation between hits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Command::
+    SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
+
+
+Run 3 - Combining assembly and mapping consensus data with defined ordering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Command::
+    SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order
 
 
 SeqFindR usage options
@@ -152,8 +171,10 @@ Help listing::
 Future
 ------
 
+Current plans:
     * Make into a webapp
     * Trim off first N characters when using mapping consensuses
+
 
 
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
