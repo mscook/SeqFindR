@@ -32,7 +32,7 @@ You'll need to have git installed. As a scientist git can be really useful. See
 Option 1 (with root/admin)::
 
     cd ~/
-    git clone git@github.com:mscook/SeqFindR.git
+    git clone git://github.com/mscook/SeqFindR.git
     cd SeqFindR
     sudo python setup.py install
 
@@ -54,6 +54,32 @@ Order is according to phylogenetic analysis.
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
     :alt: SeqFindR CU fimbriae genes image
     :align: center
+
+
+SeqFindR database files
+-----------------------
+
+The SeqFindR database is in multi-fasta format. The header needs to be
+formatted with *4 comma separated* elements.
+
+The elements are:
+    * identifier,
+    * common name,
+    * description and 
+    * species
+
+The final element, separated by **[]** contains a classification.
+
+An example::
+
+    >70-tem8674, bla-TEM, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+    AAAGTTCTGCTATGTGGCGCGGTATTATCCCGTGTTGACGCCGGGCAAGAGCAACTCGGTCGCCGCATAC
+    >70-shv86, bla-SHV, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+    CTCAAGCGGCTGCGGGCTGGCGTGTACCGCCAGCGGCAGGGTGGCTAACAGGGAGATAATACACAGGCGA
+    >70-oxa(1)256, bla-OXA-1, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+    >70-tetB190, tet(B), Tetracycline Antibiotic resistance (tetracycline), Unknown sp. [Tetracycline]
+    CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
+
 
 
 SeqFindR usage
