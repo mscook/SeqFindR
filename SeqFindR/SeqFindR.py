@@ -68,7 +68,7 @@ def prepare_db(db_path):
             vfs_class.append(l.split('[')[-1].split(']')[0].strip())
     # Check for duplicates
     unique = list(set(vfs_list))
-    print len(unique)
+    print "Investigating "+str(len(unique))+" features"
     for e in unique:
         if vfs_list.count(e) != 1:
             print "Duplicates found for: ",e
@@ -92,24 +92,26 @@ def order_inputs(order_index_file, dir_listing):
     :type dir_listing: list
 
     :rtype: list of updated glob.glob dir listing to match order specified
-    """ 
+    """
     with open(order_index_file) as fin:
         lines = fin.readlines()
     if len(lines) != len(dir_listing):
-        print "order_inputs(). Length mismatch"
+        print "In order_inputs(). Length mismatch"
         sys.exit(1)
     ordered = []
     for l in lines:
         cord = l.strip()
         for d in dir_listing:
-            cur = d.strip().split('/')[-1].split("_")[0]
+            tmp   = d.strip().split('/')[-1]
+            if tmp.find('_') == -1:
+                cur = tmp.split('.')[0]
+            else:
+                cur = tmp.split("_")[0]
             if cur == cord:
                 ordered.append(d)
                 break
     if len(ordered) != len(dir_listing):
-        print "order_inputs(). Not 1-1 matching. Typo?"
-        print len(ordered)
-        print len(dir_listing)
+        print "In order_inputs(). Not 1-1 matching. Typo?"
         print ordered
         print dir_listing
         sys.exit(1)
@@ -133,7 +135,6 @@ def make_BLASTDB(fasta_file):
                           (fasta_file, fasta_file, fasta_file))
     os.system("cp %s DBs" % (fasta_file))
     # Get the strain ID
-    print fasta_file.split('_')[0]
     return fasta_file.split('_')[0].split('/')[1]
 
 def run_BLAST(query, database):
@@ -244,7 +245,7 @@ def cluster_matrix(matrix, y_labels):
     :param matrix: a numpy matrix of scores
     :param y_labels: the virulence factor ids for all row elements
     """
-    print "Clustering matrix ..."
+    print "Clustering the matrix"
     # Clear any matplotlib formatting
     plt.clf()
     fig = plt.figure()
@@ -341,7 +342,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                        left='on', right='off', bottom='off', top='off')
     plt.xticks(rotation=90)
     ax.grid(True)
-    fig.set_size_inches(16.0,12.0, dpi=600)
+    fig.set_size_inches(10.0,12.0, dpi=600)
     plt.savefig("results.png", bbox_inches='tight',dpi=600)
 
 def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
@@ -371,7 +372,7 @@ def main():
     try:
         os.mkdir("DBs")
     except:
-        print "Assuming a DBs directory exists"
+        print "A DBs directory exists. Overwriting"
     vfs_list, vfs_class = prepare_db(args.db)
     results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
                                 args.tol, vfs_list)
@@ -383,7 +384,7 @@ def main():
             default_no_hit = 1.0
             matrix = np.array(results_a) + np.array(results_m)
         else:
-            print "Assemblies and consensus don't match"
+            print "Assemblies and mapping consensuses don't match"
             sys.exit(1)
     else:
         results_a = strip_id_from_matrix(results_a)
@@ -403,7 +404,8 @@ def main():
                 x[...] = -1.0
     ylab = ['', '']+ ylab
     plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color)
-    print vfs_class
+    # Handle labels here
+    #print vfs_class
     os.system("rm blast.xml")
     os.system("rm DBs/*")
 
