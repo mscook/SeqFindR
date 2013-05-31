@@ -62,8 +62,7 @@ make sure you're running the most recent SeqFindR version.**
 Example figure produced by SeqFindR
 -----------------------------------
 
-SeqFindR CU fimbriae genes image. 110 strains investigated (95 ST131 strains). 
-Order is according to phylogenetic analysis.
+A SeqFindR CU fimbriae genes image. 110 *E. coli* strains investigated. Order is according to phylogenetic analysis.
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
     :alt: SeqFindR CU fimbriae genes image
