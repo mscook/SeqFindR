@@ -36,13 +36,27 @@ Option 1 (with root/admin)::
     cd SeqFindR
     sudo python setup.py install
 
-Option 2 (standard user)::
+Option 2 (standard user) **replacing INSTALL/HERE with appropriate**::
 
-    TODO
+    cd ~/
+    git clone git://github.com/mscook/SeqFindR.git
+    cd SeqFindR
+    echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
+    echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
+    source ~/.bashrc
+    python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
+    
+
+If the install went correctly::
+
+   user@bhost:~/> which SeqFindR
+   /INSTALL/HERE/bin/SeqFindR
+   
+   user@bhost:~/> SeqFindR -h
 
 
-.. notes:: Please regularly check back or git pull/python setup.py to make sure
-           you're running the most recent SeqFindR version.
+.. notes:: Please regularly check back or git pull/python, setup.py install to 
+           make sure you're running the most recent SeqFindR version.
 
 
 Example figure produced by SeqFindR
