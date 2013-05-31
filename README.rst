@@ -98,8 +98,7 @@ An example::
 Tutorial
 --------
 
-Navigate to the SeqFindR/example directory (from git clone). The following 
-files should be present:
+Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
     * A database file called *Antibiotic_markers.fa* (-d option)
     * A ordering file called *dummy.order* (-i option)
     * An assemblies directory containing *strain1.fa, strain2.fa and strain3.fa*
@@ -125,10 +124,8 @@ Command::
     SeqFindR -o run1 -d Antibiotic_markers.fa -a assemblies/ -l
 
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1_small.png
     :alt: run1
-    :height: 480px
-    :width: 400 px
     :align: center
 
 
@@ -141,7 +138,7 @@ Command::
     SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
 
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png
     :alt: run2
     :align: center
 
@@ -155,14 +152,14 @@ Command::
     SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
 
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3_small.png
     :alt: run3
     :align: center
 
 
 The clustering dendrogram looks like this:
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3_small.png
     :alt: run3 dendrogram
     :align: center
 
@@ -173,10 +170,10 @@ Run 3 - Combining assembly and mapping consensus data with defined ordering
 
 Command::
 
-    SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order
+    SeqFindR -o run4 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order -r
 
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run4_small.png
     :alt: run4
     :align: center
 
