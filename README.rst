@@ -3,6 +3,9 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
+**Offical site** `site`_.
+
+
 **This is an early release version of SeqFindR.** The tool is still undergoing 
 rapid development. We have only tested SeqFindR on linux systems.
 
@@ -173,7 +176,7 @@ The clustering dendrogram looks like this:
 Link to full size `dendrogram`_.
 
 
-Run 3 - Combining assembly and mapping consensus data with defined ordering
+Run 4 - Combining assembly and mapping consensus data with defined ordering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Command::
@@ -229,3 +232,4 @@ Current plans:
 .. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
 .. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
 .. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
+.. _site: http://mscook.github.io/SeqFindR/
