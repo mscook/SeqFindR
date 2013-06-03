@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Note: Based on https://github.com/kennethreitz/requests/blob/master/setup.py
+# See: http://docs.python.org/2/distutils/setupscript.html
 
 import os
 import sys
@@ -21,6 +22,10 @@ packages = [
 ]
 
 requires = []
+with open('requirements.txt') as fin:
+    lines = fin.readlines()
+for l in lines:
+    requires.append(l.strip())
 
 setup(
     name='SeqFindR',
