@@ -3,7 +3,7 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
-**Offical `site`_.**
+**Offical** `site`_ **is up.**
 
 **This is an early release version of SeqFindR.** The tool is still undergoing 
 rapid development. We have only tested SeqFindR on linux systems.
