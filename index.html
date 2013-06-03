@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>SeqFindR by mscook</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>SeqFindR</h1>
+          <h2>A tool to easily create informative genomic feature plots</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/mscook/SeqFindR/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/mscook/SeqFindR/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/mscook/SeqFindR" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a name="seqfindr" class="anchor" href="#seqfindr"><span class="octicon octicon-link"></span></a>SeqFindR</h1>
+
+<p>SeqFindR - easily create informative genomic feature plots.</p>
+
+<p><strong>This is an early release version of SeqFindR.</strong> The tool is still undergoing 
+rapid development. We have only tested SeqFindR on linux systems.</p>
+
+<h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>You'll need to install/have installed:
+    * ncbiblast &gt;= 2.2.27
+    * python &gt;= 2.7 (not Python 3 supported)</p>
+
+<p>We also use the following python libraries:
+    * numpy &gt;= 1.6.1
+    * scipy &gt;= 0.10.1
+    * matplotlib &gt;= 1.1.0</p>
+
+<p>These should be installed automatically If you follow the instructions below.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>You'll need to have git installed. As a scientist git can be really useful. See
+<code>here</code>_ for some discussion.</p>
+
+<p>Option 1 (with root/admin)::</p>
+
+<pre><code>cd ~/
+git clone git://github.com/mscook/SeqFindR.git
+cd SeqFindR
+sudo python setup.py install
+</code></pre>
+
+<p>Option 2 (standard user) <strong>replacing INSTALL/HERE with appropriate</strong>::</p>
+
+<pre><code>cd ~/
+git clone git://github.com/mscook/SeqFindR.git
+cd SeqFindR
+echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' &gt;&gt; ~/.bashrc
+echo 'export PATH=$PATH:~/INSTALL/HERE/bin' &gt;&gt; ~/.bashrc
+source ~/.bashrc
+python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
+</code></pre>
+
+<p>If the install went correctly::</p>
+
+<p>user@host:~/&gt; which SeqFindR
+   /INSTALL/HERE/bin/SeqFindR</p>
+
+<p>user@host:~/&gt; SeqFindR -h</p>
+
+<p><strong>Please regularly check back or git pull &amp; python setup.py install to 
+make sure you're running the most recent SeqFindR version.</strong></p>
+
+<h2>
+<a name="example-figure-produced-by-seqfindr" class="anchor" href="#example-figure-produced-by-seqfindr"><span class="octicon octicon-link"></span></a>Example figure produced by SeqFindR</h2>
+
+<p>SeqFindR CU fimbriae genes image. 110 <em>E. coli</em> strains were investigated. Order is according to phylogenetic analysis.</p>
+
+<p>.. image:: <a href="https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png">https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png</a>
+    :alt: SeqFindR CU fimbriae genes image
+    :align: center</p>
+
+<h2>
+<a name="seqfindr-database-files" class="anchor" href="#seqfindr-database-files"><span class="octicon octicon-link"></span></a>SeqFindR database files</h2>
+
+<p>The SeqFindR database is in multi-fasta format. The header needs to be
+formatted with <em>4 comma separated</em> elements.</p>
+
+<p>The elements are:
+    * identifier,
+    * common name,
+    * description and 
+    * species</p>
+
+<p>The final element, separated by <strong>[]</strong> contains a classification.</p>
+
+<p>An example::</p>
+
+<pre><code>&gt;70-tem8674, bla-TEM, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+AAAGTTCTGCTATGTGGCGCGGTATTATCCCGTGTTGACGCCGGGCAAGAGCAACTCGGTCGCCGCATAC
+&gt;70-shv86, bla-SHV, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+CTCAAGCGGCTGCGGGCTGGCGTGTACCGCCAGCGGCAGGGTGGCTAACAGGGAGATAATACACAGGCGA
+&gt;70-oxa(1)256, bla-OXA-1, Beta-lactams Antibiotic resistance (ampicillin), Unknown sp. [Beta-lactams]
+&gt;70-tetB190, tet(B), Tetracycline Antibiotic resistance (tetracycline), Unknown sp. [Tetracycline]
+CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
+</code></pre>
+
+<h2>
+<a name="tutorial" class="anchor" href="#tutorial"><span class="octicon octicon-link"></span></a>Tutorial</h2>
+
+<p>Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
+    * A database file called <em>Antibiotic_markers.fa</em> (-d option)
+    * A ordering file called <em>dummy.order</em> (-i option)
+    * An assemblies directory containing <em>strain1.fa, strain2.fa and strain3.fa</em>
+      (-a option)
+    * A consensus directory containing <em>strain1.fa, strain2.fa and strain3.fa</em>
+      (-m option)</p>
+
+<p>The toy assemblies and consesuses were generated such that:
+    * <strong>strain1</strong> was missing: 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
+      mis-assembly of 70-aphA(1)1310 &amp; 70-tem8674
+    * <strong>strain2</strong> was missing: 70-oxa(7)295, 70-pse(4)348 70-ctx143, 
+      70-aadA1588, 70-aadB1778 and 70-aacC(2)200
+    * <strong>strain2</strong> was missing 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
+      mis-assembly of 70-aphA(1)1310, 70-tem8674 and 70-aadA1588</p>
+
+<p>Run 1 - Looking at only assemblies</p>
+
+<pre><code>
+
+Command::
+
+    SeqFindR -o run1 -d Antibiotic_markers.fa -a assemblies/ -l
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1_small.png
+    :alt: run1
+    :align: center
+
+
+Link to full size `run1`_.
+
+
+Run 2 - Combining assembly and mapping consensus data
+</code></pre>
+
+<p>Command::</p>
+
+<pre><code>SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
+</code></pre>
+
+<p>.. image:: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png">https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png</a>
+    :alt: run2
+    :align: center</p>
+
+<p>Link to full size <code>run2</code>_.</p>
+
+<p>Run 3 - Combining assembly and mapping consensus data with differentiation between hits</p>
+
+<pre><code>
+Command::
+
+    SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
+
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3_small.png
+    :alt: run3
+    :align: center
+
+
+Link to full size `run3`_.
+
+
+The clustering dendrogram looks like this:
+
+.. image:: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3_small.png
+    :alt: run3 dendrogram
+    :align: center
+
+
+Link to full size `dendrogram`_.
+
+
+Run 3 - Combining assembly and mapping consensus data with defined ordering
+</code></pre>
+
+<p>Command::</p>
+
+<pre><code>SeqFindR -o run4 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order -r
+</code></pre>
+
+<p>.. image:: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run4_small.png">https://raw.github.com/mscook/SeqFindR/master/example/run4_small.png</a>
+    :alt: run4
+    :align: center</p>
+
+<p>Link to full size <code>run4</code>_.</p>
+
+<h2>
+<a name="seqfindr-usage-options" class="anchor" href="#seqfindr-usage-options"><span class="octicon octicon-link"></span></a>SeqFindR usage options</h2>
+
+<p>Help listing::</p>
+
+<pre><code>Usage: SeqFindR.py -o OUTPUT -d DB -a ASS [-h] [-v] [-t TOL] [-m CONS]
+                   [-i INDEX] [-l] [-c COLOR] [-r]
+
+optional arguments:
+  -h, --help                 show this help message and exit
+  -v, --verbose              verbose output
+  -o OUTPUT, --output OUTPUT [Required] output prefix
+  -d DB, --db DB             [Required] full path database fasta file
+  -a ASS, --ass ASS          [Required] full path to dir containing assemblies
+  -t TOL, --tol TOL          Similarity cutoff (default = 0.95)
+  -m CONS, --cons CONS       full path to dir containing consensuses (default = None)
+  -i INDEX, --index INDEX    maintain order of index (no cluster) (default = None)
+  -l, --label_genes          label the x axis (default = False)
+  -c COLOR, --color COLOR    color index (default = None)
+  -r, --reshape              Differentiate between mapping and assembly hits
+
+Licence: ECL by Mitchell Stanton-Cook &lt;m.stantoncook@gmail.com&gt;
+</code></pre>
+
+<h2>
+<a name="future" class="anchor" href="#future"><span class="octicon octicon-link"></span></a>Future</h2>
+
+<p>Current plans:
+    * Make into a Web Application
+    * Trim off first N characters when using mapping consensuses
+    * More dynamic sizing labelling</p>
+
+<p>.. _here: <a href="http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/">http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/</a>
+.. _run1: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run1.png">https://raw.github.com/mscook/SeqFindR/master/example/run1.png</a>
+.. _run2: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run2.png">https://raw.github.com/mscook/SeqFindR/master/example/run2.png</a>
+.. _run3: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run3.png">https://raw.github.com/mscook/SeqFindR/master/example/run3.png</a>
+.. _dendrogram: <a href="https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png">https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png</a>
+.. _run4: <a href="https://raw.github.com/mscook/SeqFindR/master/example/run4.png">https://raw.github.com/mscook/SeqFindR/master/example/run4.png</a></p>
+        </section>
+
+        <footer>
+          SeqFindR is maintained by <a href="https://github.com/mscook">mscook</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
