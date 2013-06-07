@@ -6,7 +6,7 @@ SeqFindR - easily create informative genomic feature plots.
 **Offical** `site`_ **is up.**
 
 **This is an early release version of SeqFindR.** The tool is still undergoing 
-rapid development. We have only tested SeqFindR on linux systems.
+rapid development. We have only tested SeqFindR on linux systems. 
 
 
 Requirements
@@ -26,6 +26,11 @@ These should be installed automatically If you follow the instructions below.
 
 Installation
 ------------
+
+If you're a member of the Beatson Group you'll already have the SeqFindR binary 
+in your barrine PATH. You do not need to install it. UQ based researchers
+should email me.
+
 
 You'll need to have git installed. As a scientist git can be really useful. See
 `here`_ for some discussion.
