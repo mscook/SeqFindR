@@ -101,6 +101,32 @@ An example::
     CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
 
 
+How does SeqFindR determine positive hits
+-----------------------------------------
+
+We use the following calculation::
+
+    hsp.identities/float(record.query_length) >= tol
+
+
+Where:
+    * hsp.identities is number of identities in the high-scoring pairs between
+      the query (databse entry) and subject (contig/scaffold/mapping
+      consensus),
+    * record.query_length is the length of the database entry and,
+    * tol is the cutoff threshold to accept a hit (0.95 default)
+
+
+**Why not just use max identity?**
+    * Eliminate effects of scaffolding characters/gaps,
+    * Handle poor coverage etc. in mapping consensuses where N characters/gaps
+      may be introduced
+
+
+**What problems may this approach cause?** I'm still looking into it...
+
+
+
 Tutorial
 --------
 
