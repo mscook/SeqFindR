@@ -20,6 +20,7 @@ We also use the following python libraries:
     * numpy >= 1.6.1
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
+    * biopython >= 1.59
 
 These should be installed automatically If you follow the instructions below.
 
