@@ -43,4 +43,17 @@ setup(
     install_requires=requires,
     license=open('LICENSE').read(),
     zip_safe=False,
+    classifiers=(
+        'Development Status :: 3 - Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved',
+        'Natural Language :: English',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 2 :: Only',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+        'Topic :: Scientific/Engineering :: Visualization',
+    ),
 )
