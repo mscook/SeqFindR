@@ -1,6 +1,9 @@
 SeqFindR
 ========
 
+.. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
+        :target: https://travis-ci.org/mscook/SeqFindR
+
 SeqFindR - easily create informative genomic feature plots.
 
 **Offical** `site`_ **is up.**
