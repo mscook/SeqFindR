@@ -3,7 +3,7 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
-**Offical** `site`_ **is up.**
+**Please see the offical** `site`_ **.**
 
 **This is an early release version of SeqFindR.** The tool is still undergoing 
 rapid development. We have only tested SeqFindR on linux systems. 
@@ -14,7 +14,15 @@ Requirements
 
 You'll need to install/have installed:
     * ncbiblast >= 2.2.27
-    * python >= 2.7 (not Python 3 supported)
+    * python >= 2.7 (Python 3 is not supported)
+
+You can check these are installed by::
+    
+    $ python --version
+    $ which blastn
+
+The following python libraries will be installed automatically if you follow 
+the installation instructions detailed below.
 
 We also use the following python libraries:
     * numpy >= 1.6.1
@@ -22,55 +30,82 @@ We also use the following python libraries:
     * matplotlib >= 1.1.0
     * biopython >= 1.59
 
-These should be installed automatically If you follow the instructions below.
-
 
 Installation
 ------------
 
-If you're a member of the Beatson Group you'll already have the SeqFindR binary 
-in your barrine PATH. You do not need to install it. UQ based researchers
-should email me.
+If you're a member of the Beatson Group you'll already have the SeqFindR script 
+in your barrine $PATH. You do not need to install SeqFindR. UQ based 
+researchers should email me (m.stantoncook@gmail.com) for the location 
+of SeqFindR.
+
+Option 1a (with root/admin)::
+    
+    $ pip install SeqFindR
+
+Option 1b (as a standard user)::
+
+    $ pip install SeqFindR --user
 
 
-You'll need to have git installed. As a scientist git can be really useful. See
-`here`_ for some discussion.
+You'll need to have git installed for the following alternative install 
+options. git can be really useful for scientists. See `here`_ for some 
+discussion.
 
+Option 2a (with root/admin & git)::
 
-Option 1 (with root/admin)::
+    $ cd ~/
+    $ git clone git://github.com/mscook/SeqFindR.git
+    $ cd SeqFindR
+    $ sudo python setup.py install
 
-    cd ~/
-    git clone git://github.com/mscook/SeqFindR.git
-    cd SeqFindR
-    sudo python setup.py install
+Option 2b (standard user & git) **replacing INSTALL/HERE with appropriate**::
 
-Option 2 (standard user) **replacing INSTALL/HERE with appropriate**::
-
-    cd ~/
-    git clone git://github.com/mscook/SeqFindR.git
-    cd SeqFindR
-    echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
-    echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
-    source ~/.bashrc
-    python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
+    $ cd ~/
+    $ git clone git://github.com/mscook/SeqFindR.git
+    $ cd SeqFindR
+    $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
+    $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
+    $ source ~/.bashrc
+    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
     
 
 If the install went correctly::
 
-   user@host:~/> which SeqFindR
-   /INSTALL/HERE/bin/SeqFindR
-   
-   user@host:~/> SeqFindR -h
+   $ which SeqFindR
+   /INSTALLED/HERE/bin/SeqFindR
+   $ SeqFindR -h
 
 
-**Please regularly check back or git pull & python setup.py install to 
-make sure you're running the most recent SeqFindR version.**
+**Please regularly check back to make sure you're running the most recent 
+SeqFindR version.** You can upgrade like this:
+
+If installed using option 1x::
+
+    $ pip install --upgrade SeqFindR
+    $ # or
+    $ pip install --upgrade SeqFindR --user
+
+If installed using option 2x::
+
+    $ cd ~/SeqFindR
+    $ git pull
+    $ sudo python setup.py install
+    $ or
+    $ cd ~/SeqFindR
+    $ git pull
+    $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
+    $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
+    $ source ~/.bashrc
+    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
 
 
 Example figure produced by SeqFindR
 -----------------------------------
 
-SeqFindR CU fimbriae genes image. 110 *E. coli* strains were investigated. Order is according to phylogenetic analysis.
+SeqFindR CU fimbriae genes image. 110 E. *coli* strains were investigated. 
+Order is according to phylogenetic analysis. Black blocks represent gene 
+presence.
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
     :alt: SeqFindR CU fimbriae genes image
@@ -109,7 +144,6 @@ We use the following calculation::
 
     hsp.identities/float(record.query_length) >= tol
 
-
 Where:
     * hsp.identities is number of identities in the high-scoring pairs between
       the query (databse entry) and subject (contig/scaffold/mapping
@@ -117,15 +151,12 @@ Where:
     * record.query_length is the length of the database entry and,
     * tol is the cutoff threshold to accept a hit (0.95 default)
 
-
 **Why not just use max identity?**
     * Eliminate effects of scaffolding characters/gaps,
     * Handle poor coverage etc. in mapping consensuses where N characters/gaps
       may be introduced
 
-
 **What problems may this approach cause?** I'm still looking into it...
-
 
 
 Tutorial
@@ -223,6 +254,28 @@ Command::
 Link to full size `run4`_.
 
 
+How to generate mapping consensus data
+--------------------------------------
+
+We use `Nesoni`_. We use the database file (in multi-fasta format) as the 
+reference. The workflow is something like this::
+
+    $ nesoni make-reference myref ref-sequences.fa
+    $ # for each strain
+    $ nesoni analyse-sample: mysample myref pairs: reads1.fastq reads2.fastq
+
+For each sample we then extract the consensus.fa file which we term the 
+mapping consensus. This file is a multi-fasta file of the consensus base calls
+relative to the database sequences.
+
+Caveats: 
+    * you will probably want to allow multi-mapping reads (giving *--monogamous
+      no --random yes* to nesoni consensus), 
+    * The (poor) alignment of reads at the start and the end of the database 
+      genes can result in N calls. This can result in downstream false 
+      negatives. We are currently working on this.
+
+
 SeqFindR usage options
 ----------------------
 
@@ -264,3 +317,4 @@ Current plans:
 .. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
 .. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
 .. _site: http://mscook.github.io/SeqFindR/
+.. _Nesoni: http://www.vicbioinformatics.com/software.nesoni.shtml
