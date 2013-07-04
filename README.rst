@@ -162,6 +162,28 @@ Where:
 **What problems may this approach cause?** I'm still looking into it...
 
 
+
+Fine grain configuration
+------------------------
+
+As of the 04/07/13 SeqFindR can read a configuartion file. At the moment you
+can only redefine the default category colors. The configuration file 
+is expected to expand in the future.
+
+To define category colors::
+
+    touch ~/.SeqFindR.cfg
+    vi ~/.SeqFindR.cfg
+    # Add something like
+    category_colors = [(100,60,201), (255,0,99)]
+
+Category colors can be any RGB triplet. You could use a tool similar to this
+one: http://www.colorschemer.com/online.html
+
+For example the first row of colors in RGB is: 
+(51,102,255), (102,51,255), (204,51,255), (255,51,204)
+
+
 Tutorial
 --------
 
