@@ -322,7 +322,8 @@ def cluster_matrix(matrix, y_labels):
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
-                show_gene_labels, color_index, config_object, aspect='auto'):
+                show_gene_labels, color_index, config_object, grid, 
+                aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -397,7 +398,8 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                        labelbottom='off', labeltop='off', \
                        left='on', right='off', bottom='off', top='off')
     plt.xticks(rotation=90)
-    ax.grid(True)
+    if grid:
+        ax.grid(True)
     fig.set_size_inches(10.0,12.0, dpi=600)
     plt.savefig("results.png", bbox_inches='tight',dpi=600)
 
@@ -462,7 +464,7 @@ def main():
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color, configObject)
+    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color, configObject, args.grid)
     # Handle labels here
     #print vfs_class
     os.system("rm blast.xml")
@@ -499,6 +501,10 @@ if __name__ == '__main__':
         parser.add_argument('-r', '--reshape', action='store_false',           \
                                 default=True, help='Differentiate '
                                         'between mapping and assembly hits')
+        parser.add_argument('-g', '--grid', action='store_false',              \
+                                default=True, help='Plot has a grid (default ' 
+                                       '= True')
+
         args = parser.parse_args()
         msg = "Missing required arguments.\nPlease run: SeqFindR -h"
         if args.db == None:
