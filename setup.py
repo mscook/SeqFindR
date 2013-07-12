@@ -36,7 +36,7 @@ setup(
     author_email='m.stantoncook@gmail.com',
     url='https://github.com/mscook/SeqFindR',
     packages=packages,
-    scripts = ['SeqFindR/SeqFindR'],
+    scripts = ['SeqFindR/SeqFindR', 'SeqFindR/vfdb_to_seqfindr'],
     package_data={'': ['LICENSE']},
     package_dir={'SeqFindR': 'SeqFindR'},
     include_package_data=True,
