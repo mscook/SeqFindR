@@ -160,22 +160,23 @@ Example usage of **vfdb_to_seqfindr**::
 
     # Reads a user defined classification. 1 per in same order as input 
     # sequences
-    $ python convert_vfdb_to_SeqFindR.py -i TOTAL_Strep_VFs.fas 
-      -o TOTAL_Strep_VFs.sqf -c blah.dat 
+    $ python convert_vfdb_to_SeqFindR.py -i TOTAL_Strep_VFs.fas -o TOTAL_Strep_VFs.sqf -c user.class
 
 
-The -c (--class_file) option is very useful. Suppose you want to annotate a VF 
-class with user defined values. Simply develop a file containing the scheme. 
-For example, if you had 6 input sequences and the first 3 are Fe transporters 
-and the next two are Toxins and the final sequence is Misc your class file 
-would look like this::
+The -c (--class_file) option is very useful. Suppose you want to annotate your 
+sequences of interest with user defined classification values. Simply develop a 
+file containing the scheme as pass using the -c option (3rd example above). 
+A sample file for the situation where you had 7 input sequences with the first 
+3 Fe transporters, the next two  Toxins,  the next a Misc and the final 
+sequence is a Toxin would look like this::
 
     Fe transporter
     Fe transporter
     Fe transporter
-    Toxins
-    Toxins
+    Toxin
+    Toxin
     Misc
+    Toxin
 
 
 
