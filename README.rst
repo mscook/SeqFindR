@@ -140,6 +140,45 @@ An example::
     CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
 
 
+The script **vfdb_to_seqfindr** is now included in SeqFindR to convert VFDB 
+formatted files (or like) to SeqFindR formatted database files.
+
+VFDB: Virulence Factors Database (www.mgc.ac.cn/VFs/) is a reference database 
+for bacterial virulence factors.
+
+At this stage we have tested this script on limited internal datasets.
+Success/mileage will depend on the consistency of the VFDB formatting.
+
+
+Example usage of **vfdb_to_seqfindr**::
+
+    # Default (will set VFDB classification identifiers as the classification)
+    $ vfdb_to_seqfindr -i TOTAL_Strep_VFs.fas -o TOTAL_Strep_VFs.sqf
+    
+    # Sets any classification to blank ([ ])
+    $ vfdb_to_seqfindr -i TOTAL_Strep_VFs.fas -o TOTAL_Strep_VFs.sqf -b
+
+    # Reads a user defined classification. 1 per in same order as input 
+    # sequences
+    $ python convert_vfdb_to_SeqFindR.py -i TOTAL_Strep_VFs.fas 
+      -o TOTAL_Strep_VFs.sqf -c blah.dat 
+
+
+The -c (--class_file) option is very useful. Suppose you want to annotate a VF 
+class with user defined values. Simply develop a file containing the scheme. 
+For example, if you had 6 input sequences and the first 3 are Fe transporters 
+and the next two are Toxins and the final sequence is Misc your class file 
+would look like this::
+
+    Fe transporter
+    Fe transporter
+    Fe transporter
+    Toxins
+    Toxins
+    Misc
+
+
+
 How does SeqFindR determine positive hits
 -----------------------------------------
 
