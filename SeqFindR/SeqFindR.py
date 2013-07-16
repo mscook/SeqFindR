@@ -28,6 +28,7 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #    friendly alternatives
 #  * Added support for fasta file extensions .fna, .fas, .fa; rather than just 
 #    .fas (For query sequences)
+#  * Added tBLASTx functionality and option to trigger it ( -X ) 
 
 
 
@@ -53,6 +54,7 @@ from Bio.Blast import NCBIXML
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbitblastnCommandline
+from Bio.Blast.Applications import NcbitblastxCommandline
 import re, shutil, subprocess 
 
 __author__ = "Mitchell Stanton-Cook & Nabil-Fareed Alikhan"
@@ -253,10 +255,16 @@ def run_BLAST(query, database):
                 db=database, outfmt=5, num_threads=1, \
                 max_target_seqs=1, out='blast.xml')
     else:
+        # Added tblastx  funcationality, if boolean tblastx is true
+        if args.tblastx:
+            cline = NcbitblastxCommandline(query=query, seg='no', \
+                db=database, outfmt=5, num_threads=1, \
+                max_target_seqs=1, out='blast.xml')
+        else: 
         # TODO: Add  evalue filtering 
         # TODO: Set to use Megablast (as default), 
         # add task='blastn' to use blastn scoring
-        cline = NcbiblastnCommandline(query=query, dust='no', \
+            cline = NcbiblastnCommandline(query=query, dust='no', \
                 db=database, outfmt=5, num_threads=1, \
                 max_target_seqs=1, out='blast.xml')
     print str(cline)
@@ -571,6 +579,9 @@ if __name__ == '__main__':
         parser.add_argument('-R', '--reftype', action='store', help='Reference\
                 Sequence type', dest='reftype', choices=('nucl','prot'),\
                 default=None)
+        parser.add_argument('-X', '--tblastx', action='store_true',           \
+                                default=False, help='run tblastx rather than  \
+                                blastn')
         # END OF CHANGES 
         parser.add_argument('-v', '--verbose', action='store_true',            \
                                 default=False, help='verbose output')
