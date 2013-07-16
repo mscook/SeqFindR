@@ -33,6 +33,7 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 
 import sys, os, traceback, argparse
 import time
+import ast
 
 import matplotlib
 matplotlib.use('Agg')
@@ -60,6 +61,59 @@ __version__ = "2.0"
 __email__ = "m.stantoncook@gmail.com"
 epi = "Licence: "+ __licence__ +  " by " + __author__ + " <" + __email__ + ">"
 USAGE = "VirFindR -h"
+
+class SeqFindRConfig():
+    """
+A SeqFindR configuration class - subtle manipulation to plots
+"""
+
+    def __init__(self):
+        self.config = self.read_config()
+
+    def __getitem__(self, key):
+        try:
+            return self.config[key]
+        except KeyError:
+            print "Trying to get config option that does not exist."
+            return None
+
+    def __setitem__(self, key, item):
+        self.config[key] = item
+
+    def read_config(self):
+        """
+Read a SeqFindR configuration file
+
+Currently only supports category colors in RGB format
+
+category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
+"""
+        cfg = {}
+        try:
+            with open(os.path.expanduser('~/')+'.SeqFindR.cfg') as fin:
+                print "Using a SeqFindR config file"
+                colors = []
+                for line in fin:
+                    if line.startswith('category_colors'):
+                        option, list = line.split('=')
+                        list = list.strip().strip(' ')
+                        list = ast.literal_eval(list)
+                        for e in list:
+                            fixed = (e[0]/255.0, e[1]/255.0, e[2]/255.0)
+                            colors.append(fixed)
+                        cfg[option] = colors
+                        break
+        except IOError:
+            print "Using defaults"
+        return cfg
+
+    def dump_items(self):
+        """
+Prints all set configuration options to STDOUT
+"""
+        config = ''
+        for key, value in self.config.items():
+            print str(key)+" = "+str(value)+"\n"
 
 
 def prepare_db(db_path):
@@ -350,7 +404,8 @@ def cluster_matrix(matrix, y_labels):
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
-                show_gene_labels, color_index, aspect='auto'):
+                show_gene_labels, color_index, config_object, grid,
+		aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -361,28 +416,31 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param show_gene_labels: wheter top plot the gene labels
     :param color_index: for a single class, choose a specific color
     """
-    colors = [(0/255.0,0/255.0,0/255.0),
-            (255/255.0,102/255.0,0/255.0),
-            (170/255.0,255/255.0,0/255.0),
-            (255/255.0,0/255.0,170/255.0),
-            (0/255.0,102/255.0,255/255.0),
-            (156/255.0,0/255.0,62/255.0),
-            (203/255.0,168/255.0,255/255.0),
-            (156/255.0,131/255.0,103/255.0),
-            (255/255.0,170/255.0,0/255.0),
-            (0/255.0,255/255.0,204/255.0),
-            (0/255.0,0/255.0,255/255.0),
-            (0/255.0,156/255.0,41/255.0),
-            (238/255.0,255/255.0,168/255.0),
-            (168/255.0,215/255.0,255/255.0),
-            (103/255.0,156/255.0,131/255.0),
-            (255/255.0,0/255.0,0/255.0),
-            (0/255.0,238/255.0,255/255.0),
-            (238/255.0,0/255.0,255/255.0),
-            (156/255.0,145/255.0,0/255.0),
-            (255/255.0,191/255.0,168/255.0),
-            (255/255.0,168/255.0,180/255.0),
-            (156/255.0,103/255.0,138/255.0)]
+    if config_object['category_colors'] != None:
+            colors = config_object['category_colors']
+    else:
+        colors = [(0/255.0,0/255.0,0/255.0),
+                (255/255.0,102/255.0,0/255.0),
+                (170/255.0,255/255.0,0/255.0),
+                (255/255.0,0/255.0,170/255.0),
+                (0/255.0,102/255.0,255/255.0),
+                (156/255.0,0/255.0,62/255.0),
+                (203/255.0,168/255.0,255/255.0),
+                (156/255.0,131/255.0,103/255.0),
+                (255/255.0,170/255.0,0/255.0),
+                (0/255.0,255/255.0,204/255.0),
+                (0/255.0,0/255.0,255/255.0),
+                (0/255.0,156/255.0,41/255.0),
+                (238/255.0,255/255.0,168/255.0),
+                (168/255.0,215/255.0,255/255.0),
+                (103/255.0,156/255.0,131/255.0),
+                (255/255.0,0/255.0,0/255.0),
+                (0/255.0,238/255.0,255/255.0),
+                (238/255.0,0/255.0,255/255.0),
+                (156/255.0,145/255.0,0/255.0),
+                (255/255.0,191/255.0,168/255.0),
+                (255/255.0,168/255.0,180/255.0),
+                (156/255.0,103/255.0,138/255.0)] 
     if color_index != None:
         colors = [colors[int(color_index)]]
     # Build the regions to be shaded differently
@@ -422,7 +480,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                        labelbottom='off', labeltop='off', \
                        left='on', right='off', bottom='off', top='off')
     plt.xticks(rotation=90)
-    ax.grid(True)
+    if grid: ax.grid(True)
     fig.set_size_inches(10.0,12.0, dpi=600)
     plt.savefig("results.png", bbox_inches='tight',dpi=600)
 
@@ -455,6 +513,7 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
 
 
 def main():
+    configObject = SeqFindRConfig()
     default_no_hit = 0.5
     global args
     try:
@@ -465,6 +524,7 @@ def main():
     results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
                                 args.tol, vfs_list)
     if args.cons != None:
+        # Trim off db and sequences 
         #TODO: Exception handling if do_run fails or produces no results. 
         # Should be caught here before throwing ugly exceptions downstream.
         results_m, _ = do_run(args.db, args.cons, -0.85, args.index,         \
@@ -494,7 +554,7 @@ def main():
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color)
+    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color, configObject, args.grid) 
     # Handle labels here
     #print vfs_class
     os.system("rm blast.xml")
@@ -540,6 +600,10 @@ if __name__ == '__main__':
         parser.add_argument('-r', '--reshape', action='store_false',           \
                                 default=True, help='Differentiate '
                                         'between mapping and assembly hits')
+        parser.add_argument('-g', '--grid', action='store_false',              \
+                                default=True, help='Plot has a grid (default ' 
+                                       '= True')
+
         args = parser.parse_args()
         msg = "Missing required arguments.\nPlease run: SeqFindR -h"
         if args.db == None:
