@@ -37,7 +37,7 @@ from   scipy.spatial.distance  import pdist
 from Bio.Blast import NCBIXML
 
 
-__author__ = "Mitchell Stanton-Cook"
+__author__ = "Mitchell Stanton-Cook & Nabil Alikhan"
 __licence__ = "ECL"
 __version__ = "2.0"
 __email__ = "m.stantoncook@gmail.com"
