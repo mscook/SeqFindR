@@ -55,7 +55,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbitblastnCommandline
 import re, shutil, subprocess 
 
-__author__ = "Mitchell Stanton-Cook & Nabil Alikhan"
+__author__ = "Mitchell Stanton-Cook & Nabil-Fareed Alikhan"
 __licence__ = "ECL"
 __version__ = "2.0"
 __email__ = "m.stantoncook@gmail.com"
