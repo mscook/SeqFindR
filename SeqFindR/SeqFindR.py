@@ -17,15 +17,22 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #     BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 #     or implied. See the License for the specific language governing
 #     permissions and limitations under the License.
-#     
-#     Modified by Nabil-Fareed Alikhan 2013.07.16:
-#           Added Protein BLAST mod        
+#
+### CHANGE LOG ###
+# 2013-07-16 Nabil-Fareed Alikhan <n.alikhan@uq.edu.au>
+#  * Added Ability to use amino acid sequences as Virluence factors
+#  * Added helper method to automatically detect type of sequence file 
+#       (nucl or pro)
+#  * Added commandline override option for above auto-detection ( -R )
+#  * Replaced a number of system calls and pathnames with cross platform 
+#    friendly alternatives
+#  * Added support for fasta file extensions .fna, .fas, .fa; rather than just 
+#    .fas (For query sequences)
 
 
 
 import sys, os, traceback, argparse
 import time
-import glob
 
 import matplotlib
 matplotlib.use('Agg')
@@ -39,13 +46,13 @@ from   scipy.spatial.distance  import pdist
 
 from Bio.Blast import NCBIXML
 
-# MODIFIED BY NABIL 2013.07.168
+# MODIFIED BY NABIL 2013.07.16
 # If BioPython is already required, I'll just use the SeqRecord parser for 
-# isPro method. And BLAST commandline wrapper too for run_BLAST. 
+# isPro method. And BLAST commandline wrapper too for run_BLAST. and std regex 
 from Bio import SeqIO
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbitblastnCommandline
-import re
+import re, shutil, subprocess 
 
 __author__ = "Mitchell Stanton-Cook"
 __licence__ = "ECL"
@@ -141,12 +148,23 @@ def make_BLASTDB(fasta_file):
 
     :rtype: the strain id (must be delimited by '_')
     """
-    os.system("makeblastdb -dbtype nucl -in %s" % (fasta_file))
-    os.system("mv %s.nhr %s.nin %s.nsq DBs" % 
-                          (fasta_file, fasta_file, fasta_file))
-    os.system("cp %s DBs" % (fasta_file))
+    # MODIFIED BY NABIL 2013.07.168
+    # Uses subprocess to launch makeblastdb, easier for error handling 
+    proc = subprocess.Popen([ "makeblastdb", "-in" , fasta_file, "-dbtype", \
+            'nucl' ], stdout=subprocess.PIPE)
+    print(  proc.stdout.read())
+    # Nabil: Using python shutil for cp & mv csystem calls: 
+    # safer and cross platform.
+    print fasta_file
+    for f in ['.nhr','.nin','.nsq']:
+        path = fasta_file + f
+        shutil.move(path, os.path.join('DBs',os.path.basename(path) ) )
+    shutil.copy2(fasta_file, os.path.join('DBs',os.path.basename(fasta_file)))
     # Get the strain ID
-    return fasta_file.split('_')[0].split('/')[1]
+    # Nabil: Uses basename, rather than string splitting on '/' for filename.
+    # Less chance of conflict from weird filenames. 
+    return os.path.basename(fasta_file).split('_')[0]
+    # END OF MODIFICATIONS
 
 # MODIFIED BY NABIL 2013.07.168
 # Now Requires file type of query (nucl or prot) and runs appropriate BLAST
@@ -165,7 +183,7 @@ def run_BLAST(query, database):
     :type database: string
     """
     global args
-    # Ideally I shouldn't pull down the option from global args but
+    # TODO: Ideally I shouldn't pull down the option from global args but
     # This avoids altering parent method.
     # SeqPro: Is sequence protein. Prot = True, nucl = False
     SeqPro = False
@@ -181,18 +199,16 @@ def run_BLAST(query, database):
                 db=database, outfmt=5, num_threads=1, \
                 max_target_seqs=1, out='blast.xml')
     else:
-        # No evalue ??
-        # Set to use Megablast (as default), add task='blastn' to use blastn 
-        # scoring
+        # TODO: Add  evalue filtering 
+        # TODO: Set to use Megablast (as default), 
+        # add task='blastn' to use blastn scoring
         cline = NcbiblastnCommandline(query=query, dust='no', \
                 db=database, outfmt=5, num_threads=1, \
                 max_target_seqs=1, out='blast.xml')
     print str(cline)
     cline()
-#    os.system("blastn -query "+query+" -db "+database+" -num_threads 1 "
-#             "-outfmt 5 -max_target_seqs 1 -dust no -out blast.xml")
-    # This possibly should return location of BLAST results rather than dumping
-    # to a static location...
+    # TODO: This possibly should return location of BLAST results rather than
+    # dumping to a static location...
     #END OF CHANGES - Nabil
 
 # MODIFIED BY NABIL 2013.07.168
@@ -211,7 +227,7 @@ def isPro( fastaFile ):
     handle = open(fastaFile, 'rU')
     proHit = 0 
     for record in SeqIO.parse(handle, 'fasta'):
-    # This probably should include ambiguity characters for nucleotide...
+    # TODO: This probably should include ambiguity characters for nucleotide.
         if re.match('[^ATCGNatcgn]+', str(record.seq)) != None:
             proHit += 1
     handle.close() 
@@ -415,7 +431,14 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
     Perform a VirFindR run
     """
     matrix, y_label = [], []
-    in_files = glob.glob(data_path+"/*.fna")
+    # Nabil:  amended with listdir rather than glob, to allow for more complex
+    # matching
+    in_files = []
+    for files in os.listdir(data_path):
+        # TODO: There HAS to be a neater way of checking different extensions.
+            if files.endswith(".fas") or files.endswith(".fna") \
+                    or files.endswith(".fa"):
+                in_files.append(os.path.join(data_path, files))
     # Reorder if requested 
     if order != None:
         in_files = order_inputs(order, in_files)
@@ -442,6 +465,8 @@ def main():
     results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
                                 args.tol, vfs_list)
     if args.cons != None:
+        #TODO: Exception handling if do_run fails or produces no results. 
+        # Should be caught here before throwing ugly exceptions downstream.
         results_m, _ = do_run(args.db, args.cons, -0.85, args.index,         \
                                 args.tol, vfs_list)
         if len(results_m) == len(results_a):
@@ -484,12 +509,16 @@ if __name__ == '__main__':
         # ADDED BY  NABIL 13.07.16
         # Reference database type override & support for protein sequences
         parser.add_argument('-R', '--reftype', action='store', help='Reference\
-                Sequence type', dest='reftype', choices=('nucl','prot'),default=None)
+                Sequence type', dest='reftype', choices=('nucl','prot'),\
+                default=None)
         # END OF CHANGES 
         parser.add_argument('-v', '--verbose', action='store_true',            \
                                 default=False, help='verbose output')
+        # Nabil: Not used, removed Required flag so it can be ignored.
         parser.add_argument('-o','--output',action='store',                    \
-                                help='[Required] output prefix')
+                                help='output prefix')
+        # TODO: Nabil; Required options should be positional arguments not 
+        # optional flags
         parser.add_argument('-d', '--db', action='store',                    \
                                 help='[Required] full path database fasta file')
         parser.add_argument('-a', '--ass', action='store',                     \
