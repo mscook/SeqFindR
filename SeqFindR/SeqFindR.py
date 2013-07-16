@@ -64,8 +64,8 @@ USAGE = "VirFindR -h"
 
 class SeqFindRConfig():
     """
-A SeqFindR configuration class - subtle manipulation to plots
-"""
+    A SeqFindR configuration class - subtle manipulation to plots
+    """
 
     def __init__(self):
         self.config = self.read_config()
@@ -82,12 +82,12 @@ A SeqFindR configuration class - subtle manipulation to plots
 
     def read_config(self):
         """
-Read a SeqFindR configuration file
+        Read a SeqFindR configuration file
 
-Currently only supports category colors in RGB format
+        Currently only supports category colors in RGB format
 
-category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
-"""
+        category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
+        """
         cfg = {}
         try:
             with open(os.path.expanduser('~/')+'.SeqFindR.cfg') as fin:
@@ -109,8 +109,8 @@ category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
 
     def dump_items(self):
         """
-Prints all set configuration options to STDOUT
-"""
+        Prints all set configuration options to STDOUT
+        """
         config = ''
         for key, value in self.config.items():
             print str(key)+" = "+str(value)+"\n"
