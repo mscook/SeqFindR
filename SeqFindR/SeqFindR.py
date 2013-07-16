@@ -17,12 +17,15 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #     BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 #     or implied. See the License for the specific language governing
 #     permissions and limitations under the License.
+#     
+#     Modified by Nabil-Fareed Alikhan 2013.07.16:
+#           Added Protein BLAST mod        
+
 
 
 import sys, os, traceback, argparse
 import time
 import glob
-import ast
 
 import matplotlib
 matplotlib.use('Agg')
@@ -36,6 +39,13 @@ from   scipy.spatial.distance  import pdist
 
 from Bio.Blast import NCBIXML
 
+# MODIFIED BY NABIL 2013.07.168
+# If BioPython is already required, I'll just use the SeqRecord parser for 
+# isPro method. And BLAST commandline wrapper too for run_BLAST. 
+from Bio import SeqIO
+from Bio.Blast.Applications import NcbiblastnCommandline
+from Bio.Blast.Applications import NcbitblastnCommandline
+import re
 
 __author__ = "Mitchell Stanton-Cook"
 __licence__ = "ECL"
@@ -43,60 +53,6 @@ __version__ = "2.0"
 __email__ = "m.stantoncook@gmail.com"
 epi = "Licence: "+ __licence__ +  " by " + __author__ + " <" + __email__ + ">"
 USAGE = "VirFindR -h"
-
-
-class SeqFindRConfig():
-    """
-    A SeqFindR configuration class - subtle manipulation to plots
-    """
-
-    def __init__(self):
-        self.config = self.read_config()
-
-    def __getitem__(self, key):
-        try: 
-            return self.config[key]
-        except KeyError:
-            print "Trying to get config option that does not exist."
-            return None 
-
-    def __setitem__(self, key, item):
-        self.config[key] = item 
-
-    def read_config(self):
-        """
-        Read a SeqFindR configuration file
-
-        Currently only supports category colors in RGB format
-
-        category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
-        """
-        cfg = {}
-        try:
-            with open(os.path.expanduser('~/')+'.SeqFindR.cfg') as fin:
-                print "Using a SeqFindR config file"
-                colors = []
-                for line in fin:
-                    if line.startswith('category_colors'):
-                        option, list = line.split('=')
-                        list = list.strip().strip(' ')
-                        list = ast.literal_eval(list)
-                        for e in list:
-                            fixed = (e[0]/255.0, e[1]/255.0, e[2]/255.0)
-                            colors.append(fixed)
-                        cfg[option] = colors
-                        break
-        except IOError:
-            print "Using defaults"
-        return cfg
-
-    def dump_items(self):
-        """  
-        Prints all set configuration options to STDOUT
-        """  
-        config = '' 
-        for key, value in self.config.items():
-            print str(key)+" = "+str(value)+"\n"
 
 
 def prepare_db(db_path):
@@ -167,6 +123,8 @@ def order_inputs(order_index_file, dir_listing):
                 break
     if len(ordered) != len(dir_listing):
         print "In order_inputs(). Not 1-1 matching. Typo?"
+        print ordered
+        print dir_listing
         sys.exit(1)
     return ordered
 
@@ -190,6 +148,9 @@ def make_BLASTDB(fasta_file):
     # Get the strain ID
     return fasta_file.split('_')[0].split('/')[1]
 
+# MODIFIED BY NABIL 2013.07.168
+# Now Requires file type of query (nucl or prot) and runs appropriate BLAST
+# Assumes database is nucleotide
 def run_BLAST(query, database):
     """
     Given a mfa of query virulence factors and a database, search for them
@@ -203,8 +164,59 @@ def run_BLAST(query, database):
     :type query: string
     :type database: string
     """
-    os.system("blastn -query "+query+" -db "+database+" -num_threads 1 "
-              "-outfmt 5 -max_target_seqs 1 -dust no -out blast.xml")
+    global args
+    # Ideally I shouldn't pull down the option from global args but
+    # This avoids altering parent method.
+    # SeqPro: Is sequence protein. Prot = True, nucl = False
+    SeqPro = False
+    # File type not specified, determine using isPro()
+    if args.reftype == None:
+        print query 
+        if isPro(query) > 0: SeqPro = True
+    elif args.reftype == 'prot':
+        SeqPro = True
+    cline = ''
+    if SeqPro:
+        cline = NcbitblastnCommandline(query=query, seg='no', \
+                db=database, outfmt=5, num_threads=1, \
+                max_target_seqs=1, out='blast.xml')
+    else:
+        # No evalue ??
+        # Set to use Megablast (as default), add task='blastn' to use blastn 
+        # scoring
+        cline = NcbiblastnCommandline(query=query, dust='no', \
+                db=database, outfmt=5, num_threads=1, \
+                max_target_seqs=1, out='blast.xml')
+    print str(cline)
+    cline()
+#    os.system("blastn -query "+query+" -db "+database+" -num_threads 1 "
+#             "-outfmt 5 -max_target_seqs 1 -dust no -out blast.xml")
+    # This possibly should return location of BLAST results rather than dumping
+    # to a static location...
+    #END OF CHANGES - Nabil
+
+# MODIFIED BY NABIL 2013.07.168
+# HELPER METHOD TO CHECK NUCLEOTIDE OR PROTEIN SEQUENCE
+def isPro( fastaFile ):
+    """
+    Checks if a FASTA file is protein or nucleotide.  returns number of protein
+    sequences detected. 
+    
+    :param fastaFile: path to input FASTA file
+
+    :type fastaFile: string
+
+    :rtype: number of protein sequences in fastafile (int)
+    """
+    handle = open(fastaFile, 'rU')
+    proHit = 0 
+    for record in SeqIO.parse(handle, 'fasta'):
+    # This probably should include ambiguity characters for nucleotide...
+        if re.match('[^ATCGNatcgn]+', str(record.seq)) != None:
+            proHit += 1
+    handle.close() 
+    return proHit 
+# END OF CHANGES - Nabil 
 
 def parse_BLAST(blast_results, tol):
     """
@@ -322,8 +334,7 @@ def cluster_matrix(matrix, y_labels):
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
-                show_gene_labels, color_index, config_object, grid, 
-                aspect='auto'):
+                show_gene_labels, color_index, aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -334,31 +345,28 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param show_gene_labels: wheter top plot the gene labels
     :param color_index: for a single class, choose a specific color
     """
-    if config_object['category_colors'] != None:
-            colors = config_object['category_colors']
-    else:
-        colors = [(0/255.0,0/255.0,0/255.0),
-                (255/255.0,102/255.0,0/255.0),
-                (170/255.0,255/255.0,0/255.0),
-                (255/255.0,0/255.0,170/255.0),
-                (0/255.0,102/255.0,255/255.0),
-                (156/255.0,0/255.0,62/255.0),
-                (203/255.0,168/255.0,255/255.0),
-                (156/255.0,131/255.0,103/255.0),
-                (255/255.0,170/255.0,0/255.0),
-                (0/255.0,255/255.0,204/255.0),
-                (0/255.0,0/255.0,255/255.0),
-                (0/255.0,156/255.0,41/255.0),
-                (238/255.0,255/255.0,168/255.0),
-                (168/255.0,215/255.0,255/255.0),
-                (103/255.0,156/255.0,131/255.0),
-                (255/255.0,0/255.0,0/255.0),
-                (0/255.0,238/255.0,255/255.0),
-                (238/255.0,0/255.0,255/255.0),
-                (156/255.0,145/255.0,0/255.0),
-                (255/255.0,191/255.0,168/255.0),
-                (255/255.0,168/255.0,180/255.0),
-                (156/255.0,103/255.0,138/255.0)]
+    colors = [(0/255.0,0/255.0,0/255.0),
+            (255/255.0,102/255.0,0/255.0),
+            (170/255.0,255/255.0,0/255.0),
+            (255/255.0,0/255.0,170/255.0),
+            (0/255.0,102/255.0,255/255.0),
+            (156/255.0,0/255.0,62/255.0),
+            (203/255.0,168/255.0,255/255.0),
+            (156/255.0,131/255.0,103/255.0),
+            (255/255.0,170/255.0,0/255.0),
+            (0/255.0,255/255.0,204/255.0),
+            (0/255.0,0/255.0,255/255.0),
+            (0/255.0,156/255.0,41/255.0),
+            (238/255.0,255/255.0,168/255.0),
+            (168/255.0,215/255.0,255/255.0),
+            (103/255.0,156/255.0,131/255.0),
+            (255/255.0,0/255.0,0/255.0),
+            (0/255.0,238/255.0,255/255.0),
+            (238/255.0,0/255.0,255/255.0),
+            (156/255.0,145/255.0,0/255.0),
+            (255/255.0,191/255.0,168/255.0),
+            (255/255.0,168/255.0,180/255.0),
+            (156/255.0,103/255.0,138/255.0)]
     if color_index != None:
         colors = [colors[int(color_index)]]
     # Build the regions to be shaded differently
@@ -398,8 +406,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                        labelbottom='off', labeltop='off', \
                        left='on', right='off', bottom='off', top='off')
     plt.xticks(rotation=90)
-    if grid:
-        ax.grid(True)
+    ax.grid(True)
     fig.set_size_inches(10.0,12.0, dpi=600)
     plt.savefig("results.png", bbox_inches='tight',dpi=600)
 
@@ -408,7 +415,7 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
     Perform a VirFindR run
     """
     matrix, y_label = [], []
-    in_files = glob.glob(data_path+"/*")
+    in_files = glob.glob(data_path+"/*.fna")
     # Reorder if requested 
     if order != None:
         in_files = order_inputs(order, in_files)
@@ -425,7 +432,6 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
 
 
 def main():
-    configObject = SeqFindRConfig()
     default_no_hit = 0.5
     global args
     try:
@@ -436,7 +442,6 @@ def main():
     results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
                                 args.tol, vfs_list)
     if args.cons != None:
-        # Trim off db and sequences
         results_m, _ = do_run(args.db, args.cons, -0.85, args.index,         \
                                 args.tol, vfs_list)
         if len(results_m) == len(results_a):
@@ -464,7 +469,7 @@ def main():
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color, configObject, args.grid)
+    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color)
     # Handle labels here
     #print vfs_class
     os.system("rm blast.xml")
@@ -476,6 +481,11 @@ if __name__ == '__main__':
         start_time = time.time()
         desc = __doc__.split('\n\n')[1].strip()
         parser = argparse.ArgumentParser(description=desc,epilog=epi)
+        # ADDED BY  NABIL 13.07.16
+        # Reference database type override & support for protein sequences
+        parser.add_argument('-R', '--reftype', action='store', help='Reference\
+                Sequence type', dest='reftype', choices=('nucl','prot'),default=None)
+        # END OF CHANGES 
         parser.add_argument('-v', '--verbose', action='store_true',            \
                                 default=False, help='verbose output')
         parser.add_argument('-o','--output',action='store',                    \
@@ -501,10 +511,6 @@ if __name__ == '__main__':
         parser.add_argument('-r', '--reshape', action='store_false',           \
                                 default=True, help='Differentiate '
                                         'between mapping and assembly hits')
-        parser.add_argument('-g', '--grid', action='store_false',              \
-                                default=True, help='Plot has a grid (default ' 
-                                       '= True')
-
         args = parser.parse_args()
         msg = "Missing required arguments.\nPlease run: SeqFindR -h"
         if args.db == None:
