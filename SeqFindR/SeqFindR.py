@@ -57,6 +57,8 @@ from Bio.Blast.Applications import NcbitblastnCommandline
 from Bio.Blast.Applications import NcbitblastxCommandline
 import re, shutil, subprocess 
 
+import imaging
+
 __author__ = "Mitchell Stanton-Cook & Nabil-Fareed Alikhan"
 __licence__ = "ECL"
 __version__ = "2.0"
@@ -427,28 +429,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     if config_object['category_colors'] != None:
             colors = config_object['category_colors']
     else:
-        colors = [(0/255.0,0/255.0,0/255.0),
-                (255/255.0,102/255.0,0/255.0),
-                (170/255.0,255/255.0,0/255.0),
-                (255/255.0,0/255.0,170/255.0),
-                (0/255.0,102/255.0,255/255.0),
-                (156/255.0,0/255.0,62/255.0),
-                (203/255.0,168/255.0,255/255.0),
-                (156/255.0,131/255.0,103/255.0),
-                (255/255.0,170/255.0,0/255.0),
-                (0/255.0,255/255.0,204/255.0),
-                (0/255.0,0/255.0,255/255.0),
-                (0/255.0,156/255.0,41/255.0),
-                (238/255.0,255/255.0,168/255.0),
-                (168/255.0,215/255.0,255/255.0),
-                (103/255.0,156/255.0,131/255.0),
-                (255/255.0,0/255.0,0/255.0),
-                (0/255.0,238/255.0,255/255.0),
-                (238/255.0,0/255.0,255/255.0),
-                (156/255.0,145/255.0,0/255.0),
-                (255/255.0,191/255.0,168/255.0),
-                (255/255.0,168/255.0,180/255.0),
-                (156/255.0,103/255.0,138/255.0)] 
+        colors = imaging.generate_colors(len(vfs_classes))
     if color_index != None:
         colors = [colors[int(color_index)]]
     # Build the regions to be shaded differently
