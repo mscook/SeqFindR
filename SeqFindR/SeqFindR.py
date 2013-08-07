@@ -28,8 +28,12 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #    friendly alternatives
 #  * Added support for fasta file extensions .fna, .fas, .fa; rather than just 
 #    .fas (For query sequences)
-#  * Added tBLASTx functionality and option to trigger it ( -X ) 
-
+#  * Added tBLASTx functionality and option to trigger it ( -X )
+# 2013-08-07 Nabil-Fareed Alikhan <n.alikhan@uq.edu.au>
+#  * BLAST results now get cached in temp-dir scratch, so save rerunning Blast
+#       Everytime. Cache needs to be cleared manually, Will not check if Blast
+#       results are corrupt (e.g. filesize == 0, only that they are absent. )
+#  * Added svg option for results image. Use --svg flag 
 
 
 import sys, os, traceback, argparse
@@ -171,6 +175,8 @@ def order_inputs(order_index_file, dir_listing):
         lines = fin.readlines()
     if len(lines) != len(dir_listing):
         print "In order_inputs(). Length mismatch"
+        print len(lines )
+        print len(dir_listing)
         sys.exit(1)
     ordered = []
     for l in lines:
@@ -250,27 +256,31 @@ def run_BLAST(query, database):
     elif args.reftype == 'prot':
         SeqPro = True
     cline = ''
-    if SeqPro:
+    if not os.path.isdir('scratch'):
+        os.mkdir('scratch')
+    outFile = os.path.join('scratch', '%svs%s.xml' %(os.path.basename(query),\
+            os.path.basename(database)) )
+    if SeqPro and not os.path.exists(outFile):
         cline = NcbitblastnCommandline(query=query, seg='no', \
                 db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
-    else:
+                max_target_seqs=1, out=outFile)
+        cline()
+    elif not os.path.exists(outFile):
         # Added tblastx  funcationality, if boolean tblastx is true
         if args.tblastx:
             cline = NcbitblastxCommandline(query=query, seg='no', \
                 db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
+                max_target_seqs=1, out=outFile)
         else: 
         # TODO: Add  evalue filtering 
         # TODO: Set to use Megablast (as default), 
         # add task='blastn' to use blastn scoring
             cline = NcbiblastnCommandline(query=query, dust='no', \
                 db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
+                max_target_seqs=1, out=outFile)
+        cline()
     print str(cline)
-    cline()
-    # TODO: This possibly should return location of BLAST results rather than
-    # dumping to a static location...
+    return outFile
     #END OF CHANGES - Nabil
 
 # MODIFIED BY NABIL 2013.07.168
@@ -388,6 +398,7 @@ def cluster_matrix(matrix, y_labels):
     :param matrix: a numpy matrix of scores
     :param y_labels: the virulence factor ids for all row elements
     """
+    global args
     print "Clustering the matrix"
     # Clear any matplotlib formatting
     plt.clf()
@@ -400,7 +411,7 @@ def cluster_matrix(matrix, y_labels):
     Y = pdist(matrix)
     Z = linkage(Y)
     dend = dendrogram(Z,labels=y_labels)
-    plt.savefig("dendrogram.png", dpi=600)
+    plt.savefig(args.output + "-dendrogram.png", dpi=600)
     #Reshape
     ordered_index   = dend['leaves']
     updated_ylabels = dend['ivl']
@@ -424,6 +435,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param show_gene_labels: wheter top plot the gene labels
     :param color_index: for a single class, choose a specific color
     """
+    global args
     if config_object['category_colors'] != None:
             colors = config_object['category_colors']
     else:
@@ -473,9 +485,11 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
         ax.xaxis.grid(False) 
     if show_gene_labels:
+        print gene_labels
         ax.set_xticklabels([''] +gene_labels)#, rotation=90)
     for i in xrange(0, len(regions)):
-        plt.axvspan(regions[i][0], regions[i][1], facecolor=colors[i],         \
+        # 2013.07.17: Use mod to cycle colours from array 'colors'
+        plt.axvspan(regions[i][0], regions[i][1], facecolor=colors[i%len(colors)],         \
                         alpha=0.1)
     if show_gene_labels:
         ax.tick_params(axis='both', which='both', labelsize=6, direction='out',\
@@ -490,7 +504,12 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     plt.xticks(rotation=90)
     if grid: ax.grid(True)
     fig.set_size_inches(10.0,12.0, dpi=600)
-    plt.savefig("results.png", bbox_inches='tight',dpi=600)
+    # Added SVG option 
+    if args.svg:
+        plt.savefig(args.output + "-results.svg", format='svg', \
+                bbox_inches='tight',dpi=600)
+    else:
+        plt.savefig(args.output + "-results.png", bbox_inches='tight')
 
 def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
     """
@@ -512,8 +531,9 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
         id = make_BLASTDB(genome_file)
         y_label.append(id)
         db_loc = genome_file.split('/')[-1]
-        run_BLAST(vf_db, "DBs/"+db_loc)
-        accepted_hits = parse_BLAST("blast.xml", float(cutoff))
+        # 2013.07.17 Blast Results no longer static 
+        blastRes = run_BLAST(vf_db, "DBs/"+db_loc)
+        accepted_hits = parse_BLAST(blastRes, float(cutoff))
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
         row.insert(0,id)
         matrix.append(row)
@@ -551,7 +571,8 @@ def main():
     # cluster if not ordered
     if args.index == None:
         matrix, ylab = cluster_matrix(matrix, ylab)
-    np.savetxt("matrix.csv", matrix, delimiter=",")
+    # 2013.07.17 Reads output prefix 
+    np.savetxt(args.output +"-matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [default_no_hit] * matrix.shape[1]
     matrix = np.vstack([newrow, matrix])
@@ -585,11 +606,12 @@ if __name__ == '__main__':
         # END OF CHANGES 
         parser.add_argument('-v', '--verbose', action='store_true',            \
                                 default=False, help='verbose output')
-        # Nabil: Not used, removed Required flag so it can be ignored.
         parser.add_argument('-o','--output',action='store',                    \
-                                help='output prefix')
+                                help='output prefix [Required]')
         # TODO: Nabil; Required options should be positional arguments not 
         # optional flags
+        parser.add_argument('--svg', action='store_true',            \
+                                default=False, help='Produce svg image')
         parser.add_argument('-d', '--db', action='store',                    \
                                 help='[Required] full path database fasta file')
         parser.add_argument('-a', '--ass', action='store',                     \
