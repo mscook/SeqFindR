@@ -14,7 +14,7 @@
 
 import random
 
-SEED = 99
+SEED = 12345678910
 
 def hsv_to_rgb(h, s, v):
     """
