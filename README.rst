@@ -7,7 +7,9 @@ SeqFindR
 SeqFindR - easily create informative genomic feature plots.
 
 **This is an early release version of SeqFindR.** The tool is still undergoing 
-rapid development. We have only tested SeqFindR on linux systems. 
+rapid development. **We have only tested SeqFindR on linux systems.** There 
+has been some success with Mac OSX: 
+https://github.com/mscook/SeqFindR/issues/11
 
 
 Latest important changes (**are not documented at the moment**)
@@ -338,13 +340,20 @@ reference. The workflow is something like this::
     $ # for each strain
     $ nesoni analyse-sample: mysample myref pairs: reads1.fastq reads2.fastq
 
-For each sample we then extract the consensus.fa file which we term the 
-mapping consensus. This file is a multi-fasta file of the consensus base calls
-relative to the database sequences.
+
+For those of you using a cluster running PBSPro see:
+https://github.com/mscook/SeqFindR_nesoni
+This is a script that generates a job array, submits and cleans up the
+maping results ready for input to SeqFindR.
+
+The output from the described workflow and SeqFindR_nesoni is a consensus.fa 
+file which we term the mapping consensus. This file is a multi-fasta file of 
+the consensus base calls relative to the database sequences.
 
 Caveats: 
     * you will probably want to allow multi-mapping reads (giving *--monogamous
-      no --random yes* to nesoni consensus), 
+      no --random yes* to nesoni consensus) (this is default for
+      SeqFindR_nesoni), 
     * The (poor) alignment of reads at the start and the end of the database 
       genes can result in N calls. This can result in downstream false 
       negatives. We are currently working on this.
