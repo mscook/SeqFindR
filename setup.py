@@ -10,8 +10,10 @@ import SeqFindR
 
 try:
     from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+except ImportError: 
+    from ez_setup import use_setuptools
+    use_setuptools()
+
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
