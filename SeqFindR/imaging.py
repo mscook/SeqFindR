@@ -12,9 +12,15 @@
 # permissions and limitations under the License.
 
 
-import random
+HALTON = False
 
-SEED = 12345678910
+import random
+try:
+    import ghalton
+    HALTON = True
+except ImportError:
+    print "Using Standard"
+
 
 def hsv_to_rgb(h, s, v):
     """
@@ -43,26 +49,43 @@ def hsv_to_rgb(h, s, v):
         r, g, b = v, p, q
     else:
         print "Problem"
+    print  [int(r*256), int(g*256), int(b*256)]
     return [int(r*256), int(g*256), int(b*256)]
 
-def generate_colors(number_required):
+def generate_colors(number_required, seed):
     """
     Generate a list of length number of distinct "good" random colors
 
-    Based on http://martin.ankerl.com/
-        2009/12/09/how-to-create-random-colors-programmatically/
+    See: https://github.com/fmder/ghalton
+
+    Based on http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
     
     :param number_required: int
+    :param seed: the random seed
+    
     :type: int
+    :type: int 
+
     :rtype: a list of lists in the form: [[243, 137, 121], [232, 121, 243], 
                                           [216, 121, 243]]
     """
     rgb_list = []
-    golden_ratio_conjugate = 0.618033988749895
-    random.seed(SEED)
-    for i in range(0, int(number_required)):
-        h = (random.random()+golden_ratio_conjugate) % 1
-        rgb = hsv_to_rgb(h, 0.5, 0.95)
-        rgb = rgb[0]/255.0, rgb[1]/255.0, rgb[2]/255.0
-        rgb_list.append(rgb)
+    if HALTON == True:
+        sequencer = ghalton.GeneralizedHalton(3, seed)
+        points = sequencer.get(int(number_required))
+        for p in points:
+            print p
+            rgb_list.append(p)
+    else:
+        golden_ratio_conjugate = 0.618033988749895
+        random.seed(seed)
+        h = random.random()
+        for i in range(0, int(number_required)):
+            #h = random.random()
+            h += golden_ratio_conjugate
+            h %= 1
+            #h = (random.random()+golden_ratio_conjugate) % 1
+            rgb = hsv_to_rgb(h, 0.5, 0.6)
+            rgb = rgb[0]/255.0, rgb[1]/255.0, rgb[2]/255.0
+            rgb_list.append(rgb)
     return rgb_list
