@@ -12,7 +12,7 @@
 #     permissions and limitations under the License.
 
 __title__        = 'SeqFindR'
-__version__      = '0.1'
+__version__      = '0.2'
 __description__  = "A tool to easily create informative genomic feature plots" 
 __author__       = 'Mitchell Stanton-Cook'
 __license__      = 'ECL 2.0'

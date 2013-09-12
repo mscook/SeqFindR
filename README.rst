@@ -7,8 +7,10 @@ SeqFindR
 SeqFindR - easily create informative genomic feature plots.
 
 **SeqFindR is nearing a stable API. From release 0.2, SeqFindR  will primarily 
-be undergoing bug fixes and feature enhancements. **We have only tested 
-SeqFindR on linux  systems.** There has been some success with `MacOSX`_: 
+be undergoing bug fixes and feature enhancements.**
+
+**We have only tested SeqFindR on linux  systems.** There has been some 
+success with `MacOSX`_. 
 
 Please see the `changelog`_ for most recent changes/fixes/enhancements.
 
@@ -25,10 +27,11 @@ You can check these are installed by::
     $ python --version
     $ which blastn
 
+
 The following python libraries will be installed automatically if you follow 
 the installation instructions detailed below.
 
-We also use the following python libraries:
+We also use the following python `libraries`_:
     * numpy >= 1.6.1
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
@@ -365,7 +368,7 @@ Caveats:
       negatives.
 
 **As of version 0.2 of SeqFindR we now provide a solution to minimise the 
-effects of poor mapping at the start and end of input sequences** 
+effects of poor mapping at the start and end of the given  sequences.** 
 
 The SeqFindR option is -s or --STRIP::
 
@@ -391,6 +394,7 @@ Future
 
 Please see the `TODO`_ for future SeqFindR project directions.
 
+.. _libraries: https://github.com/mscook/SeqFindR/blob/master/requirements.txt
 .. _MacOSX: https://github.com/mscook/SeqFindR/issues/11
 .. _script: https://github.com/mscook/SeqFindR/blob/master/example/run_examples.sh
 .. _image-compare: https://github.com/mscook/image-compare
