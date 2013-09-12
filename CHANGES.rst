@@ -5,14 +5,14 @@ SeqFindR changelog
     * General refactors & code cleaning/optimisations
     * Split into: blast.py, config.py, imaging.py, SeqFindR.py & util.py
     * fixed meta information
+    * Installation should (python setup.py install) should now be more robust)
     * fixed argparse. Required options are now required not optional (database 
       & ass_dir)
     * output & output_prefix now do something...
     * New option -s/--strip (will strip off the 1st and last N bases from the 
       mapping consensuses and database to avoid uncalled bases at the start and
       end of runs
-    * New option -e/--existing_run load in a BLAST XML results file. 
-      Can thus reformat the plot without having to re-run BLAST.
+    * Improved output image control (dpi, size, color & seed control)
 
 2013-07-16 Nabil-Fareed Alikhan <n.alikhan@uq.edu.au>:
     * Added Ability to use amino acid sequences as Virluence factors

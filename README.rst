@@ -11,16 +11,7 @@ rapid development. **We have only tested SeqFindR on linux systems.** There
 has been some success with Mac OSX: 
 https://github.com/mscook/SeqFindR/issues/11
 
-
-Latest important changes (**are not documented at the moment**)
-    * Added Ability to use amino acid sequences as Virluence factors
-    * Added helper method to automatically detect type of sequence file (nucl 
-      or pro)
-    * Added commandline override option for above auto-detection (-R)
-    * Replaced a number of system calls and pathnames with cross  platform 
-      friendly alternatives
-    * Added support for fasta file extensions .fna, .fas, .fa; rather than just
-      .fas (For query sequences)
+Please see the changelog:
 
 
 Requirements
