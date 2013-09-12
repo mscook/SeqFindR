@@ -11,7 +11,7 @@ rapid development. **We have only tested SeqFindR on linux systems.** There
 has been some success with Mac OSX: 
 https://github.com/mscook/SeqFindR/issues/11
 
-Please see the changelog:
+Please see the `changelog`_.
 
 
 Requirements
@@ -377,14 +377,12 @@ Help listing::
 Future
 ------
 
-Current plans:
-    * Make into a Web Application
-    * Trim off first N characters when using mapping consensuses
-    * More dynamic sizing labelling
-
+Please see the `TODO`_ for current project directions.
 
 
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
+.. _changelog: https://github.com/mscook/SeqFindR/blob/master/CHANGES.rst
+.. _TODO:  https://github.com/mscook/SeqFindR/blob/master/TODO.rst
 .. _run1: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
 .. _run2: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
 .. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
