@@ -6,10 +6,10 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
-**SeqFindR is nearing a stable API. From release 0.2, SeqFindR  will primarily 
-be undergoing bug fixes and feature enhancements.**
+**SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
+undergo bug fixes and feature enhancement.**
 
-**We have only tested SeqFindR on linux  systems.** There has been some 
+**We have only tested SeqFindR on linux systems.** There has been some 
 success with `MacOSX`_. 
 
 Please see the `changelog`_ for most recent changes/fixes/enhancements.
@@ -21,22 +21,33 @@ Requirements
 You'll need to install/have installed:
     * ncbiblast >= 2.2.27
     * python >= 2.7 (Python 3 is not supported)
+    * `pip`_
 
 You can check these are installed by::
     
     $ python --version
     $ which blastn
+    $ which pip
 
 
-The following python libraries will be installed automatically if you follow 
-the installation instructions detailed below.
+The following python libraries will be (may be) installed automatically if 
+you follow the installation instructions detailed below.
 
-We also use the following python `libraries`_:
+We use the following python `libraries`_:
     * numpy >= 1.6.1
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
     * biopython >= 1.59
     * ghalton>=0.6
+
+The state of python packaging is that bad you could miss many nights sleep. 
+I'm looking at you SciPy. **For the smoothest possible install we recommend 
+installing the requirements using your distributions package manager.** 
+
+For Ubuntu::
+
+    sudo apt-get install python-numpy python-scipy python-matplotlib
+    python-biopython ncbi-blast+ python-dev python-pip
 
 
 Installation
@@ -56,7 +67,7 @@ Option 1b (as a standard user)::
     $ pip install SeqFindR --user
 
 
-You'll need to have git installed for the following alternative install 
+**You'll need to have git installed** for the following alternative install 
 options. git can be really useful for scientists. See `here`_ for some 
 discussion.
 
@@ -394,6 +405,7 @@ Future
 
 Please see the `TODO`_ for future SeqFindR project directions.
 
+.. _pip: http://www.pip-installer.org/en/latest/
 .. _libraries: https://github.com/mscook/SeqFindR/blob/master/requirements.txt
 .. _MacOSX: https://github.com/mscook/SeqFindR/issues/11
 .. _script: https://github.com/mscook/SeqFindR/blob/master/example/run_examples.sh
