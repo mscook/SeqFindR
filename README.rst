@@ -353,33 +353,18 @@ Caveats:
 SeqFindR usage options
 ----------------------
 
-Help listing::
+See the help `listing`_. You can get this yourself with::
 
-    Usage: SeqFindR.py -o OUTPUT -d DB -a ASS [-h] [-v] [-t TOL] [-m CONS]
-                       [-i INDEX] [-l] [-c COLOR] [-r]
-
-    optional arguments:
-      -h, --help                 show this help message and exit
-      -v, --verbose              verbose output
-      -o OUTPUT, --output OUTPUT [Required] output prefix
-      -d DB, --db DB             [Required] full path database fasta file
-      -a ASS, --ass ASS          [Required] full path to dir containing assemblies
-      -t TOL, --tol TOL          Similarity cutoff (default = 0.95)
-      -m CONS, --cons CONS       full path to dir containing consensuses (default = None)
-      -i INDEX, --index INDEX    maintain order of index (no cluster) (default = None)
-      -l, --label_genes          label the x axis (default = False)
-      -c COLOR, --color COLOR    color index (default = None)
-      -r, --reshape              Differentiate between mapping and assembly hits
-
-    Licence: ECL by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
+    $ SeqFindR -h
 
 
 Future
 ------
 
-Please see the `TODO`_ for current project directions.
+Please see the `TODO`_ for future SeqFindR project directions.
 
 
+.. _listing: https://github.com/mscook/SeqFindR/blob/master/HELP.rst
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
 .. _changelog: https://github.com/mscook/SeqFindR/blob/master/CHANGES.rst
 .. _TODO:  https://github.com/mscook/SeqFindR/blob/master/TODO.rst
