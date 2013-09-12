@@ -198,7 +198,7 @@ def strip_id_from_matrix(mat):
     return new_mat
 
 
-def cluster_matrix(matrix, y_labels):
+def cluster_matrix(matrix, y_labels, dpi):
     """
     From a matrix, generate a distance matrix & perform hierarchical clustering
  
@@ -217,7 +217,7 @@ def cluster_matrix(matrix, y_labels):
     Y = pdist(matrix)
     Z = linkage(Y)
     dend = dendrogram(Z,labels=y_labels)
-    plt.savefig("dendrogram.png", dpi=300)
+    plt.savefig("dendrogram.png", dpi=dpi)
     #Reshape
     ordered_index   = dend['leaves']
     updated_ylabels = dend['ivl']
@@ -230,7 +230,7 @@ def cluster_matrix(matrix, y_labels):
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
                 show_gene_labels, color_index, config_object, grid, seed,
-		aspect='auto'):
+		        dpi, size, aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -285,8 +285,10 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                        left='on', right='off', bottom='off', top='off')
     plt.xticks(rotation=90)
     if grid: ax.grid(True)
-    fig.set_size_inches(10.0,12.0, dpi=600)
-    plt.savefig("results.png", bbox_inches='tight',dpi=300)
+    x, y = size.split('x')
+    x, y = float(x), float(y)
+    fig.set_size_inches(x, y, dpi=dpi)
+    plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
 
 
 def do_run(args, data_path, match_score, vfs_list):
@@ -343,7 +345,7 @@ def core(args):
         matrix = np.array(results_a)
     # cluster if not ordered
     if args.index_file == None:
-        matrix, ylab = cluster_matrix(matrix, ylab)
+        matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
@@ -355,7 +357,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size) 
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -427,12 +429,10 @@ if __name__ == '__main__':
         fig.add_argument('--color', action='store', default=None, 
                                 help=('The color index [default = None]. ' 
                                         'See manual for more info'))
-        # Not used
-        fig.add_argument('--DPI', action='store', type=int, default=600,  
+        fig.add_argument('--DPI', action='store', type=int, default=300,  
                                 help='DPI of figure [default = 300]')
         fig.add_argument('--seed', action='store', type=int, default=99,  
                                 help='Color generation seed')
-        # Not used
         fig.add_argument('--size', action='store', type=str, default='10x12', 
                                 help='Size of figure [default = 10x12 '
                                     '(inches)]')
