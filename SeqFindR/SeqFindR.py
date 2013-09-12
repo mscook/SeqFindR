@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-"""
-VirFindR. Presence/absence of virulence factors in draft genomes 
-
-"""
-
 # Copyright 2013 Mitchell Stanton-Cook Licensed under the
 #     Educational Community License, Version 2.0 (the "License"); you may
 #     not use this file except in compliance with the License. You may
@@ -17,20 +12,10 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #     BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 #     or implied. See the License for the specific language governing
 #     permissions and limitations under the License.
-#
-### CHANGE LOG ###
-# 2013-07-16 Nabil-Fareed Alikhan <n.alikhan@uq.edu.au>
-#  * Added Ability to use amino acid sequences as Virluence factors
-#  * Added helper method to automatically detect type of sequence file 
-#       (nucl or pro)
-#  * Added commandline override option for above auto-detection ( -R )
-#  * Replaced a number of system calls and pathnames with cross platform 
-#    friendly alternatives
-#  * Added support for fasta file extensions .fna, .fas, .fa; rather than just 
-#    .fas (For query sequences)
-#  * Added tBLASTx functionality and option to trigger it ( -X ) 
 
-
+"""
+A tool to easily create informative genomic feature plots
+"""
 
 import sys, os, traceback, argparse
 import time
@@ -46,281 +31,111 @@ import numpy as np
 from   scipy.cluster.hierarchy import linkage, dendrogram
 from   scipy.spatial.distance  import pdist
 
-from Bio.Blast import NCBIXML
-
-# MODIFIED BY NABIL 2013.07.16
-# If BioPython is already required, I'll just use the SeqRecord parser for 
-# isPro method. And BLAST commandline wrapper too for run_BLAST. and std regex 
 from Bio import SeqIO
-from Bio.Blast.Applications import NcbiblastnCommandline
-from Bio.Blast.Applications import NcbitblastnCommandline
-from Bio.Blast.Applications import NcbitblastxCommandline
-import re, shutil, subprocess 
 
-import imaging
+import SeqFindR.__init__ as meta
+from SeqFindR import imaging
+from SeqFindR import config
+from SeqFindR import util
+from SeqFindR import blast
 
-__author__ = "Mitchell Stanton-Cook & Nabil-Fareed Alikhan"
-__licence__ = "ECL"
-__version__ = "2.0"
-__email__ = "m.stantoncook@gmail.com"
-epi = "Licence: "+ __licence__ +  " by " + __author__ + " <" + __email__ + ">"
-USAGE = "VirFindR -h"
+epi = "Licence: %s by %s <%s>" % (meta.__license__, 
+                                  meta.__author__,
+                                  meta.__author_email__)
+__doc__ = " %s v%s - %s (%s)" % (meta.__title__, 
+                                 meta.__version__, 
+                                 meta.__description__, 
+                                 meta.__url__)
 
-class SeqFindRConfig():
+
+def prepare_queries(args):
     """
-    A SeqFindR configuration class - subtle manipulation to plots
-    """
+    Given a set of sequences of interest, extract all query & query classes
 
-    def __init__(self):
-        self.config = self.read_config()
-
-    def __getitem__(self, key):
-        try:
-            return self.config[key]
-        except KeyError:
-            print "Trying to get config option that does not exist."
-            return None
-
-    def __setitem__(self, key, item):
-        self.config[key] = item
-
-    def read_config(self):
-        """
-        Read a SeqFindR configuration file
-
-        Currently only supports category colors in RGB format
-
-        category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
-        """
-        cfg = {}
-        try:
-            with open(os.path.expanduser('~/')+'.SeqFindR.cfg') as fin:
-                print "Using a SeqFindR config file"
-                colors = []
-                for line in fin:
-                    if line.startswith('category_colors'):
-                        option, list = line.split('=')
-                        list = list.strip().strip(' ')
-                        list = ast.literal_eval(list)
-                        for e in list:
-                            fixed = (e[0]/255.0, e[1]/255.0, e[2]/255.0)
-                            colors.append(fixed)
-                        cfg[option] = colors
-                        break
-        except IOError:
-            print "Using defaults"
-        return cfg
-
-    def dump_items(self):
-        """
-        Prints all set configuration options to STDOUT
-        """
-        config = ''
-        for key, value in self.config.items():
-            print str(key)+" = "+str(value)+"\n"
-
-
-def prepare_db(db_path):
-    """
-    Given a VF db, extract all possible hits and hit classes
-
-    A Vf db is a mfa file in the format:
+    A sequence of interest file is a mfa file in the format:
 
     >ident, gene id, annotation, organism [class]
 
-    :param db_path: the fullpath to a VF db (mfa file)
+    query = gene id
+    query_class = class
 
-    :type db_path: string
+    Location of sequence of interest file is defined by args.seqs_of_interest
 
-    :rtype: list of all vfs and corresponding classes
+    :param args: the argparse args containing args.seqs_of_interest 
+                 (fullpath) to a sequence of interest DB (mfa file)
+
+    :type args: argparse args
+
+    :rtype: 2 lists, 1) of all queries and, 2) corresponding query classes
     """
-    with open(db_path) as fin:
-        lines = fin.readlines()
-    vfs_list, vfs_class = [], []
-    # Get the IDS and the classes
-    for l in lines:
-        if l.startswith('>'):
-            vfs_list.append(l.split(',')[1].strip())
-            vfs_class.append(l.split('[')[-1].split(']')[0].strip())
-    # Check for duplicates
-    unique = list(set(vfs_list))
-    print "Investigating "+str(len(unique))+" features"
+    query_list, query_classes = [], []
+
+    with open(args.seqs_of_interest, "rU") as fin:
+        records = SeqIO.parse(fin, "fasta")
+        for rec in records:
+            cur = rec.description
+            query_list.append(cur.split(',')[1].strip())
+            query_classes.append(cur.split('[')[-1].split(']')[0].strip())
+    unique = list(set(query_list))
+    sys.stderr.write("Investigating %i features\n" % (len(unique)))
     for e in unique:
-        if vfs_list.count(e) != 1:
-            print "Duplicates found for: ",e
-            print "Fix duplicates"
+        if query_list.count(e) != 1:
+            sys.stderr.write("Duplicates found for: %s\n" % (e))
+            sys.stderr.write("Fix duplicates\n")
             sys.exit(1)
-    return vfs_list, vfs_class
+    return query_list, query_classes
 
 
-def order_inputs(order_index_file, dir_listing):
+def strip_bases(args):
     """
-    Given an order index file, maintain this order in the matrix plot
+    Strip the 1st and last 'N' bases from mapping consensuses
 
-    THIS IMPLIES NO CLUSTERING!
+    Uses: 
+        * args.cons
+        * args.seqs_of_interest
+        * arg.strip
 
-    Typically used when you already have a phlogenetic tree
-
-    :param order_index_file: full path to a ordered file (1 entry per line)
-    :param dir_listing: a glob.glob dir listing as a list
-
-    :type order_index_file: string
-    :type dir_listing: list
-
-    :rtype: list of updated glob.glob dir listing to match order specified
-    """
-    with open(order_index_file) as fin:
-        lines = fin.readlines()
-    if len(lines) != len(dir_listing):
-        print "In order_inputs(). Length mismatch"
-        sys.exit(1)
-    ordered = []
-    for l in lines:
-        cord = l.strip()
-        for d in dir_listing:
-            tmp   = d.strip().split('/')[-1]
-            if tmp.find('_') == -1:
-                cur = tmp.split('.')[0]
-            else:
-                cur = tmp.split("_")[0]
-            if cur == cord:
-                ordered.append(d)
-                break
-    if len(ordered) != len(dir_listing):
-        print "In order_inputs(). Not 1-1 matching. Typo?"
-        print ordered
-        print dir_listing
-        sys.exit(1)
-    return ordered
-
-
-def make_BLASTDB(fasta_file):
-    """
-    Given a fasta_file, generate a nucleotide BLAST database
-
-    Database will end up in DB/ of working directory
-
-    :param fasta_file: full path to a fasta file
+    To avoid the effects of lead in and lead out coverage resulting in 
+    uncalled bases
     
-    :type fasta_file: string
+    :param args: the argparse args containing args.strip value
 
-    :rtype: the strain id (must be delimited by '_')
+    :type args: argparse args
+
+    :rtype: the updated args to reflect the args.cons & 
+            args.seqs_of_interest location
     """
-    # MODIFIED BY NABIL 2013.07.168
-    # Uses subprocess to launch makeblastdb, easier for error handling 
-    proc = subprocess.Popen([ "makeblastdb", "-in" , fasta_file, "-dbtype", \
-            'nucl' ], stdout=subprocess.PIPE)
-    print(  proc.stdout.read())
-    # Nabil: Using python shutil for cp & mv csystem calls: 
-    # safer and cross platform.
-    print fasta_file
-    for f in ['.nhr','.nin','.nsq']:
-        path = fasta_file + f
-        shutil.move(path, os.path.join('DBs',os.path.basename(path) ) )
-    shutil.copy2(fasta_file, os.path.join('DBs',os.path.basename(fasta_file)))
-    # Get the strain ID
-    # Nabil: Uses basename, rather than string splitting on '/' for filename.
-    # Less chance of conflict from weird filenames. 
-    return os.path.basename(fasta_file).split('_')[0]
-    # END OF MODIFICATIONS
+    # Get in the fasta files in the consensus directory
+    fasta_in = util.get_fasta_files(args.cons)
+    # Build a stripped directory
+    new_cons_dir = os.path.join(args.cons, 'stripped')
+    try:
+        os.mkdir(new_cons_dir)
+    except OSError:
+        sys.stderr.write("A stripped directory exists. Overwriting\n")
+    # Update the args.cons to the stripped directory
+    args.cons = new_cons_dir
+    # Strip the start and end
+    for fa in fasta_in:
+        tmp = os.path.basename(fa)
+        out = os.path.join(args.cons, tmp)
+        with open(fa, "rU") as fin, open(out, 'w') as fout:
+            records = SeqIO.parse(fin, "fasta")
+            for rec in records:
+                rec.seq = rec.seq[args.strip:-args.strip]
+                SeqIO.write(rec, fout, "fasta")
+    # Trim the db as well
+    tmp = args.seqs_of_interest.split('.')
+    stripped_db = '.'.join(tmp[:-1])+'_trimmed.'+tmp[-1]
+    with open(args.seqs_of_interest, "rU") as fin, open(stripped_db, 'w') as fout:
+        records = SeqIO.parse(fin, "fasta")
+        for rec in records:
+            rec.seq = rec.seq[args.strip:-args.strip]
+            SeqIO.write(rec, fout, "fasta")
+    #Update the args.seqs_of_interest
+    args.seqs_of_interest = stripped_db
+    return args
 
-# MODIFIED BY NABIL 2013.07.168
-# Now Requires file type of query (nucl or prot) and runs appropriate BLAST
-# Assumes database is nucleotide
-def run_BLAST(query, database):
-    """
-    Given a mfa of query virulence factors and a database, search for them
-    
-    Turns dust filter off. Only run on a single thread. Only a single target
-    sequence. Output in XML format as blast.xml
-
-    :param query: the fullpath to the vf.mfa
-    :param database: the full path of the databse to search for the vf in
-
-    :type query: string
-    :type database: string
-    """
-    global args
-    # TODO: Ideally I shouldn't pull down the option from global args but
-    # This avoids altering parent method.
-    # SeqPro: Is sequence protein. Prot = True, nucl = False
-    SeqPro = False
-    # File type not specified, determine using isPro()
-    if args.reftype == None:
-        print query 
-        if isPro(query) > 0: SeqPro = True
-    elif args.reftype == 'prot':
-        SeqPro = True
-    cline = ''
-    if SeqPro:
-        cline = NcbitblastnCommandline(query=query, seg='no', \
-                db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
-    else:
-        # Added tblastx  funcationality, if boolean tblastx is true
-        if args.tblastx:
-            cline = NcbitblastxCommandline(query=query, seg='no', \
-                db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
-        else: 
-        # TODO: Add  evalue filtering 
-        # TODO: Set to use Megablast (as default), 
-        # add task='blastn' to use blastn scoring
-            cline = NcbiblastnCommandline(query=query, dust='no', \
-                db=database, outfmt=5, num_threads=1, \
-                max_target_seqs=1, out='blast.xml')
-    print str(cline)
-    cline()
-    # TODO: This possibly should return location of BLAST results rather than
-    # dumping to a static location...
-    #END OF CHANGES - Nabil
-
-# MODIFIED BY NABIL 2013.07.168
-# HELPER METHOD TO CHECK NUCLEOTIDE OR PROTEIN SEQUENCE
-def isPro( fastaFile ):
-    """
-    Checks if a FASTA file is protein or nucleotide.  returns number of protein
-    sequences detected. 
-    
-    :param fastaFile: path to input FASTA file
-
-    :type fastaFile: string
-
-    :rtype: number of protein sequences in fastafile (int)
-    """
-    handle = open(fastaFile, 'rU')
-    proHit = 0 
-    for record in SeqIO.parse(handle, 'fasta'):
-    # TODO: This probably should include ambiguity characters for nucleotide.
-        if re.match('[^ATCGNatcgn]+', str(record.seq)) != None:
-            proHit += 1
-    handle.close() 
-    return proHit 
-# END OF CHANGES - Nabil 
-
-def parse_BLAST(blast_results, tol):
-    """
-    Using NCBIXML parse the BLAST results, storing good hits.
-
-    Here good hits are:
-        * hsp.identities/float(record.query_length) >= tol
-
-    :param blast_results: full path to a blast run output file (in XML format)
-    :param tol: the cutoff threshold (see above for explaination)
-
-    :type blast_results: string
-    :type tol: string
-
-    :rtype: list of satifying hit names
-    """
-    vf_hits = []
-    for record in NCBIXML.parse(open(blast_results)) :
-        for align in record.alignments :
-            for hsp in align.hsps :
-                virFactorName = record.query.split(',')[1].strip()
-                if hsp.identities/float(record.query_length) >= tol:
-                    vf_hits.append(virFactorName.strip())
-    return vf_hits
 
 
 def build_matrix_row(all_vfs, accepted_hits , score=None):
@@ -402,7 +217,7 @@ def cluster_matrix(matrix, y_labels):
     Y = pdist(matrix)
     Z = linkage(Y)
     dend = dendrogram(Z,labels=y_labels)
-    plt.savefig("dendrogram.png", dpi=600)
+    plt.savefig("dendrogram.png", dpi=300)
     #Reshape
     ordered_index   = dend['leaves']
     updated_ylabels = dend['ivl']
@@ -414,7 +229,7 @@ def cluster_matrix(matrix, y_labels):
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
-                show_gene_labels, color_index, config_object, grid,
+                show_gene_labels, color_index, config_object, grid, seed,
 		aspect='auto'):
     """
     Plot the VF hit matrix
@@ -429,7 +244,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     if config_object['category_colors'] != None:
             colors = config_object['category_colors']
     else:
-        colors = imaging.generate_colors(len(vfs_classes))
+        colors = imaging.generate_colors(len(set(vfs_classes)), seed)
     if color_index != None:
         colors = [colors[int(color_index)]]
     # Build the regions to be shaded differently
@@ -471,56 +286,53 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     plt.xticks(rotation=90)
     if grid: ax.grid(True)
     fig.set_size_inches(10.0,12.0, dpi=600)
-    plt.savefig("results.png", bbox_inches='tight',dpi=600)
+    plt.savefig("results.png", bbox_inches='tight',dpi=300)
 
-def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
+
+def do_run(args, data_path, match_score, vfs_list):
     """
-    Perform a VirFindR run
+    Perform a SeqFindR run
     """
     matrix, y_label = [], []
-    # Nabil:  amended with listdir rather than glob, to allow for more complex
-    # matching
-    in_files = []
-    for files in os.listdir(data_path):
-        # TODO: There HAS to be a neater way of checking different extensions.
-            if files.endswith(".fas") or files.endswith(".fna") \
-                    or files.endswith(".fa"):
-                in_files.append(os.path.join(data_path, files))
+    in_files = util.get_fasta_files(data_path)
     # Reorder if requested 
-    if order != None:
-        in_files = order_inputs(order, in_files)
-    for genome_file in in_files:
-        id = make_BLASTDB(genome_file)
-        y_label.append(id)
-        db_loc = genome_file.split('/')[-1]
-        run_BLAST(vf_db, "DBs/"+db_loc)
-        accepted_hits = parse_BLAST("blast.xml", float(cutoff))
+    if args.index_file != None:
+        in_files = util.order_inputs(args.index_file, in_files)
+    for subject in in_files:
+        strain_id = blast.make_BLAST_database(subject)
+        y_label.append(strain_id)
+        database      = os.path.basename(subject)
+        blast_xml     = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args)
+        accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol))
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
-        row.insert(0,id)
+        row.insert(0,strain_id)
         matrix.append(row)
     return matrix, y_label
 
 
-def main():
-    configObject = SeqFindRConfig()
-    default_no_hit = 0.5
-    global args
-    try:
-        os.mkdir("DBs")
-    except:
-        print "A DBs directory exists. Overwriting"
-    vfs_list, vfs_class = prepare_db(args.db)
-    results_a, ylab = do_run(args.db, args.ass, -0.15, args.index,           \
-                                args.tol, vfs_list)
+
+def core(args):
+    """
+    The 'core' SeqFindR method
+
+    TODO: Exception handling if do_run fails or produces no results
+
+    :param args: the arguments given from argparse
+    """
+    DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
+    args = util.ensure_paths_for_args(args)   
+    configObject = config.SeqFindRConfig()
+    util.init_output_dirs(args.output)
+    query_list, query_classes = prepare_queries(args)
+    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
     if args.cons != None:
-        # Trim off db and sequences 
+        args = strip_bases(args)
         #TODO: Exception handling if do_run fails or produces no results. 
         # Should be caught here before throwing ugly exceptions downstream.
-        results_m, _ = do_run(args.db, args.cons, -0.85, args.index,         \
-                                args.tol, vfs_list)
+        results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
         if len(results_m) == len(results_a):
             results_a, results_m = match_matrix_rows(results_a, results_m)
-            default_no_hit = 1.0
+            DEFAULT_NO_HIT = 1.0
             matrix = np.array(results_a) + np.array(results_m)
         else:
             print "Assemblies and mapping consensuses don't match"
@@ -530,11 +342,11 @@ def main():
         results_a = strip_id_from_matrix(results_a)
         matrix = np.array(results_a)
     # cluster if not ordered
-    if args.index == None:
+    if args.index_file == None:
         matrix, ylab = cluster_matrix(matrix, ylab)
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
-    newrow = [default_no_hit] * matrix.shape[1]
+    newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
     matrix = np.vstack([newrow, matrix])
     matrix = np.vstack([newrow, matrix])
     #Handle new option to only show presence
@@ -543,9 +355,8 @@ def main():
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, vfs_class, vfs_list, args.label_genes, args.color, configObject, args.grid) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed) 
     # Handle labels here
-    #print vfs_class
     os.system("rm blast.xml")
     os.system("rm DBs/*")
 
@@ -553,66 +364,97 @@ def main():
 if __name__ == '__main__':
     try:
         start_time = time.time()
-        desc = __doc__.split('\n\n')[1].strip()
-        parser = argparse.ArgumentParser(description=desc,epilog=epi)
-        # ADDED BY  NABIL 13.07.16
-        # Reference database type override & support for protein sequences
-        parser.add_argument('-R', '--reftype', action='store', help='Reference\
-                Sequence type', dest='reftype', choices=('nucl','prot'),\
-                default=None)
-        parser.add_argument('-X', '--tblastx', action='store_true',           \
-                                default=False, help='run tblastx rather than  \
-                                blastn')
-        # END OF CHANGES 
-        parser.add_argument('-v', '--verbose', action='store_true',            \
+        
+        parser = argparse.ArgumentParser(description=__doc__, epilog=epi)
+        algorithm = parser.add_argument_group('Optional algorithm options', 
+                                    ('Options relating to the SeqFindR '
+                                        'algorithm'))
+        io = parser.add_argument_group('Optional input/output options', 
+                                    ('Options relating to input and output'))
+
+        fig = parser.add_argument_group('Figure options', ('Options relating ' 
+                                    'to the output figure'))
+        blast_opt = parser.add_argument_group('BLAST options', ('Options relating ' 
+                                    'to BLAST'))
+        blast_opt.add_argument('-R', '--reftype', action='store', 
+                                help=('Reference Sequence type. If not given ' 
+                                    'will try to detect it'), dest='reftype', 
+                                choices=('nucl','prot'), default=None)
+        blast_opt.add_argument('-X', '--tblastx', action='store_true', 
+                                default=False, help=('Run tBLASTx rather than ' 
+                                                     'BLASTn'))
+        parser.add_argument('-v', '--verbose', action='store_true', 
                                 default=False, help='verbose output')
-        # Nabil: Not used, removed Required flag so it can be ignored.
-        parser.add_argument('-o','--output',action='store',                    \
-                                help='output prefix')
-        # TODO: Nabil; Required options should be positional arguments not 
-        # optional flags
-        parser.add_argument('-d', '--db', action='store',                    \
-                                help='[Required] full path database fasta file')
-        parser.add_argument('-a', '--ass', action='store',                     \
-                                help='[Required] full path to dir containing '+\
-                                     'assemblies')
-        parser.add_argument('-t', '--tol', action='store', default=0.95,       \
-                                help='Similarity cutoff (default = 0.95)')
-        parser.add_argument('-m', '--cons', action='store', default=None,      \
-                                help=('full path to dir containing consensuses'\
-                                    +' (default = None)'))
-        parser.add_argument('-i', '--index', action='store', default=None,     \
-                                help=('maintain order of index (no cluster)'   \
-                                    +' (default = None)'))
-        parser.add_argument('-l', '--label_genes', action='store_true',        \
-                                    default=False, help=('label the x axis' 
-                                    +' (default = False)'))
-        parser.add_argument('-c', '--color', action='store', default=None,     \
-                                help='color index (default = None)')
-        parser.add_argument('-r', '--reshape', action='store_false',           \
-                                default=True, help='Differentiate '
-                                        'between mapping and assembly hits')
-        parser.add_argument('-g', '--grid', action='store_false',              \
-                                default=True, help='Plot has a grid (default ' 
-                                       '= True')
-
+        io.add_argument('-o','--output',action='store', 
+                                default=None, help=('Output the results to ' 
+                                    'this location'))
+        io.add_argument('-p','--output_prefix',action='store', 
+                                default=None, help=('Give all result files ' 
+                                    'this prefix'))
+        # Required options now positional arguments
+        parser.add_argument('seqs_of_interest', action='store', 
+                                help=('Full path to FASTA file containing a ' 
+                                    'set of sequences of interest'))
+        parser.add_argument('assembly_dir', action='store', 
+                                help=('Full path to directory containing a' 
+                                      'set of assemblies in FASTA format'))
+        algorithm.add_argument('-t', '--tol', action='store', type=float, 
+                                    default=0.95, help=('Similarity cutoff ' 
+                                        '[default = 0.95]'))
+        algorithm.add_argument('-m', '--cons', action='store', default=None, 
+                                help=('Full path to directory containing ' 
+                                      'mapping consensuses [default = None]' 
+                                      '. See manual for more info'))
+        fig.add_argument('-l', '--label_genes', action='store_true', 
+                                    default=False, help=('Label the x axis ' 
+                                    +'with the query identifier [default = '
+                                    'False]'))
+        algorithm.add_argument('-r', '--reshape', action='store_false', 
+                                default=True, help=('Differentiate ' 
+                                        'between mapping and assembly hits in ' 
+                                        'the figure [default = no ' 
+                                        'differentiation]'))
+        fig.add_argument('-g', '--grid', action='store_false', default=True, 
+                                help='Figure has grid lines ' 
+                                    '[default = True]')
+        algorithm.add_argument('--index_file', action='store', default=None, 
+                                help=('Maintain the y axis strain order ' 
+                                        'according to order given in this ' 
+                                        'file. Otherwise clustering by row ' 
+                                        'similarity. [default = do ' 
+                                        'clustering]. See manual for more ' 
+                                        'info'))
+        fig.add_argument('--color', action='store', default=None, 
+                                help=('The color index [default = None]. ' 
+                                        'See manual for more info'))
+        # Not used
+        fig.add_argument('--DPI', action='store', type=int, default=600,  
+                                help='DPI of figure [default = 300]')
+        fig.add_argument('--seed', action='store', type=int, default=99,  
+                                help='Color generation seed')
+        # Not used
+        fig.add_argument('--size', action='store', type=str, default='10x12', 
+                                help='Size of figure [default = 10x12 '
+                                    '(inches)]')
+        algorithm.add_argument('-s', '--strip', action='store', 
+                                default=10, help=('Strip the 1st and last N ' 
+                                        'bases of mapping consensuses & ' 
+                                        'database [default = 10]'))
+        io.add_argument('--EXISTING_MATRIX', action='store_true', 
+                                default=False, help=('Use existing SeqFindR ' 
+                                        'matrix (reformat the plot) ' 
+                                        '[default = False]'))
+        blast_opt.add_argument('--BLAST_THREADS', action='store', type=int, 
+                                default=1, help=('Use this number of threads '
+                                        'in BLAST run [default = 1]'))
+        parser.set_defaults(func=core)
         args = parser.parse_args()
-        msg = "Missing required arguments.\nPlease run: SeqFindR -h"
-        if args.db == None:
-            print msg
-            sys.exit(1)
-        if args.ass == None:
-            print msg
-            sys.exit(1)
-        if args.output == None:
-            print msg
-            sys.exit(1)
-
-        if args.verbose: print "Executing @ " + time.asctime()
-        main()
-        if args.verbose: print "Ended @ " + time.asctime()
-        if args.verbose: print 'total time in minutes:',
-        if args.verbose: print (time.time() - start_time) / 60.0
+        if args.verbose: 
+            print "Executing @ " + time.asctime()
+        args.func(args)
+        if args.verbose:
+            print "Ended @ " + time.asctime()
+            print 'Exec time minutes %f:' % ((time.time() - start_time) / 60.0)
         sys.exit(0)
     except KeyboardInterrupt, e: # Ctrl-C
         raise e
@@ -623,4 +465,3 @@ if __name__ == '__main__':
         print str(e)
         traceback.print_exc()
         os._exit(1)
-
