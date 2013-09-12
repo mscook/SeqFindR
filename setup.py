@@ -17,6 +17,9 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
+os.system("pip install -r pre_requirements.txt")
+os.system("pip install -r requirements.txt")
+
 packages = [
     meta.__title__,
 ]
