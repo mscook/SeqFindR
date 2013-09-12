@@ -21,11 +21,17 @@ packages = [
     meta.__title__,
 ]
 
-requires = []
-with open('requirements.txt') as fin:
-    lines = fin.readlines()
-for l in lines:
-    requires.append(l.strip())
+requires = ['numpy>=1.6.1',
+            'scipy>=0.10.1',
+            'matplotlib>=1.1.0',
+            'biopython>=1.59',
+            'ghalton>=0.6'
+        ]
+
+#with open('requirements.txt') as fin:
+#    lines = fin.readlines()
+#for l in lines:
+#    requires.append(l.strip())
 
 setup(
     name                 = meta.__title__,
