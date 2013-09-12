@@ -38,7 +38,7 @@ setup(
     packages             = packages,
     scripts              = [meta.__title__+'/'+meta.__title__, 
                             meta.__title__+'/vfdb_to_seqfindr'],
-    package_data         = {'': ['LICENSE']},
+    package_data         = {'': ['LICENSE'], '': ['requirements.txt'],},
     package_dir          = {meta.__title__: meta.__title__},
     include_package_data = True,
     install_requires     = requires,
