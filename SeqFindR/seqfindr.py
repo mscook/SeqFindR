@@ -33,7 +33,7 @@ from   scipy.spatial.distance  import pdist
 
 from Bio import SeqIO
 
-import __init__ as meta
+import SeqFindR.__init__ as meta
 import imaging
 import config
 import util
