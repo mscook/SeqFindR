@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys 
-sys.path.append('../')
-import doctest
+import sys, os, doctest 
+
+sys.path.insert(0, "../")
 
 doctest.testfile("blast.tests")
 doctest.testfile("imaging.tests")
