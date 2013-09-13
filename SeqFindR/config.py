@@ -17,6 +17,7 @@ SeqFindR configuration class
 
 import os
 import sys
+import ast
 
 class SeqFindRConfig():
     """
@@ -35,7 +36,7 @@ class SeqFindRConfig():
     def __setitem__(self, key, item):
         self.config[key] = item
 
-    def read_config(self, alt_location=None):
+    def read_config(self, alt_location):
         """
         Read a SeqFindR configuration file
 
@@ -49,8 +50,9 @@ class SeqFindRConfig():
             cfg_location = os.path.expanduser(alt_location)
         cfg = {}
         try:
-            with open(os.path.expanduser(cfg_location) as fin:
-                sys.stderr.write("Using a SeqFindR config file\n")
+            with open(os.path.expanduser(cfg_location)) as fin:
+                sys.stderr.write("Using a SeqFindR config file: %s\n" % 
+                                    (cfg_location))
                 colors = []
                 for line in fin:
                     if line.startswith('category_colors'):
@@ -70,4 +72,5 @@ class SeqFindRConfig():
         """
         Prints all set configuration options to STDOUT
         """
-        config = ''
+        for k, v in self.config.items():
+            print ("%s = %s") % (k, v)
