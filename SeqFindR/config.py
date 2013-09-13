@@ -34,7 +34,10 @@ class SeqFindRConfig():
             return None
 
     def __setitem__(self, key, item):
-        self.config[key] = item
+        # Should probably validate this ie. [(r1,g1,b1),...,(rn,gn,bn)] 
+        excepted = ['category_colors']
+        if key in excepted:
+            self.config[key] = item
 
     def read_config(self, alt_location):
         """
@@ -58,7 +61,8 @@ class SeqFindRConfig():
                     line_count = line_count+1
                     if line.startswith('category_colors'):
                         option, list = line.split('=')
-                        list = list.strip().strip(' ')
+                        option = option.strip().strip(' ')
+                        list   = list.strip().strip(' ')
                         if list == '':
                             sys.stderr.write("\tNo options could be parsed. "
                                                 "Using defaults\n")

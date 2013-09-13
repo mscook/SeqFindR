@@ -23,7 +23,7 @@
     >>> # Not a triplet..
     >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.4')
     >>> SeqFindR_cfg.dump_items()
-    category_colors  = [(0.0, 0.0, 0.0)]
+    category_colors = [(0.0, 0.0, 0.0)]
     >>>
     >>> # Strings not ints
     >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.5')
@@ -36,4 +36,17 @@
     >>> # Expectant output
     >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg')
     >>> SeqFindR_cfg.dump_items()
-    category_colors  = [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    category_colors = [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    >>>
+    >>> # For completeness test the getters and setters
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg')
+    >>> print SeqFindR_cfg['category_colors']
+    [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    >>> print SeqFindR_cfg['Non existant']
+    None
+    >>> SeqFindR_cfg['category_colors'] = [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> print SeqFindR_cfg['category_colors']
+    [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> SeqFindR_cfg['non_existant'] = [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> print  SeqFindR_cfg['non_existant']
+    None
