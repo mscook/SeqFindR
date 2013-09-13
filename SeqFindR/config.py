@@ -53,19 +53,39 @@ class SeqFindRConfig():
             with open(os.path.expanduser(cfg_location)) as fin:
                 sys.stderr.write("Using a SeqFindR config file: %s\n" % 
                                     (cfg_location))
-                colors = []
+                colors, line_count = [], 0
                 for line in fin:
+                    line_count = line_count+1
                     if line.startswith('category_colors'):
                         option, list = line.split('=')
                         list = list.strip().strip(' ')
-                        list = ast.literal_eval(list)
+                        if list == '':
+                            sys.stderr.write("\tNo options could be parsed. "
+                                                "Using defaults\n")
+                            break
+                        try:
+                            list = ast.literal_eval(list)
+                        except:
+                            sys.stderr.write("\tMalformed settings line: "
+                                                "%s\n" % (str(list)))
+                            break
                         for e in list:
-                            fixed = (e[0]/255.0, e[1]/255.0, e[2]/255.0)
+                            try:
+                                fixed = (e[0]/255.0, e[1]/255.0, e[2]/255.0)
+                            except IndexError:
+                                sys.stderr.write("\tMalformed RGB: %s. "
+                                                    "Skipping\n" % (str(e)))
+                                break
                             colors.append(fixed)
                         cfg[option] = colors
                         break
+                    else:
+                        sys.stderr.write("\tNot supported option: %s" % (line))
+                if line_count == 0:
+                    sys.stderr.write("\tEmpty configuration file\n")
         except IOError:
-            sys.stderr.write("No SeqFindR config file. Using defaults\n")
+            sys.stderr.write("No SeqFindR config file found at: %s. "
+                                "Using defaults\n" % (cfg_location))
         return cfg
 
     def dump_items(self):
