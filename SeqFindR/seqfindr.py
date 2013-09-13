@@ -33,11 +33,11 @@ from   scipy.spatial.distance  import pdist
 
 from Bio import SeqIO
 
-import SeqFindR.__init__ as meta
-from SeqFindR import imaging
-from SeqFindR import config
-from SeqFindR import util
-from SeqFindR import blast
+import __init__ as meta
+import imaging
+import config
+import util
+import blast
 
 epi = "Licence: %s by %s <%s>" % (meta.__license__, 
                                   meta.__author__,
@@ -385,6 +385,8 @@ if __name__ == '__main__':
         blast_opt.add_argument('-X', '--tblastx', action='store_true', 
                                 default=False, help=('Run tBLASTx rather than ' 
                                                      'BLASTn'))
+        blast_opt.add_argument('--evalue', action='store', type=str,
+                                default='10', help=('BLAST evale (Expect)'))
         parser.add_argument('-v', '--verbose', action='store_true', 
                                 default=False, help='verbose output')
         io.add_argument('-o','--output',action='store', 
