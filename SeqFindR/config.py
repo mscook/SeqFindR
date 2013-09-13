@@ -23,8 +23,8 @@ class SeqFindRConfig():
     A SeqFindR configuration class - subtle manipulation to plots
     """
 
-    def __init__(self):
-        self.config = self.read_config()
+    def __init__(self, alt_location=None):
+        self.config = self.read_config(alt_location)
 
     def __getitem__(self, key):
         try:
@@ -35,7 +35,7 @@ class SeqFindRConfig():
     def __setitem__(self, key, item):
         self.config[key] = item
 
-    def read_config(self):
+    def read_config(self, alt_location=None):
         """
         Read a SeqFindR configuration file
 
@@ -43,9 +43,13 @@ class SeqFindRConfig():
 
         category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
         """
+        if alt_location == None:
+            cfg_location = os.path.expanduser('~/')+'.SeqFindR.cfg'
+        else:
+            cfg_location = os.path.expanduser(alt_location)
         cfg = {}
         try:
-            with open(os.path.expanduser('~/')+'.SeqFindR.cfg') as fin:
+            with open(os.path.expanduser(cfg_location) as fin:
                 sys.stderr.write("Using a SeqFindR config file\n")
                 colors = []
                 for line in fin:
