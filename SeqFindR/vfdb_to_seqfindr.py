@@ -18,7 +18,7 @@
 vfdb_to_seqfindr
 ================
 
-Convert VFDB formatted files  (or like) to SeqFindR formatted database files
+Convert VFDB formatted files (or like) to SeqFindR formatted database files
 
 
 VFDB: Virulence Factors Database
@@ -27,8 +27,7 @@ a reference database for bacterial virulence factors.
 
 
 This is based on a sample file (TOTAL_Strep_VFs.fas) provided by 
-Nouri Ben Zakour
-
+Nouri Ben Zakour.
 
 Examples::
 
@@ -62,14 +61,14 @@ Misc
 
 __author__ = "Mitchell Stanton-Cook"
 __licence__ = "ECL"
-__version__ = "0.1"
+__version__ = "0.2"
 __email__ = "m.stantoncook@gmail.com"
 epi = "Licence: "+ __licence__ +  " by " + __author__ + " <" + __email__ + ">"
 USAGE = "vfdb_to_seqfindr -h"
 
 
-import sys, os, traceback, argparse, time
-
+import sys, os, traceback, argparse, time, fileinput, shutil
+from   Bio import SeqIO
 
 def main():
     global args
@@ -107,7 +106,44 @@ def main():
                 else:
                     fout.write(line.strip().upper()+'\n')
     print 'Wrote %s records' % count
+    if not args.blank_class:
+        order_by_class()
 
+def order_by_class():
+    """
+    Ensure that all particualr classes are in the same block
+    """
+    global args
+    
+    d = {}
+    with open(args.outfile, "rU") as fin:
+        for record in SeqIO.parse(fin, "fasta") :
+            cur_class = record.description.split('[')[-1].split(']')[0].strip()
+            if not d.has_key(cur_class):
+                d[cur_class] = []
+                cur = d[cur_class]
+                cur.append(record)
+                d[cur_class] = cur
+            else:
+                cur = d[cur_class]
+                cur.append(record)
+                d[cur_class] = cur
+        BASE, EXT = os.path.splitext(args.outfile)
+        sub_files = []
+        for key in d.keys():
+            # Write each of the subfiles
+            sub_files.append(BASE+"_"+key+EXT)
+            with open(sub_files[-1], 'w') as fout:
+                cur = d[key]
+                for e in cur:
+                    fout.write('>'+e.description+'\n')
+                    fout.write(str(e.seq)+'\n')
+            handle.close()
+        # Write the concatenated
+        with open(BASE+".tmp", 'w') as fout:
+            for line in fileinput.input(sub_files):
+                fout.write(line)
+    shutil.mv(BASE+".tmp", args.outfile)
 
 if __name__ == '__main__':
     try:
