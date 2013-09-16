@@ -142,7 +142,7 @@ def order_by_class():
         with open(BASE+".tmp", 'w') as fout:
             for line in fileinput.input(sub_files):
                 fout.write(line)
-    shutil.mv(BASE+".tmp", args.outfile)
+    shutil.move(BASE+".tmp", args.outfile)
 
 if __name__ == '__main__':
     try:
