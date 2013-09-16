@@ -137,7 +137,7 @@ SeqFindR database files
 The SeqFindR database is in multi-fasta format. The header needs to be
 formatted with *4 comma separated* elements.
 
-The elements are:
+The elements headers are:
     * identifier,
     * common name,
     * description and 
