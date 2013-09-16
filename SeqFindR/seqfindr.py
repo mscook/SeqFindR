@@ -33,19 +33,20 @@ from   scipy.spatial.distance  import pdist
 
 from Bio import SeqIO
 
-import SeqFindR.__init__ as meta
-import imaging
-import config
-import util
-import blast
+from SeqFindR import (__license__, __author__, __author_email__, __title__, 
+                     __version__, __description__, __url__)
+from SeqFindR import imaging
+from SeqFindR import config
+from SeqFindR import util
+from SeqFindR import blast
 
-epi = "Licence: %s by %s <%s>" % (meta.__license__, 
-                                  meta.__author__,
-                                  meta.__author_email__)
-__doc__ = " %s v%s - %s (%s)" % (meta.__title__, 
-                                 meta.__version__, 
-                                 meta.__description__, 
-                                 meta.__url__)
+epi = "Licence: %s by %s <%s>" % (__license__, 
+                                  __author__,
+                                  __author_email__)
+__doc__ = " %s v%s - %s (%s)" % ( __title__, 
+                                  __version__, 
+                                  __description__, 
+                                  __url__)
 
 
 def prepare_queries(args):

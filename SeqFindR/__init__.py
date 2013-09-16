@@ -11,6 +11,11 @@
 #     or implied. See the License for the specific language governing
 #     permissions and limitations under the License.
 
+import imaging
+import config
+import util
+import blast
+
 __title__        = 'SeqFindR'
 __version__      = '0.25'
 __description__  = "A tool to easily create informative genomic feature plots" 
