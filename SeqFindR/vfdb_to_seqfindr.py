@@ -132,7 +132,8 @@ def order_by_class():
         sub_files = []
         for key in d.keys():
             # Write each of the subfiles
-            sub_files.append(BASE+"_"+key+EXT)
+            tmp = key.replace(' ', '_')
+            sub_files.append(BASE+"_"+tmp+EXT)
             with open(sub_files[-1], 'w') as fout:
                 cur = d[key]
                 for e in cur:
