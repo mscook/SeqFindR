@@ -138,7 +138,6 @@ def order_by_class():
                 for e in cur:
                     fout.write('>'+e.description+'\n')
                     fout.write(str(e.seq)+'\n')
-            handle.close()
         # Write the concatenated
         with open(BASE+".tmp", 'w') as fout:
             for line in fileinput.input(sub_files):
