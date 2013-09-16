@@ -21,6 +21,8 @@ import sys, os, traceback, argparse
 import time
 import ast
 
+sys.path.insert(0, "../")
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -33,12 +35,18 @@ from   scipy.spatial.distance  import pdist
 
 from Bio import SeqIO
 
-from SeqFindR import (__license__, __author__, __author_email__, __title__, 
-                     __version__, __description__, __url__)
 from SeqFindR import imaging
 from SeqFindR import config
 from SeqFindR import util
 from SeqFindR import blast
+
+__title__        = 'SeqFindR'
+__version__      = '0.25'
+__description__  = "A tool to easily create informative genomic feature plots" 
+__author__       = 'Mitchell Stanton-Cook'
+__license__      = 'ECL 2.0'
+__author_email__ = "m.stantoncook@gmail.com"
+__url__         = 'http://github.com/mscook/SeqFindR'
 
 epi = "Licence: %s by %s <%s>" % (__license__, 
                                   __author__,
