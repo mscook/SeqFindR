@@ -21,8 +21,6 @@ import sys, os, traceback, argparse
 import time
 import ast
 
-sys.path.insert(0, "../")
-
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -236,7 +234,6 @@ def cluster_matrix(matrix, y_labels, dpi):
     matrix = np.array(tmp)
     return matrix, updated_ylabels
 
-
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
                 show_gene_labels, color_index, config_object, grid, seed,
 		        dpi, size, aspect='auto'):
@@ -251,11 +248,15 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param color_index: for a single class, choose a specific color
     """
     if config_object['category_colors'] != None:
-            colors = config_object['category_colors']
+        colors = config_object['category_colors']
     else:
         colors = imaging.generate_colors(len(set(vfs_classes)), seed)
     if color_index != None:
-        colors = [colors[int(color_index)]]
+        print color_index
+        print colors
+        colors = [colors[(color_index)]]
+        print colors
+        print "\n"
     # Build the regions to be shaded differently
     regions, prev = [], 0
     for i in xrange(0, len(vfs_classes)-1):
@@ -437,7 +438,7 @@ if __name__ == '__main__':
                                         'similarity. [default = do ' 
                                         'clustering]. See manual for more ' 
                                         'info'))
-        fig.add_argument('--color', action='store', default=None, 
+        fig.add_argument('--color', action='store', default=None, type=int,
                                 help=('The color index [default = None]. ' 
                                         'See manual for more info'))
         fig.add_argument('--DPI', action='store', type=int, default=300,  
