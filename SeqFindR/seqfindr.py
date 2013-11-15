@@ -234,9 +234,9 @@ def cluster_matrix(matrix, y_labels, dpi):
     matrix = np.array(tmp)
     return matrix, updated_ylabels
 
-def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels, 
-                show_gene_labels, color_index, config_object, grid, seed,
-		        dpi, size, aspect='auto'):
+def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
+        show_gene_labels, color_index, config_object, grid, seed, 
+        dpi, size, aspect='auto', svg=False):
     """
     Plot the VF hit matrix
 
@@ -298,7 +298,10 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     x, y = size.split('x')
     x, y = float(x), float(y)
     fig.set_size_inches(x, y, dpi=dpi)
-    plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
+    if svg: 
+        plt.savefig("results.svg", bbox_inches='tight',dpi=dpi)
+    else:
+        plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
 
 
 def do_run(args, data_path, match_score, vfs_list):
@@ -367,7 +370,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -445,6 +448,7 @@ if __name__ == '__main__':
                                 help='DPI of figure [default = 300]')
         fig.add_argument('--seed', action='store', type=int, default=99,  
                                 help='Color generation seed')
+        fig.add_argument('--svg', action='store_true', default=False, help=('Draws figure in svg'))
         fig.add_argument('--size', action='store', type=str, default='10x12', 
                                 help='Size of figure [default = 10x12 '
                                     '(inches)]')
