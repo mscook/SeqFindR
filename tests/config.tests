@@ -1,0 +1,52 @@
+    >>> from SeqFindR import config
+    >>>
+    >>> # Test with no (assuming ~/.SeqFindR.cfg does not exist
+    >>> SeqFindR_cfg = config.SeqFindRConfig()
+    >>> SeqFindR_cfg.dump_items()
+    >>>
+    >>> # What happens if we don't exist
+    >>> SeqFindR_cfg = config.SeqFindRConfig('/i/do/not/exist/SeqFindR.cfg')
+    >>> SeqFindR_cfg.dump_items()
+    >>> 
+    >>> # What about an empty config
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.1')
+    >>> SeqFindR_cfg.dump_items()
+    >>>
+    >>> # What about a config with category_colors = line empty
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.2')
+    >>> SeqFindR_cfg.dump_items()
+    >>> 
+    >>> # Malformed list
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.3')
+    >>> SeqFindR_cfg.dump_items()
+    >>>
+    >>> # Not a triplet..
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.4')
+    >>> SeqFindR_cfg.dump_items()
+    category_colors = [(0.0, 0.0, 0.0)]
+    >>>
+    >>> # Strings not ints
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.5')
+    >>> SeqFindR_cfg.dump_items()
+    >>>
+    >>> # Non-existant option
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg.6')
+    >>> SeqFindR_cfg.dump_items()
+    >>>
+    >>> # Expectant output
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg')
+    >>> SeqFindR_cfg.dump_items()
+    category_colors = [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    >>>
+    >>> # For completeness test the getters and setters
+    >>> SeqFindR_cfg = config.SeqFindRConfig('config/SeqFindR.cfg')
+    >>> print SeqFindR_cfg['category_colors']
+    [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    >>> print SeqFindR_cfg['Non existant']
+    None
+    >>> SeqFindR_cfg['category_colors'] = [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> print SeqFindR_cfg['category_colors']
+    [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> SeqFindR_cfg['non_existant'] = [(0.1, 0.9, 0.7), (0.0, 1.0, 1.0)]
+    >>> print  SeqFindR_cfg['non_existant']
+    None

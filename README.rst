@@ -6,21 +6,13 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
-**This is an early release version of SeqFindR.** The tool is still undergoing 
-rapid development. **We have only tested SeqFindR on linux systems.** There 
-has been some success with Mac OSX: 
-https://github.com/mscook/SeqFindR/issues/11
+**SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
+undergo bug fixes and feature enhancement.**
 
+**We have only tested SeqFindR on linux systems.** There has been some 
+success with `MacOSX`_. 
 
-Latest important changes (**are not documented at the moment**)
-    * Added Ability to use amino acid sequences as Virluence factors
-    * Added helper method to automatically detect type of sequence file (nucl 
-      or pro)
-    * Added commandline override option for above auto-detection (-R)
-    * Replaced a number of system calls and pathnames with cross  platform 
-      friendly alternatives
-    * Added support for fasta file extensions .fna, .fas, .fa; rather than just
-      .fas (For query sequences)
+Please see the `changelog`_ for most recent changes/fixes/enhancements.
 
 
 Requirements
@@ -29,20 +21,33 @@ Requirements
 You'll need to install/have installed:
     * ncbiblast >= 2.2.27
     * python >= 2.7 (Python 3 is not supported)
+    * `pip`_
 
 You can check these are installed by::
     
     $ python --version
     $ which blastn
+    $ which pip
 
-The following python libraries will be installed automatically if you follow 
-the installation instructions detailed below.
 
-We also use the following python libraries:
+The following python libraries will be (may be) installed automatically if 
+you follow the installation instructions detailed below.
+
+We use the following python `libraries`_:
     * numpy >= 1.6.1
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
     * biopython >= 1.59
+    * ghalton>=0.6
+
+The state of python packaging is that bad you could miss many nights sleep. 
+I'm looking at you SciPy. **For the smoothest possible install we recommend 
+installing the requirements using your distributions package manager.** 
+
+For Ubuntu::
+
+    sudo apt-get install python-numpy python-scipy python-matplotlib
+    python-biopython ncbi-blast+ python-dev python-pip
 
 
 Installation
@@ -62,7 +67,7 @@ Option 1b (as a standard user)::
     $ pip install SeqFindR --user
 
 
-You'll need to have git installed for the following alternative install 
+**You'll need to have git installed** for the following alternative install 
 options. git can be really useful for scientists. See `here`_ for some 
 discussion.
 
@@ -132,7 +137,7 @@ SeqFindR database files
 The SeqFindR database is in multi-fasta format. The header needs to be
 formatted with *4 comma separated* elements.
 
-The elements are:
+The elements headers are:
     * identifier,
     * common name,
     * description and 
@@ -190,7 +195,6 @@ sequence is a Toxin would look like this::
     Toxin
 
 
-
 How does SeqFindR determine positive hits
 -----------------------------------------
 
@@ -213,13 +217,13 @@ Where:
 **What problems may this approach cause?** I'm still looking into it...
 
 
-
 Fine grain configuration
 ------------------------
 
-As of the 04/07/13 SeqFindR can read a configuartion file. At the moment you
-can only redefine the default category colors. The configuration file 
-is expected to expand in the future.
+SeqFindR can read a configuartion file. At the moment you can only redefine 
+the category colors (suppose you want to use a set of fixed colors instead of 
+the deault randomly generated). The configuration file is expected to expand 
+in the future.
 
 To define category colors::
 
@@ -238,11 +242,16 @@ For example the first row of colors in RGB is:
 Tutorial
 --------
 
+**Note:** The version 0.2 API has changed. Please fimilarise yourself with 
+the changes. We also now provide a `script`_ to run all the examples. 
+**Note:** We have changed the color generation code. As a consequence the 
+backgound colors will be different when running this yourself. The results 
+will not change.
+
 Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
-    * A database file called *Antibiotic_markers.fa* (-d option)
+    * A database file called *Antibiotic_markers.fa* 
     * A ordering file called *dummy.order* (-i option)
     * An assemblies directory containing *strain1.fa, strain2.fa and strain3.fa*
-      (-a option)
     * A consensus directory containing *strain1.fa, strain2.fa and strain3.fa*
       (-m option)
 
@@ -255,14 +264,23 @@ The toy assemblies and consesuses were generated such that:
       mis-assembly of 70-aphA(1)1310, 70-tem8674 and 70-aadA1588
 
 
+Running all the examples at once
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Something like this::
+
+    $ #Assuming you git cloned, python setup.py install
+    $ cd SeqFindR/example
+    $ ./run_examples.sh
+    $ #See directories run1/ run2/ run3/ run4/
+
+
 Run 1 - Looking at only assemblies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 Command::
 
-    SeqFindR -o run1 -d Antibiotic_markers.fa -a assemblies/ -l
-
+    SeqFindR Antibiotic_markers.fa assemblies/ -o run1 -l 
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1_small.png
     :alt: run1
@@ -277,8 +295,7 @@ Run 2 - Combining assembly and mapping consensus data
 
 Command::
 
-    SeqFindR -o run2 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l
-
+    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run2 -l
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png
     :alt: run2
@@ -293,8 +310,7 @@ Run 3 - Combining assembly and mapping consensus data with differentiation betwe
 
 Command::
 
-    SeqFindR -o run3 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -r
-
+    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run3 -l -r
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3_small.png
     :alt: run3
@@ -319,8 +335,7 @@ Run 4 - Combining assembly and mapping consensus data with defined ordering
 
 Command::
 
-    SeqFindR -o run4 -d Antibiotic_markers.fa -a assemblies/ -m consensus/ -l -i dummy.order -r
-
+    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run4 -l -r --index_file dummy.order
 
 .. image:: https://raw.github.com/mscook/SeqFindR/master/example/run4_small.png
     :alt: run4
@@ -333,8 +348,13 @@ Link to full size `run4`_.
 How to generate mapping consensus data
 --------------------------------------
 
+**We strongly recommend that you use mapping consensus data.** It minimises 
+the effects of missassembly and collapsed repeats.
+
 We use `Nesoni`_. We use the database file (in multi-fasta format) as the 
-reference. The workflow is something like this::
+reference for mapping. Nesoni has no issues with multifasta files as 
+references (BWA will treat them as separate chomosomes). 
+The workflow is something like this::
 
     $ nesoni make-reference myref ref-sequences.fa
     $ # for each strain
@@ -356,44 +376,44 @@ Caveats:
       SeqFindR_nesoni), 
     * The (poor) alignment of reads at the start and the end of the database 
       genes can result in N calls. This can result in downstream false 
-      negatives. We are currently working on this.
+      negatives.
+
+**As of version 0.2 of SeqFindR we now provide a solution to minimise the 
+effects of poor mapping at the start and end of the given  sequences.** 
+
+The SeqFindR option is -s or --STRIP::
+
+    -s STRIP, --strip STRIP Strip the 1st and last N bases of mapping consensuses & database [default = 10]
+
+By default this strips the 1st and last 10 bases from the mapping consensuses. 
+We have had good results with this value. Feel free to experiment with 
+different values (say, -s 0, -s 5, -s 10, -s 15). Please see `image-compare`_ 
+a script we developed to compare the effects of different values of -s on the 
+resultant figures. 
 
 
 SeqFindR usage options
 ----------------------
 
-Help listing::
+See the help `listing`_. You can get this yourself with::
 
-    Usage: SeqFindR.py -o OUTPUT -d DB -a ASS [-h] [-v] [-t TOL] [-m CONS]
-                       [-i INDEX] [-l] [-c COLOR] [-r]
-
-    optional arguments:
-      -h, --help                 show this help message and exit
-      -v, --verbose              verbose output
-      -o OUTPUT, --output OUTPUT [Required] output prefix
-      -d DB, --db DB             [Required] full path database fasta file
-      -a ASS, --ass ASS          [Required] full path to dir containing assemblies
-      -t TOL, --tol TOL          Similarity cutoff (default = 0.95)
-      -m CONS, --cons CONS       full path to dir containing consensuses (default = None)
-      -i INDEX, --index INDEX    maintain order of index (no cluster) (default = None)
-      -l, --label_genes          label the x axis (default = False)
-      -c COLOR, --color COLOR    color index (default = None)
-      -r, --reshape              Differentiate between mapping and assembly hits
-
-    Licence: ECL by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
+    $ SeqFindR -h
 
 
 Future
 ------
 
-Current plans:
-    * Make into a Web Application
-    * Trim off first N characters when using mapping consensuses
-    * More dynamic sizing labelling
+Please see the `TODO`_ for future SeqFindR project directions.
 
-
-
+.. _pip: http://www.pip-installer.org/en/latest/
+.. _libraries: https://github.com/mscook/SeqFindR/blob/master/requirements.txt
+.. _MacOSX: https://github.com/mscook/SeqFindR/issues/11
+.. _script: https://github.com/mscook/SeqFindR/blob/master/example/run_examples.sh
+.. _image-compare: https://github.com/mscook/image-compare
+.. _listing: https://github.com/mscook/SeqFindR/blob/master/HELP.rst
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
+.. _changelog: https://github.com/mscook/SeqFindR/blob/master/CHANGES.rst
+.. _TODO:  https://github.com/mscook/SeqFindR/blob/master/TODO.rst
 .. _run1: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
 .. _run2: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
 .. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
