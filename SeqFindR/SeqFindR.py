@@ -34,6 +34,8 @@ VirFindR. Presence/absence of virulence factors in draft genomes
 #       Everytime. Cache needs to be cleared manually, Will not check if Blast
 #       results are corrupt (e.g. filesize == 0, only that they are absent. )
 #  * Added svg option for results image. Use --svg flag 
+# 2013-09-06 Nabil-Fareed Alikhan <n.alikhan@uq.edu.au>
+#  * Added Genbank/Embl support for query files (your genome/assembly)
 
 
 import sys, os, traceback, argparse
@@ -178,6 +180,8 @@ def order_inputs(order_index_file, dir_listing):
     if len(lines) != len(dir_listing):
         print "In order_inputs(). Length mismatch"
         print len(lines )
+        print lines 
+        print dir_listing
         print len(dir_listing)
         sys.exit(1)
     ordered = []
@@ -212,7 +216,7 @@ def make_BLASTDB(fasta_file):
 
     :rtype: the strain id (must be delimited by '_')
     """
-    # MODIFIED BY NABIL 2013.07.168
+    # MODIFIED BY NABIL 2013.07.16
     # Uses subprocess to launch makeblastdb, easier for error handling 
     proc = subprocess.Popen([ "makeblastdb", "-in" , fasta_file, "-dbtype", \
             'nucl' ], stdout=subprocess.PIPE)
@@ -501,6 +505,9 @@ def do_run(vf_db, data_path, match_score, order, cutoff, vfs_list):
     # matching
     in_files = []
     for files in os.listdir(data_path):
+        # 2013.09.06 Nabil: Added genbank or embl preprocessing
+         
+        
         # TODO: There HAS to be a neater way of checking different extensions.
             if files.endswith(".fas") or files.endswith(".fna") \
                     or files.endswith(".fa"):
