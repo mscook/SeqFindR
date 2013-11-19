@@ -122,6 +122,7 @@ def strip_bases(args):
         sys.stderr.write("A stripped directory exists. Overwriting\n")
     # Update the args.cons to the stripped directory
     args.cons = new_cons_dir
+    args.strip = int(args.strip)
     # Strip the start and end
     for fa in fasta_in:
         tmp = os.path.basename(fa)
