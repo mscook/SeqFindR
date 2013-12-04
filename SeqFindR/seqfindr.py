@@ -237,7 +237,7 @@ def cluster_matrix(matrix, y_labels, dpi):
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
-        dpi, size, aspect='auto', svg=False):
+        dpi, size, svg, aspect='auto'):
     """
     Plot the VF hit matrix
 
