@@ -401,6 +401,9 @@ if __name__ == '__main__':
                                                      'BLASTn'))
         blast_opt.add_argument('--evalue', action='store', type=str,
                                 default='10', help=('BLAST evale (Expect)'))
+        blast_opt.add_argument('--short', action='store_true', type=str,
+                                default=False, help=('Have short queries i.e. '
+                                                    'PCR Primers'))
         parser.add_argument('-v', '--verbose', action='store_true', 
                                 default=False, help='verbose output')
         io.add_argument('-o','--output',action='store', 
