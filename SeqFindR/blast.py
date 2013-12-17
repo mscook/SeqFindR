@@ -100,9 +100,18 @@ def run_BLAST(query, database, args):
                         max_target_seqs=1, out='blast.xml')
         else:
             sys.stderr.write('Using blastn\n')
-            run_command = NcbiblastnCommandline(query=query, dust='no',
-                        db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                        max_target_seqs=1, out='blast.xml')
+            if args.short == False:
+                run_command = NcbiblastnCommandline(query=query, dust='no',
+                            db=database, outfmt=5, 
+                            num_threads=args.BLAST_THREADS,
+                            max_target_seqs=1, out='blast.xml')
+            else:
+                sys.stderr.write('Optimising for short query sequences\n')
+                run_command = NcbiblastnCommandline(query=query, dust='no',
+                            db=database, outfmt=5, word_size=7,
+                            num_threads=args.BLAST_THREADS, evalue=1000,
+                            max_target_seqs=1, out='blast.xml')
+
     sys.stderr.write(str(run_command)+"\n")
     run_command()
     return os.path.join(os.getcwd(), 'blast.xml')
