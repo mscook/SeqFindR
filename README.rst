@@ -240,6 +240,13 @@ For example the first row of colors in RGB is:
 (51,102,255), (102,51,255), (204,51,255), (255,51,204)
 
 
+Short PCR primers
+-----------------
+
+In some cases you may want to screen using PCR primers. Please use the --short 
+option. Here we adjust BLASTn paramaters wordsize = 7 & Expect Value = 1000
+
+
 Tutorial
 --------
 
