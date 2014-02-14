@@ -235,6 +235,36 @@ def cluster_matrix(matrix, y_labels, dpi):
     matrix = np.array(tmp)
     return matrix, updated_ylabels
 
+
+def read_existing_matrix_data(path_to_required_matrix_data, index_file):
+    """
+    WIth Provided existing data, this method reads & passes to plot_matrix
+    
+    :param path_to_required_matrix_data: full path to the directory containing 
+                                         the data
+    :param index_file: full path to an index file (can be none)
+    """
+    matrix = []  
+    reorder_row_matrix = []  
+    strain_labels = []   
+    vfs_list_xlabels = []
+    index_file = []
+    
+#with open('matrix.csv', 'rb') as m, open('extra_stuff/reorderedrowmatrix.txt', 'rb') as rrm,open('extra_stuff/strain_labels.txt', 'rb') as sl,open('extra_stuff/vfs_list_xlabels.txt', 'rb') as vfs, open('index.txt', 'rb') as index:   
+#  for row in rrm:
+#    reorder_row_matrix.append(row.strip('\n'))
+#  for row in sl:
+#    strain_labels.append(row.strip('\n'))
+#  for row in index:
+#     index_file.append(row.strip('\n'))
+#  for row in vfs:
+#    vfs_list_xlabels.append(row.strip('\n'))           
+#  reader = csv.reader(m)
+#  for row in reader:
+#      matrix.append(row)
+
+
+
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
         dpi, size, svg, aspect='auto'):
@@ -335,46 +365,49 @@ def core(args):
 
     :param args: the arguments given from argparse
     """
-    DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
-    args = util.ensure_paths_for_args(args)   
-    configObject = config.SeqFindRConfig()
-    util.init_output_dirs(args.output)
-    query_list, query_classes = prepare_queries(args)
-    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
-    if args.cons != None:
-        args = strip_bases(args)
-        #TODO: Exception handling if do_run fails or produces no results. 
-        # Should be caught here before throwing ugly exceptions downstream.
-        results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
-        if len(results_m) == len(results_a):
-            results_a, results_m = match_matrix_rows(results_a, results_m)
-            DEFAULT_NO_HIT = 1.0
-            matrix = np.array(results_a) + np.array(results_m)
-        else:
-            print "Assemblies and mapping consensuses don't match"
-            sys.exit(1)
+    if args.existing_matrix != None:
+        read_existing_matrix_data(args.existing_matrix, args.index_file)
     else:
-        args.reshape = False
-        results_a = strip_id_from_matrix(results_a)
-        matrix = np.array(results_a)
-    # cluster if not ordered
-    if args.index_file == None:
-        matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
-    np.savetxt("matrix.csv", matrix, delimiter=",")
-    # Add the buffer
-    newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
-    matrix = np.vstack([newrow, matrix])
-    matrix = np.vstack([newrow, matrix])
-    #Handle new option to only show presence
-    if args.reshape == True:
-        for x in np.nditer(matrix, op_flags=['readwrite']):
-            if x < 0.99:
-                x[...] = -1.0
-    ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
-    # Handle labels here
-    os.system("rm blast.xml")
-    os.system("rm DBs/*")
+        DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
+        args = util.ensure_paths_for_args(args)   
+        configObject = config.SeqFindRConfig()
+        util.init_output_dirs(args.output)
+        query_list, query_classes = prepare_queries(args)
+        results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
+        if args.cons != None:
+            args = strip_bases(args)
+            #TODO: Exception handling if do_run fails or produces no results. 
+            # Should be caught here before throwing ugly exceptions downstream.
+            results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
+            if len(results_m) == len(results_a):
+                results_a, results_m = match_matrix_rows(results_a, results_m)
+                DEFAULT_NO_HIT = 1.0
+                matrix = np.array(results_a) + np.array(results_m)
+            else:
+                print "Assemblies and mapping consensuses don't match"
+                sys.exit(1)
+        else:
+            args.reshape = False
+            results_a = strip_id_from_matrix(results_a)
+            matrix = np.array(results_a)
+        # cluster if not ordered
+        if args.index_file == None:
+            matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
+        np.savetxt("matrix.csv", matrix, delimiter=",")
+        # Add the buffer
+        newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
+        matrix = np.vstack([newrow, matrix])
+        matrix = np.vstack([newrow, matrix])
+        #Handle new option to only show presence
+        if args.reshape == True:
+            for x in np.nditer(matrix, op_flags=['readwrite']):
+                if x < 0.99:
+                    x[...] = -1.0
+        ylab = ['', '']+ ylab
+        plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
+        # Handle labels here
+        os.system("rm blast.xml")
+        os.system("rm DBs/*")
 
 
 if __name__ == '__main__':
@@ -460,10 +493,9 @@ if __name__ == '__main__':
                                 default=10, help=('Strip the 1st and last N ' 
                                         'bases of mapping consensuses & ' 
                                         'database [default = 10]'))
-        io.add_argument('--EXISTING_MATRIX', action='store_true', 
-                                default=False, help=('Use existing SeqFindR ' 
-                                        'matrix (reformat the plot) ' 
-                                        '[default = False]'))
+        io.add_argument('--existing_matrix', action='store', type=str, 
+                                help=('Full path to a matrix data ' 
+                                        'directory'))
         blast_opt.add_argument('--BLAST_THREADS', action='store', type=int, 
                                 default=1, help=('Use this number of threads '
                                         'in BLAST run [default = 1]'))
