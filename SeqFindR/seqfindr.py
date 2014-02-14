@@ -41,7 +41,7 @@ from SeqFindR import blast
 __title__        = 'SeqFindR'
 __version__      = '0.26'
 __description__  = "A tool to easily create informative genomic feature plots" 
-__author__       = 'Mitchell Stanton-Cook'
+__author__       = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__      = 'ECL 2.0'
 __author_email__ = "m.stantoncook@gmail.com"
 __url__         = 'http://github.com/mscook/SeqFindR'
