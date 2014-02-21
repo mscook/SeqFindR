@@ -247,13 +247,13 @@ def read_existing_matrix_data(args):
                  of the data directory
 
     :returns: tuple - of lists containing required data in the order (matrix, 
-              reorder_row_matrix, strain_labels, vfs_list_xlabel, index_file_l)
+              classes, strain_labels, xlabels, index_file_l)
     """
     configObject = config.SeqFindRConfig()
     matrix = []  
-    reorder_row_matrix = []  
+    classes = []  
     strain_labels = []   
-    vfs_list_xlabels = []
+    xlabels = []
     index_file_l = []
     # Fix if shorthand ~/
     data_dir = os.path.expanduser(args.data_dir)
@@ -262,9 +262,9 @@ def read_existing_matrix_data(args):
         index_file = os.path.expanduser(index_file)
     # Open all stored files
     with open(os.path.join(data_dir, 'matrix.csv'), 'rb')  as m,               \
-         open(os.path.join(data_dir, 'reorderedrowmatrix.txt'), 'rb') as rrm, \
+         open(os.path.join(data_dir, 'classes.txt'), 'rb') as rrm, \
          open(os.path.join(data_dir, 'strain_labels.txt'), 'rb') as sl,       \
-         open(os.path.join(data_dir, 'vfs_list_xlabels.txt'), 'rb') as vfs:
+         open(os.path.join(data_dir, 'xlabels.txt'), 'rb') as vfs:
         # Handle index file. By default we end up with index according to 
         # the strain labels order
         if index_file == None:
@@ -272,7 +272,7 @@ def read_existing_matrix_data(args):
         else:
             index = open(index_file, 'rb')
         for row in rrm:
-            reorder_row_matrix.append(row.strip('\n'))
+            classes.append(row.strip('\n'))
         for row in sl:
             strain_labels.append(row.strip('\n'))
         if index_file == None:
@@ -280,23 +280,25 @@ def read_existing_matrix_data(args):
         for row in index:
             index_file_l.append(row.strip('\n'))
         for row in vfs:
-            vfs_list_xlabels.append(row.strip('\n'))           
+            xlabels.append(row.strip('\n'))           
         reader = csv.reader(m)
         for row in reader:
             matrix.append(row)
     # Convert matrix to numpy matrix
     matrix = np.array(matrix)
     matrix = matrix.astype(np.float)
-    plot_matrix(matrix, strain_labels, reorder_row_matrix, vfs_list_xlabels,  \
+    plot_matrix(matrix, strain_labels, classes, xlabels,  \
             args.label_genes, args.color, configObject, args.grid, args.seed, \
-            args.DPI, args.size, args.svg)
+            args.DPI, args.size, args.svg, None)
              
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
-        dpi, size, svg, aspect='auto'):
+        dpi, size, svg, compress, aspect='auto'):
     """
     Plot the VF hit matrix
+
+    TODO: update doc for this
 
     :param matrix: the numpy matrix of scores
     :param strain_labels: the strain (y labels)
@@ -305,6 +307,27 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param show_gene_labels: wheter top plot the gene labels
     :param color_index: for a single class, choose a specific color
     """
+    # Saving data for regeneration
+    if compress != None:
+        try:
+            os.makedirs('data')
+        except OSError:
+            sys.stderr.write("A data directory exists. Exiting\n")
+            sys.exit(-1)
+        classes = open(os.path.join('data', "classes.txt"), 'wb')
+        for item in vfs_classes:
+            classes.write(item+'\n')
+        classes.close()
+        xlab = open(os.path.join('data', "xlabels.txt"), 'wb')
+        for item in gene_labels:
+            xlab.write(item+'\n')
+        xlab.close()
+        ylab = open(os.path.join('data', "strain_labels.txt"), 'wb')
+        for item in strain_labels:
+            if(item != ''):
+                ylab.write(item+'\n')
+        ylab.close()
+
     if config_object['category_colors'] != None:
         colors = config_object['category_colors']
     else:
@@ -428,7 +451,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg, args.compress) 
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
