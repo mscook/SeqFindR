@@ -62,6 +62,8 @@ def prepare_queries(args):
 
     A sequence of interest file is a mfa file in the format:
 
+    TODO: Update the return of this docstring
+
     >ident, gene id, annotation, organism [class]
 
     query = gene id
@@ -77,13 +79,16 @@ def prepare_queries(args):
     :rtype: 2 lists, 1) of all queries and, 2) corresponding query classes
     """
     query_list, query_classes = [], []
-
+    lookup_dict = {}
     with open(args.seqs_of_interest, "rU") as fin:
         records = SeqIO.parse(fin, "fasta")
         for rec in records:
             cur = rec.description
-            query_list.append(cur.split(',')[1].strip())
-            query_classes.append(cur.split('[')[-1].split(']')[0].strip())
+            cur_q = cur.split(',')[1].strip()
+            query_list.append(cur_q)
+            cur_c = cur.split('[')[-1].split(']')[0].strip()
+            query_classes.append(cur_c)
+            lookup_dict[cur_q] = cur_c
     unique = list(set(query_list))
     sys.stderr.write("Investigating %i features\n" % (len(unique)))
     for e in unique:
@@ -91,7 +96,7 @@ def prepare_queries(args):
             sys.stderr.write("Duplicates found for: %s\n" % (e))
             sys.stderr.write("Fix duplicates\n")
             sys.exit(1)
-    return query_list, query_classes
+    return query_list, query_classes, lookup_dict
 
 
 def strip_bases(args):
@@ -292,6 +297,16 @@ def read_existing_matrix_data(args):
             args.DPI, args.size, args.svg, None)
              
 
+def compress_matrix(matrix, xlabels, classes):
+    """
+    Reduces a matrix by removing columns without data
+    
+    TODO: doc full
+    """
+    pass
+
+
+
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
         dpi, size, svg, compress, aspect='auto'):
@@ -422,7 +437,7 @@ def core(args):
     args = util.ensure_paths_for_args(args)   
     configObject = config.SeqFindRConfig()
     util.init_output_dirs(args.output)
-    query_list, query_classes = prepare_queries(args)
+    query_list, query_classes, lookup_dict = prepare_queries(args)
     results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
     if args.cons != None:
         args = strip_bases(args)
