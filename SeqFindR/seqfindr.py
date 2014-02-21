@@ -20,6 +20,7 @@ A tool to easily create informative genomic feature plots
 import sys, os, traceback, argparse
 import time
 import ast
+import csv
 
 import matplotlib
 matplotlib.use('Agg')
@@ -236,33 +237,54 @@ def cluster_matrix(matrix, y_labels, dpi):
     return matrix, updated_ylabels
 
 
-def read_existing_matrix_data(path_to_required_matrix_data, index_file):
+def read_existing_matrix_data(path_to_required_matrix_data, index_file=None):
     """
-    WIth Provided existing data, this method reads & passes to plot_matrix
-    
+    With Provided existing data, this method reads & passes to plot_matrix
+
     :param path_to_required_matrix_data: full path to the directory containing 
                                          the data
-    :param index_file: full path to an index file (can be none)
+    :param index_file: [default = None] full path to an index file
+    
+    :returns: tuple - of lists containing required data in the order (matrix, 
+              reorder_row_matrix, strain_labels, vfs_list_xlabel, index_file_l)
     """
     matrix = []  
     reorder_row_matrix = []  
     strain_labels = []   
     vfs_list_xlabels = []
-    index_file = []
-    
-#with open('matrix.csv', 'rb') as m, open('extra_stuff/reorderedrowmatrix.txt', 'rb') as rrm,open('extra_stuff/strain_labels.txt', 'rb') as sl,open('extra_stuff/vfs_list_xlabels.txt', 'rb') as vfs, open('index.txt', 'rb') as index:   
-#  for row in rrm:
-#    reorder_row_matrix.append(row.strip('\n'))
-#  for row in sl:
-#    strain_labels.append(row.strip('\n'))
-#  for row in index:
-#     index_file.append(row.strip('\n'))
-#  for row in vfs:
-#    vfs_list_xlabels.append(row.strip('\n'))           
-#  reader = csv.reader(m)
-#  for row in reader:
-#      matrix.append(row)
-
+    index_file_l = []
+    # Fix if shorthand ~/
+    path_to_required_matrix_data =                                            \
+                    os.path.expanduser(path_to_required_matrix_data)
+    index_file = os.path.expanduser(index_file)
+    # Open all stored files
+    with open(os.path.join(path_to_required_matrix_data,'matrix.csv'), 'rb')  \
+            as m, open(os.path.join(path_to_required_matrix_data,             \
+                'reorderedrowmatrix.txt'), 'rb') as rrm,                      \
+                open(os.path.join(path_to_required_matrix_data,               \
+                'strain_labels.txt'), 'rb') as sl,                            \
+                open(os.path.join(path_to_required_matrix_data,               \
+                'vfs_list_xlabels.txt'), 'rb') as vfs:
+        # Handle index file. By default we end up with index according to 
+        # the strain labels order
+        if index_file == None:
+            index = sl
+        else:
+            index = open(index_file, 'rb')
+        for row in rrm:
+            reorder_row_matrix.append(row.strip('\n'))
+        for row in sl:
+            strain_labels.append(row.strip('\n'))
+        for row in index:
+            index_file_l.append(row.strip('\n'))
+        for row in vfs:
+            vfs_list_xlabels.append(row.strip('\n'))           
+        reader = csv.reader(m)
+        for row in reader:
+            matrix.append(row)
+    print  matrix, reorder_row_matrix, strain_labels, vfs_list_xlabels, index_file_l
+    return matrix, reorder_row_matrix, strain_labels, vfs_list_xlabels,       \
+            index_file_l
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
