@@ -503,6 +503,10 @@ if __name__ == '__main__':
                                     default=False, help=('Label the x axis ' 
                                     +'with the query identifier [default = '
                                     'False]'))
+        fig.add_argument('-c', '--compress', action='store_true', 
+                                    default=False, help=('Remove columns ' 
+                                    +'where no hits are present [default = '
+                                    'False]'))
         algorithm.add_argument('-r', '--reshape', action='store_false', 
                                 default=True, help=('Differentiate ' 
                                         'between mapping and assembly hits in ' 
