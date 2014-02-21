@@ -324,9 +324,12 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         xlab.close()
         ylab = open(os.path.join('data', "strain_labels.txt"), 'wb')
         for item in strain_labels:
-            if(item != ''):
-                ylab.write(item+'\n')
+            # Don't skip bleedthrough
+            #if(item != ''):
+            ylab.write(item+'\n')
         ylab.close()
+        np.savetxt((os.path.join('data', 'matrix.csv')), matrix, delimiter=",")
+
 
     if config_object['category_colors'] != None:
         colors = config_object['category_colors']
