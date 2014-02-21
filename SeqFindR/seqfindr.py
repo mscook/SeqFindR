@@ -63,6 +63,7 @@ def prepare_queries(args):
     A sequence of interest file is a mfa file in the format:
 
     TODO: Update the return of this docstring
+    NOTE: MAY NOT NEED TO BUILD THE DICT HERE
 
     >ident, gene id, annotation, organism [class]
 
