@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#read_existing_matrix_data)!/usr/bin/env python
 
 # Copyright 2013 Mitchell Stanton-Cook Licensed under the
 #     Educational Community License, Version 2.0 (the "License"); you may
@@ -20,6 +20,8 @@ A tool to easily create informative genomic feature plots
 import sys, os, traceback, argparse
 import time
 import ast
+import csv
+from copy import deepcopy
 
 import matplotlib
 matplotlib.use('Agg')
@@ -61,6 +63,9 @@ def prepare_queries(args):
 
     A sequence of interest file is a mfa file in the format:
 
+    TODO: Update the return of this docstring
+    NOTE: MAY NOT NEED TO BUILD THE DICT HERE
+
     >ident, gene id, annotation, organism [class]
 
     query = gene id
@@ -76,13 +81,16 @@ def prepare_queries(args):
     :rtype: 2 lists, 1) of all queries and, 2) corresponding query classes
     """
     query_list, query_classes = [], []
-
+    lookup_dict = {}
     with open(args.seqs_of_interest, "rU") as fin:
         records = SeqIO.parse(fin, "fasta")
         for rec in records:
             cur = rec.description
-            query_list.append(cur.split(',')[1].strip())
-            query_classes.append(cur.split('[')[-1].split(']')[0].strip())
+            cur_q = cur.split(',')[1].strip()
+            query_list.append(cur_q)
+            cur_c = cur.split('[')[-1].split(']')[0].strip()
+            query_classes.append(cur_c)
+            lookup_dict[cur_q] = cur_c
     unique = list(set(query_list))
     sys.stderr.write("Investigating %i features\n" % (len(unique)))
     for e in unique:
@@ -90,7 +98,7 @@ def prepare_queries(args):
             sys.stderr.write("Duplicates found for: %s\n" % (e))
             sys.stderr.write("Fix duplicates\n")
             sys.exit(1)
-    return query_list, query_classes
+    return query_list, query_classes, lookup_dict
 
 
 def strip_bases(args):
@@ -171,6 +179,37 @@ def build_matrix_row(all_vfs, accepted_hits , score=None):
             row.append(0.5)
     return row
 
+
+def build_matrix_classrow(all_vfs, accepted_hits, query_classes, lookup_dict, 
+                            score=None):
+    """
+    Populate row given all possible hits, accepted hits and an optional score
+    
+    :param all_vfs: a list of all virulence factor ids
+    :param accepted_hits: a list of a hits that passed the cutoff
+    :param score: the value to fill the matrix with (default = None which 
+                  implies 0.5)
+    :param lookup_dict: a dictionary of query list values with the 
+                        corresponding query class values)
+
+    :type all_vfs: list
+    :type accepted_hits: list
+    :type score: float
+
+    :rtype: two lists of strings containing selected query classes (based on 
+            hits) and all query list values respectively
+    """
+    if score == None:
+        score = 0.0
+    classrow = []
+    for factor in all_vfs:
+        if factor in accepted_hits:
+            classrow.append(lookup_dict[factor])
+        else:
+            classrow.append(lookup_dict[factor])
+    return classrow, all_vfs
+
+
 def match_matrix_rows(ass_mat, cons_mat):
     """
     Reorder a second matrix based on the first row element of the 1st matrix
@@ -235,11 +274,122 @@ def cluster_matrix(matrix, y_labels, dpi):
     matrix = np.array(tmp)
     return matrix, updated_ylabels
 
+
+def read_existing_matrix_data(args):
+    """
+    With Provided existing data, this method reads & passes to plot_matrix
+
+    We have performed basic functional testing
+
+    *8Update this to handle compressed (i.e. what to have written).
+
+    :param args: an argparse set of arguments containing atleast the location
+                 of the data directory
+
+    :returns: tuple - of lists containing required data in the order (matrix, 
+              classes, strain_labels, xlabels, index_file_l)
+    """
+    configObject = config.SeqFindRConfig()
+    matrix = []  
+    classes = []  
+    strain_labels = []   
+    xlabels = []
+    index_file_l = []
+    # Fix if shorthand ~/
+    data_dir = os.path.expanduser(args.data_dir)
+    index_file = args.index_file
+    if index_file != None:
+        index_file = os.path.expanduser(index_file)
+    # Open all stored files
+    with open(os.path.join(data_dir, 'matrix.csv'), 'rb')  as m,               \
+         open(os.path.join(data_dir, 'classes.txt'), 'rb') as rrm, \
+         open(os.path.join(data_dir, 'strain_labels.txt'), 'rb') as sl,       \
+         open(os.path.join(data_dir, 'xlabels.txt'), 'rb') as vfs:
+        # Handle index file. By default we end up with index according to 
+        # the strain labels order
+        if index_file == None:
+            index = sl
+        else:
+            index = open(index_file, 'rb')
+        for row in rrm:
+            classes.append(row.strip('\n'))
+        for row in sl:
+            strain_labels.append(row.strip('\n'))
+        if index_file == None:
+            index.seek(0)
+        for row in index:
+            index_file_l.append(row.strip('\n'))
+        for row in vfs:
+            xlabels.append(row.strip('\n'))           
+        reader = csv.reader(m)
+        for row in reader:
+            matrix.append(row)
+    # Convert matrix to numpy matrix
+    matrix = np.array(matrix)
+    matrix = matrix.astype(np.float)
+    if args.compress == True:
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, xlabels, xlabels, strain_labels, classes)
+        plot_matrix(matrix, strain_labels, classes, xlabels,  \
+            args.label_genes, args.color, configObject, args.grid, args.seed, \
+            args.DPI, args.size, args.svg, None, reordered_rowmatrix, vfs_list_rowmatrix)
+    else:
+        plot_matrix(matrix, strain_labels, classes, xlabels,  \
+            args.label_genes, args.color, configObject, args.grid, args.seed, \
+            args.DPI, args.size, args.svg, None, None, None)
+
+             
+
+def compress_matrix(matrix, vfs_list, query_list, ylab, classes):
+    """
+    Reduces a matrix by removing columns without data
+    
+    TODO: doc full
+    """
+    reordered_matrix, matrix_write = [], []
+    rows, cols  = len(matrix), len(matrix[0])
+    for row in xrange(rows):
+        matrix_write += [[0]*cols]
+    reordered_rowmatrix, vfs_list_rowmatrix, scored_list = [], [], []
+    for i in range(int(len(matrix))):
+        for j in range(int(len(matrix[i]))):
+            # Finding the hits
+            if matrix[i][j] != float(0.5):
+                scored_list.append(j)
+                matrix_write[i][j] = vfs_list[j] 
+    matrix_write = zip(*matrix_write) 
+    matrix_write.insert(0, ylab)
+    matrix_write = zip(*matrix_write)
+    header = deepcopy(query_list)
+    header.insert(0, 'STRAINS')
+    matrix_write.insert(0, header)
+    np.savetxt("matrix_write.csv", matrix_write, delimiter=",", fmt="%s")
+    unique = list(set(scored_list))
+    # Actual compression section (for refactoring)
+    for a in unique:
+        reordered_matrix.append(list(matrix[:,a]))
+        reordered_rowmatrix.append(classes[a])
+        vfs_list_rowmatrix.append(vfs_list[a])
+    matrix = deepcopy(reordered_matrix) 
+    matrix = zip(*matrix)
+    matrix = np.array(matrix)
+    columns = matrix.shape[1]
+    return matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns
+
+
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
-        dpi, size, svg, aspect='auto'):
+        dpi, size, svg, compress, compressed_classes=None, 
+        compressed_gene_labels=None,aspect='auto'):
     """
     Plot the VF hit matrix
+
+    *NOTE:* Even if we're plotting a compressed matrix, we will always save
+    all data required to plot an uncompressed version.
+
+    TODO: update doc for this!!!
+
+    compressed_classes     ~= vfs_classes
+    compressed_gene_labels ~= gene_labels
 
     :param matrix: the numpy matrix of scores
     :param strain_labels: the strain (y labels)
@@ -248,16 +398,36 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     :param show_gene_labels: wheter top plot the gene labels
     :param color_index: for a single class, choose a specific color
     """
+    # Saving data for regeneration
+    if compress != None:
+        classes = open(os.path.join('data', "classes.txt"), 'wb')
+        for item in vfs_classes:
+            classes.write(item+'\n')
+        classes.close()
+        xlab = open(os.path.join('data', "xlabels.txt"), 'wb')
+        for item in gene_labels:
+            xlab.write(item+'\n')
+        xlab.close()
+        ylab = open(os.path.join('data', "strain_labels.txt"), 'wb')
+        for item in strain_labels:
+            # Don't skip bleedthrough
+            #if(item != ''):
+            ylab.write(item+'\n')
+        ylab.close()
+    # Toggle between all and compressed.
+    if compressed_classes != None and compressed_gene_labels != None:
+        vfs_classes = compressed_classes
+        gene_labels = compressed_gene_labels
+
     if config_object['category_colors'] != None:
         colors = config_object['category_colors']
     else:
+        print compress
+        print compressed_classes
+        print compressed_gene_labels
         colors = imaging.generate_colors(len(set(vfs_classes)), seed)
     if color_index != None:
-        print color_index
-        print colors
         colors = [colors[(color_index)]]
-        print colors
-        print "\n"
     # Build the regions to be shaded differently
     regions, prev = [], 0
     for i in xrange(0, len(vfs_classes)-1):
@@ -305,11 +475,11 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
 
 
-def do_run(args, data_path, match_score, vfs_list):
+def do_run(args, data_path, match_score, vfs_list, query_classes, lookup_dict):
     """
     Perform a SeqFindR run
     """
-    matrix, y_label = [], []
+    matrix, rowmatrix, y_label = [], [], []
     in_files = util.get_fasta_files(data_path)
     # Reorder if requested 
     if args.index_file != None:
@@ -321,9 +491,12 @@ def do_run(args, data_path, match_score, vfs_list):
         blast_xml     = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args)
         accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol))
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
+        classrow, vfs_list = build_matrix_classrow(vfs_list, accepted_hits, query_classes, lookup_dict, match_score)
         row.insert(0,strain_id)
         matrix.append(row)
-    return matrix, y_label
+        rowmatrix.append(classrow)
+    np.savetxt("matrix_with_strain_id.csv", matrix, fmt="%s",delimiter=" ")
+    return matrix, rowmatrix, y_label, vfs_list
 
 
 
@@ -339,8 +512,8 @@ def core(args):
     args = util.ensure_paths_for_args(args)   
     configObject = config.SeqFindRConfig()
     util.init_output_dirs(args.output)
-    query_list, query_classes = prepare_queries(args)
-    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
+    query_list, query_classes, lookup_dict = prepare_queries(args)
+    results_a, rowmatrix, ylab, vfs_list = do_run(args, args.assembly_dir, ASS_WT, query_list, query_classes, lookup_dict)
     if args.cons != None:
         args = strip_bases(args)
         #TODO: Exception handling if do_run fails or produces no results. 
@@ -360,7 +533,20 @@ def core(args):
     # cluster if not ordered
     if args.index_file == None:
         matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
-    np.savetxt("matrix.csv", matrix, delimiter=",")
+    reordered_rowmatrix, vfs_list_rowmatrix = None, None
+    save_matrix=matrix
+    newrow1 = [DEFAULT_NO_HIT] * save_matrix.shape[1] 
+    save_matrix = np.vstack([newrow1, save_matrix])                                        
+    save_matrix = np.vstack([newrow1, save_matrix])
+    try:                                                                        
+        os.makedirs('data')                                                     
+    except OSError:                                                             
+        sys.stderr.write("A data directory exists. Exiting\n")                  
+        sys.exit(-1)                                                            
+    np.savetxt((os.path.join('data', 'matrix.csv')), save_matrix, delimiter=",")
+    if args.compress == True:
+        # Call the remove gaps.
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab, query_classes)
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
     matrix = np.vstack([newrow, matrix])
@@ -371,7 +557,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg, args.compress, reordered_rowmatrix, vfs_list_rowmatrix)
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -380,17 +566,25 @@ def core(args):
 if __name__ == '__main__':
     try:
         start_time = time.time()
-        
         parser = argparse.ArgumentParser(description=__doc__, epilog=epi)
-        algorithm = parser.add_argument_group('Optional algorithm options', 
+        parser.add_argument('-v', '--verbose', action='store_true', 
+                                default=False, help='verbose output')
+        subparsers = parser.add_subparsers(help="Available commands:")
+        gen = subparsers.add_parser('generate', help=('Generate SeqFindR '
+                                                            'figure'))
+        regen = subparsers.add_parser('regenerate', help=('Regenerate SeqFindR '
+                                                            'figure'))
+        d3js = subparsers.add_parser('d3js', help=('Generate D3.js '
+                                                        'SeqFindR figure'))
+        algorithm = gen.add_argument_group('Optional algorithm options', 
                                     ('Options relating to the SeqFindR '
                                         'algorithm'))
-        io = parser.add_argument_group('Optional input/output options', 
+        io = gen.add_argument_group('Optional input/output options', 
                                     ('Options relating to input and output'))
 
-        fig = parser.add_argument_group('Figure options', ('Options relating ' 
+        fig = gen.add_argument_group('Figure options', ('Options relating ' 
                                     'to the output figure'))
-        blast_opt = parser.add_argument_group('BLAST options', ('Options relating ' 
+        blast_opt = gen.add_argument_group('BLAST options', ('Options relating ' 
                                     'to BLAST'))
         blast_opt.add_argument('-R', '--reftype', action='store', 
                                 help=('Reference Sequence type. If not given ' 
@@ -404,8 +598,6 @@ if __name__ == '__main__':
         blast_opt.add_argument('--short', action='store_true',
                                 default=False, help=('Have short queries i.e. '
                                                     'PCR Primers'))
-        parser.add_argument('-v', '--verbose', action='store_true', 
-                                default=False, help='verbose output')
         io.add_argument('-o','--output',action='store', 
                                 default=None, help=('Output the results to ' 
                                     'this location'))
@@ -413,12 +605,22 @@ if __name__ == '__main__':
                                 default=None, help=('Give all result files ' 
                                     'this prefix'))
         # Required options now positional arguments
-        parser.add_argument('seqs_of_interest', action='store', 
+        gen.add_argument('seqs_of_interest', action='store', 
                                 help=('Full path to FASTA file containing a ' 
                                     'set of sequences of interest'))
-        parser.add_argument('assembly_dir', action='store', 
+        gen.add_argument('assembly_dir', action='store', 
                                 help=('Full path to directory containing a' 
                                       'set of assemblies in FASTA format'))
+        regen.add_argument('data_dir', action='store', 
+                                help=('Full path to directory containing the' 
+                                      'data directory from a previous run'))
+        regen.add_argument('--index_file', action='store', default=None, 
+                                help=('Maintain the y axis strain order ' 
+                                        'according to order given in this ' 
+                                        'file. Otherwise clustering by row ' 
+                                        'similarity. [default = do ' 
+                                        'clustering]. See manual for more ' 
+                                        'info'))
         algorithm.add_argument('-t', '--tol', action='store', type=float, 
                                     default=0.95, help=('Similarity cutoff ' 
                                         '[default = 0.95]'))
@@ -429,6 +631,14 @@ if __name__ == '__main__':
         fig.add_argument('-l', '--label_genes', action='store_true', 
                                     default=False, help=('Label the x axis ' 
                                     +'with the query identifier [default = '
+                                    'False]'))
+        fig.add_argument('-c', '--compress', action='store_true', 
+                                    default=False, help=('Remove columns ' 
+                                    +'where no hits are present [default = '
+                                    'False]'))
+        regen.add_argument('-c', '--compress', action='store_true', 
+                                    default=False, help=('Remove columns ' 
+                                    +'where no hits are present [default = '
                                     'False]'))
         algorithm.add_argument('-r', '--reshape', action='store_false', 
                                 default=True, help=('Differentiate ' 
@@ -456,18 +666,34 @@ if __name__ == '__main__':
         fig.add_argument('--size', action='store', type=str, default='10x12', 
                                 help='Size of figure [default = 10x12 '
                                     '(inches)]')
+        regen.add_argument('-l', '--label_genes', action='store_true', 
+                                    default=False, help=('Label the x axis ' 
+                                    +'with the query identifier [default = '
+                                    'False]'))
+        regen.add_argument('-g', '--grid', action='store_false', default=True, 
+                                help='Figure has grid lines ' 
+                                    '[default = True]')
+        regen.add_argument('--color', action='store', default=None, type=int,
+                                help=('The color index [default = None]. ' 
+                                        'See manual for more info'))
+        regen.add_argument('--DPI', action='store', type=int, default=300,  
+                                help='DPI of figure [default = 300]')
+        regen.add_argument('--seed', action='store', type=int, default=99,  
+                                help='Color generation seed')
+        regen.add_argument('--svg', action='store_true', default=False, help=('Draws figure in svg'))
+        regen.add_argument('--size', action='store', type=str, default='10x12', 
+                                help='Size of figure [default = 10x12 '
+                                    '(inches)]')
         algorithm.add_argument('-s', '--strip', action='store', 
                                 default=10, help=('Strip the 1st and last N ' 
                                         'bases of mapping consensuses & ' 
                                         'database [default = 10]'))
-        io.add_argument('--EXISTING_MATRIX', action='store_true', 
-                                default=False, help=('Use existing SeqFindR ' 
-                                        'matrix (reformat the plot) ' 
-                                        '[default = False]'))
         blast_opt.add_argument('--BLAST_THREADS', action='store', type=int, 
                                 default=1, help=('Use this number of threads '
                                         'in BLAST run [default = 1]'))
-        parser.set_defaults(func=core)
+        gen.set_defaults(func=core)
+        regen.set_defaults(func=read_existing_matrix_data)
+        d3js.set_defaults(func=core)
         args = parser.parse_args()
         if args.verbose: 
             print "Executing @ " + time.asctime()
