@@ -21,6 +21,7 @@ import sys, os, traceback, argparse
 import time
 import ast
 import csv
+from copy import deepcopy
 
 import matplotlib
 matplotlib.use('Agg')
@@ -280,6 +281,8 @@ def read_existing_matrix_data(args):
 
     We have performed basic functional testing
 
+    *8Update this to handle compressed (i.e. what to have written).
+
     :param args: an argparse set of arguments containing atleast the location
                  of the data directory
 
@@ -324,12 +327,14 @@ def read_existing_matrix_data(args):
     # Convert matrix to numpy matrix
     matrix = np.array(matrix)
     matrix = matrix.astype(np.float)
+    print strain_labels
+    
     plot_matrix(matrix, strain_labels, classes, xlabels,  \
             args.label_genes, args.color, configObject, args.grid, args.seed, \
             args.DPI, args.size, args.svg, None)
              
 
-def compress_matrix(matrix, vfs_list, query_list, ylab):
+def compress_matrix(matrix, vfs_list, query_list, ylab, rowmatrix):
     """
     Reduces a matrix by removing columns without data
     
@@ -368,11 +373,18 @@ def compress_matrix(matrix, vfs_list, query_list, ylab):
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
         show_gene_labels, color_index, config_object, grid, seed, 
-        dpi, size, svg, compress, aspect='auto'):
+        dpi, size, svg, compress, compressed_classes=None, 
+        compressed_gene_labels=None,aspect='auto'):
     """
     Plot the VF hit matrix
 
-    TODO: update doc for this
+    *NOTE:* Even if we're plotting a compressed matrix, we will always save
+    all data required to plot an uncompressed version.
+
+    TODO: update doc for this!!!
+
+    compressed_classes     ~= vfs_classes
+    compressed_gene_labels ~= gene_labels
 
     :param matrix: the numpy matrix of scores
     :param strain_labels: the strain (y labels)
@@ -383,11 +395,6 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     """
     # Saving data for regeneration
     if compress != None:
-        try:
-            os.makedirs('data')
-        except OSError:
-            sys.stderr.write("A data directory exists. Exiting\n")
-            sys.exit(-1)
         classes = open(os.path.join('data', "classes.txt"), 'wb')
         for item in vfs_classes:
             classes.write(item+'\n')
@@ -402,19 +409,20 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
             #if(item != ''):
             ylab.write(item+'\n')
         ylab.close()
-        np.savetxt((os.path.join('data', 'matrix.csv')), matrix, delimiter=",")
-
+    # Toggle between all and compressed.
+    if compress == True:
+        vfs_classes = compressed_classes
+        gene_labels = compressed_gene_labels
 
     if config_object['category_colors'] != None:
         colors = config_object['category_colors']
     else:
+        print compress
+        print compressed_classes
+        print compressed_gene_labels
         colors = imaging.generate_colors(len(set(vfs_classes)), seed)
     if color_index != None:
-        print color_index
-        print colors
         colors = [colors[(color_index)]]
-        print colors
-        print "\n"
     # Build the regions to be shaded differently
     regions, prev = [], 0
     for i in xrange(0, len(vfs_classes)-1):
@@ -520,14 +528,20 @@ def core(args):
     # cluster if not ordered
     if args.index_file == None:
         matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
-    
+    reordered_rowmatrix, vfs_list_rowmatrix = None, None
+    save_matrix=matrix
+    newrow1 = [DEFAULT_NO_HIT] * save_matrix.shape[1] 
+    save_matrix = np.vstack([newrow1, save_matrix])                                        
+    save_matrix = np.vstack([newrow1, save_matrix])
+    try:                                                                        
+        os.makedirs('data')                                                     
+    except OSError:                                                             
+        sys.stderr.write("A data directory exists. Exiting\n")                  
+        sys.exit(-1)                                                            
+    np.savetxt((os.path.join('data', 'matrix.csv')), save_matrix, delimiter=",")
     if args.compress == True:
         # Call the remove gaps.
-        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab)
-
-
-
-    np.savetxt("matrix.csv", matrix, delimiter=",")
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab, rowmatrix)
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
     matrix = np.vstack([newrow, matrix])
@@ -538,7 +552,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg, args.compress) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg, args.compress, reordered_rowmatrix, vfs_list_rowmatrix)
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
