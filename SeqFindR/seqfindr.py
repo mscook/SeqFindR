@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#read_existing_matrix_data)!/usr/bin/env python
 
 # Copyright 2013 Mitchell Stanton-Cook Licensed under the
 #     Educational Community License, Version 2.0 (the "License"); you may
@@ -327,14 +327,19 @@ def read_existing_matrix_data(args):
     # Convert matrix to numpy matrix
     matrix = np.array(matrix)
     matrix = matrix.astype(np.float)
-    print strain_labels
-    
-    plot_matrix(matrix, strain_labels, classes, xlabels,  \
+    if args.compress == True:
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, xlabels, xlabels, strain_labels, classes)
+        plot_matrix(matrix, strain_labels, classes, xlabels,  \
             args.label_genes, args.color, configObject, args.grid, args.seed, \
-            args.DPI, args.size, args.svg, None)
+            args.DPI, args.size, args.svg, None, reordered_rowmatrix, vfs_list_rowmatrix)
+    else:
+        plot_matrix(matrix, strain_labels, classes, xlabels,  \
+            args.label_genes, args.color, configObject, args.grid, args.seed, \
+            args.DPI, args.size, args.svg, None, None, None)
+
              
 
-def compress_matrix(matrix, vfs_list, query_list, ylab, rowmatrix):
+def compress_matrix(matrix, vfs_list, query_list, ylab, classes):
     """
     Reduces a matrix by removing columns without data
     
@@ -362,7 +367,7 @@ def compress_matrix(matrix, vfs_list, query_list, ylab, rowmatrix):
     # Actual compression section (for refactoring)
     for a in unique:
         reordered_matrix.append(list(matrix[:,a]))
-        reordered_rowmatrix.append(rowmatrix[0][a])
+        reordered_rowmatrix.append(classes[a])
         vfs_list_rowmatrix.append(vfs_list[a])
     matrix = deepcopy(reordered_matrix) 
     matrix = zip(*matrix)
@@ -410,7 +415,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
             ylab.write(item+'\n')
         ylab.close()
     # Toggle between all and compressed.
-    if compress == True:
+    if compressed_classes != None and compressed_gene_labels != None:
         vfs_classes = compressed_classes
         gene_labels = compressed_gene_labels
 
@@ -541,7 +546,7 @@ def core(args):
     np.savetxt((os.path.join('data', 'matrix.csv')), save_matrix, delimiter=",")
     if args.compress == True:
         # Call the remove gaps.
-        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab, rowmatrix)
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab, query_classes)
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
     matrix = np.vstack([newrow, matrix])
@@ -628,6 +633,10 @@ if __name__ == '__main__':
                                     +'with the query identifier [default = '
                                     'False]'))
         fig.add_argument('-c', '--compress', action='store_true', 
+                                    default=False, help=('Remove columns ' 
+                                    +'where no hits are present [default = '
+                                    'False]'))
+        regen.add_argument('-c', '--compress', action='store_true', 
                                     default=False, help=('Remove columns ' 
                                     +'where no hits are present [default = '
                                     'False]'))
