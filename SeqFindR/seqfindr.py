@@ -178,6 +178,37 @@ def build_matrix_row(all_vfs, accepted_hits , score=None):
             row.append(0.5)
     return row
 
+
+def build_matrix_classrow(all_vfs, accepted_hits, query_classes, lookup_dict, 
+                            score=None):
+    """
+    Populate row given all possible hits, accepted hits and an optional score
+    
+    :param all_vfs: a list of all virulence factor ids
+    :param accepted_hits: a list of a hits that passed the cutoff
+    :param score: the value to fill the matrix with (default = None which 
+                  implies 0.5)
+    :param lookup_dict: a dictionary of query list values with the 
+                        corresponding query class values)
+
+    :type all_vfs: list
+    :type accepted_hits: list
+    :type score: float
+
+    :rtype: two lists of strings containing selected query classes (based on 
+            hits) and all query list values respectively
+    """
+    if score == None:
+        score = 0.0
+    classrow = []
+    for factor in all_vfs:
+        if factor in accepted_hits:
+            classrow.append(lookup_dict[factor])
+        else:
+            classrow.append(lookup_dict[factor])
+    return classrow, all_vfs
+
+
 def match_matrix_rows(ass_mat, cons_mat):
     """
     Reorder a second matrix based on the first row element of the 1st matrix
@@ -298,14 +329,41 @@ def read_existing_matrix_data(args):
             args.DPI, args.size, args.svg, None)
              
 
-def compress_matrix(matrix, xlabels, classes):
+def compress_matrix(matrix, vfs_list, query_list, ylab):
     """
     Reduces a matrix by removing columns without data
     
     TODO: doc full
     """
-    pass
-
+    reordered_matrix, matrix_write = [], []
+    rows, cols  = len(matrix), len(matrix[0])
+    for row in xrange(rows):
+        matrix_write += [[0]*cols]
+    reordered_rowmatrix, vfs_list_rowmatrix, scored_list = [], [], []
+    for i in range(int(len(matrix))):
+        for j in range(int(len(matrix[i]))):
+            # Finding the hits
+            if matrix[i][j] != float(0.5):
+                scored_list.append(j)
+                matrix_write[i][j] = vfs_list[j] 
+    matrix_write = zip(*matrix_write) 
+    matrix_write.insert(0, ylab)
+    matrix_write = zip(*matrix_write)
+    header = deepcopy(query_list)
+    header.insert(0, 'STRAINS')
+    matrix_write.insert(0, header)
+    np.savetxt("matrix_write.csv", matrix_write, delimiter=",", fmt="%s")
+    unique = list(set(scored_list))
+    # Actual compression section (for refactoring)
+    for a in unique:
+        reordered_matrix.append(list(matrix[:,a]))
+        reordered_rowmatrix.append(rowmatrix[0][a])
+        vfs_list_rowmatrix.append(vfs_list[a])
+    matrix = deepcopy(reordered_matrix) 
+    matrix = zip(*matrix)
+    matrix = np.array(matrix)
+    columns = matrix.shape[1]
+    return matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
@@ -404,11 +462,11 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
 
 
-def do_run(args, data_path, match_score, vfs_list):
+def do_run(args, data_path, match_score, vfs_list, query_classes, lookup_dict):
     """
     Perform a SeqFindR run
     """
-    matrix, y_label = [], []
+    matrix, rowmatrix, y_label = [], [], []
     in_files = util.get_fasta_files(data_path)
     # Reorder if requested 
     if args.index_file != None:
@@ -420,9 +478,12 @@ def do_run(args, data_path, match_score, vfs_list):
         blast_xml     = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args)
         accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol))
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
+        classrow, vfs_list = build_matrix_classrow(vfs_list, accepted_hits, query_classes, lookup_dict, match_score)
         row.insert(0,strain_id)
         matrix.append(row)
-    return matrix, y_label
+        rowmatrix.append(classrow)
+    np.savetxt("matrix_with_strain_id.csv", matrix, fmt="%s",delimiter=" ")
+    return matrix, rowmatrix, y_label, vfs_list
 
 
 
@@ -439,7 +500,7 @@ def core(args):
     configObject = config.SeqFindRConfig()
     util.init_output_dirs(args.output)
     query_list, query_classes, lookup_dict = prepare_queries(args)
-    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
+    results_a, rowmatrix, ylab, vfs_list = do_run(args, args.assembly_dir, ASS_WT, query_list, query_classes, lookup_dict)
     if args.cons != None:
         args = strip_bases(args)
         #TODO: Exception handling if do_run fails or produces no results. 
@@ -459,6 +520,13 @@ def core(args):
     # cluster if not ordered
     if args.index_file == None:
         matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
+    
+    if args.compress == True:
+        # Call the remove gaps.
+        matrix, reordered_rowmatrix, vfs_list_rowmatrix, columns = compress_matrix(matrix, vfs_list, query_list, ylab)
+
+
+
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
