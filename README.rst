@@ -4,6 +4,12 @@ SeqFindR
 .. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
         :target: https://travis-ci.org/mscook/SeqFindR
 
+.. image:: https://landscape.io/github/mscook/SeqFindR/master/landscape.png
+   :target: https://landscape.io/github/mscook/SeqFindR/master
+   :alt: Code Health
+
+
+
 SeqFindR - easily create informative genomic feature plots.
 
 **SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
