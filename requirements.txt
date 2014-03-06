@@ -1,4 +1,4 @@
 scipy>=0.10.1
 matplotlib>=1.1.0
 biopython>=1.59
-ghalton>=0.6
+ghalton==0.6
