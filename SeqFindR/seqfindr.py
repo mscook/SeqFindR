@@ -319,7 +319,7 @@ def do_run(args, data_path, match_score, vfs_list):
         y_label.append(strain_id)
         database      = os.path.basename(subject)
         blast_xml     = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args)
-        accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol))
+        accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol), args.careful)
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
         row.insert(0,strain_id)
         matrix.append(row)
@@ -460,13 +460,13 @@ if __name__ == '__main__':
                                 default=10, help=('Strip the 1st and last N ' 
                                         'bases of mapping consensuses & ' 
                                         'database [default = 10]'))
-        algorithm.add_argument('-c', '--careful', action='store', type=int,
-                                default=0.2, help=('Manually consider hits ' 
+        algorithm.add_argument('-c', '--careful', action='store', type=float,
+                                default=0, help=('Manually consider hits ' 
                                         'that fall (tol-careful) below the  ' 
-                                        'cutoff. [default = 0.2]. '
-                                        'With default tol (0.95) we will '
-                                        'manually inspect all 0.95-0.75 '
-                                        'range'))
+                                        'cutoff. [default = 0]. '
+                                        'With default tol (0.95) & careful = '
+                                        '0.2, we will manually inspect all '
+                                        'hits in 0.95-0.75 range'))
         io.add_argument('--EXISTING_MATRIX', action='store_true', 
                                 default=False, help=('Use existing SeqFindR ' 
                                         'matrix (reformat the plot) ' 
