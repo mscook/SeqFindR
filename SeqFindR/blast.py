@@ -117,7 +117,7 @@ def run_BLAST(query, database, args):
     return os.path.join(os.getcwd(), 'blast.xml')
 
 
-def parse_BLAST(blast_results, tol):
+def parse_BLAST(blast_results, tol, careful):
     """
     Using NCBIXML parse the BLAST results, storing & returning good hits
 
@@ -142,10 +142,10 @@ def parse_BLAST(blast_results, tol):
                     if cutoff >= tol:
                         hits.append(hit_name.strip())
                     # New method for the --careful option
-                    elif cutoff >= tol-0.2:
+                    elif cutoff >= tol-careful:
                         print "Please confirm this hit:"
-                        print "Name\tSeqFindR Score\tlen(align)\tlen(query)\tNum ident\tGaps"
-                        print "%s\t%f\t%i\t%i\t%i\t%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
+                        print "Name,SeqFindR score,Len(align),Len(query),Identities,Gaps"
+                        print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
                         accept = raw_input("Should this be considered a "
                                             "hit? (y/N)")
                         if accept == '':
