@@ -460,6 +460,13 @@ if __name__ == '__main__':
                                 default=10, help=('Strip the 1st and last N ' 
                                         'bases of mapping consensuses & ' 
                                         'database [default = 10]'))
+        algorithm.add_argument('-c', '--careful', action='store', type=int,
+                                default=0.2, help=('Manually consider hits ' 
+                                        'that fall (tol-careful) below the  ' 
+                                        'cutoff. [default = 0.2]. '
+                                        'With default tol (0.95) we will '
+                                        'manually inspect all 0.95-0.75 '
+                                        'range'))
         io.add_argument('--EXISTING_MATRIX', action='store_true', 
                                 default=False, help=('Use existing SeqFindR ' 
                                         'matrix (reformat the plot) ' 
