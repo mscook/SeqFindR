@@ -138,8 +138,27 @@ def parse_BLAST(blast_results, tol):
             for align in record.alignments:
                 for hsp in align.hsps:
                     hit_name = record.query.split(',')[1].strip()
-                    if hsp.identities/float(record.query_length) >= tol:
+                    cutoff = hsp.identities/float(record.query_length)
+                    if cutoff >= tol:
                         hits.append(hit_name.strip())
+                    # New method for the --careful option
+                    elif cutoff >= tol-0.2:
+                        print "Please confirm this hit:"
+                        print "Name\tSeqFindR Score\tlen(align)\tlen(query)\tNum ident\tGaps"
+                        print "%s\t%f\t%i\t%i\t%i\t%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
+                        accept = raw_input("Should this be considered a "
+                                            "hit? (y/N)")
+                        if accept == '':
+                            pass
+                        elif accept.lower() == 'n':
+                            pass
+                        elif accept.lower() == 'y':
+                            hits.append(hit_name.strip())
+                        else:
+                            print "Input must be y, n or enter."
+                            print "Assuming n"
+                    else:
+                        pass
     else:
         sys.stderr.write("BLAST results do not exist. Exiting.\n")
         sys.exit(1)
