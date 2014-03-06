@@ -18,7 +18,7 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 os.system("rm -rf build/ dist/ SeqFindR.egg-info/")
-os.system("pip install -r pre_requirements.txt")
+os.system("pip install -r bootstrap_numpy.txt")
 os.system("pip install -r requirements.txt")
 
 packages = [
