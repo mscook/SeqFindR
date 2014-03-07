@@ -338,6 +338,7 @@ def core(args):
     DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
     args = util.ensure_paths_for_args(args)   
     configObject = config.SeqFindRConfig()
+    util.check_database(args.seqs_of_interest)
     util.init_output_dirs(args.output)
     query_list, query_classes = prepare_queries(args)
     results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)

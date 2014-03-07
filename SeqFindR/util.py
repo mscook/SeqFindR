@@ -142,3 +142,46 @@ def is_protein(fasta_file):
             if re.match('[^ATCGNatcgn]+', str(record.seq)) != None:
                 protein_hits += 1
     return protein_hits
+
+
+def check_database(database_file):
+    """
+    Check the database conforms to the SeqFindR format
+    
+    :args database_file: full path to a database file as a string
+
+    :type database_file: string
+    """
+    at_least_one = 0
+    stored_categories = []
+    with open(database_file) as db_in:
+        for line in db_in:
+            if line.startswith('>'):
+                at_least_one += 1
+                # Do the check
+                if len(line.split(',')) != 4 and\
+                       line.split(',')[-1].count(']') != 1 and\
+                       line.split(',')[-1].count('[') != 1:
+                    print 'Your database is not formatted correctly. See docs'
+                    sys.exit(1)
+                else:
+                    tmp = line.split(',')[-1]
+                    cur = tmp.split('[')[-1].split(']')[0].strip()
+                    stored_categories.append(cur)
+    if at_least_one == 0:
+        print "Can't find any fasta sequences. Please check your database file"
+        sys.exit(1)
+    # Check that the categories maintain the correct order.
+    cat_counts = len(set(stored_categories))
+    prev = stored_categories[0]
+    # There will always be 1
+    detected_cats = 1
+    for i in range(1, len(stored_categories)):
+        if stored_categories[i] != prev:
+            detected_cats +=1
+        prev = stored_categories[i]
+    if cat_counts != detected_cats:
+        print ("Please ensure that your classifications ([ element ]) are "
+                "grouped")
+        sys.exit(1)
+
