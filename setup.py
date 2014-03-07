@@ -2,40 +2,41 @@
 
 import os
 import sys
-
+import urllib
 import SeqFindR.__init__ as meta
+import setuptools
 
-try:                                                                                                                                                                    
-    from setuptools import setup
-except ImportError:
-    # Bootstrap if we don't have setuptools available
-    from ez_setup import use_setuptools
-    use_setuptools()
+# Clean up
+os.system("rm -rf build/ dist/ SeqFindR.egg-info/")
 
-
+# Upload to PyPI
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-os.system("rm -rf build/ dist/ SeqFindR.egg-info/")
-os.system("pip install -r bootstrap_numpy.txt")
+# Ensure that we have the latest pip version.
+pip_support = 'http://pip.readthedocs.org/en/latest/installing.html'
+print "We are going to install pip/upgrade it to the latest."
+print "You may need root/admin to do this."
+print "If it fails please see: %s" % (pip_support)
+urllib.urlretrieve ("https://raw.github.com/pypa/pip/master/contrib/"
+                        "get-pip.py", "get-pip.py")
+os.system("python get-pip.py")
+os.system("rm get-pip.py")
+reload(setuptools)
+from setuptools import setup
+
+# Let install the requirements like this...
 os.system("pip install -r requirements.txt")
 
 packages = [
     meta.__title__,
 ]
 
-requires = ['numpy>=1.6.1',
-            'scipy>=0.10.1',
-            'matplotlib>=1.1.0',
-            'biopython>=1.59',
-            'ghalton>=0.6'
-        ]
-
-#with open('requirements.txt') as fin:
-#    lines = fin.readlines()
-#for l in lines:
-#    requires.append(l.strip())
+requires = []
+with open("requirements.txt") as fin:
+    for line in fin:
+        requires.append(line.strip())
 
 setup(
     name                 = meta.__title__,
