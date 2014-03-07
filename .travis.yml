@@ -9,4 +9,4 @@ before_install:
 install: python setup.py install
 #notifications:
 #  email: false
-#script:
+script: sh tests/TEST.sh
