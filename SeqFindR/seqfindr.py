@@ -399,8 +399,9 @@ if __name__ == '__main__':
         blast_opt.add_argument('-X', '--tblastx', action='store_true', 
                                 default=False, help=('Run tBLASTx rather than ' 
                                                      'BLASTn'))
-        blast_opt.add_argument('--evalue', action='store', type=str,
-                                default='10', help=('BLAST evale (Expect)'))
+        blast_opt.add_argument('--evalue', action='store', type=float,
+                                default='0.0001', help=('BLAST evalue '
+                                    '(Expect)'))
         blast_opt.add_argument('--short', action='store_true',
                                 default=False, help=('Have short queries i.e. '
                                                     'PCR Primers'))

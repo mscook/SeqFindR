@@ -91,20 +91,22 @@ def run_BLAST(query, database, args):
         sys.stderr.write('Using tblastn\n')
         run_command = NcbitblastnCommandline(query=query, seg='no',
                     db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                    max_target_seqs=1, out='blast.xml')
+                    max_target_seqs=1, evalue=args.evalue, out='blast.xml')
     else:
         if args.tblastx:
             sys.stderr.write('Using tblastx\n')
             run_command = NcbitblastxCommandline(query=query, seg='no',
                         db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                        max_target_seqs=1, out='blast.xml')
+                        max_target_seqs=1, evalue=args.evalue, 
+                        out='blast.xml')
         else:
             sys.stderr.write('Using blastn\n')
             if args.short == False:
                 run_command = NcbiblastnCommandline(query=query, dust='no',
                             db=database, outfmt=5, 
                             num_threads=args.BLAST_THREADS,
-                            max_target_seqs=1, out='blast.xml')
+                            max_target_seqs=1, evalue=args.evalue, 
+                            out='blast.xml')
             else:
                 sys.stderr.write('Optimising for short query sequences\n')
                 run_command = NcbiblastnCommandline(query=query, dust='no',
