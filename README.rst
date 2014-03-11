@@ -15,7 +15,7 @@ SeqFindR - easily create informative genomic feature plots.
 
 Work in progress:
     * `SeqFindR documentation`_
-    * `SeqFindR official site`_ http://mscook.github.io/SeqFindR/
+    * `SeqFindR official site`_
 
 **SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
 undergo bug fixes and feature enhancement.**
