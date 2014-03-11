@@ -13,6 +13,12 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
+|
+
+Work in progress:
+    * `SeqFindR documentation`_ seqfindr.rtfd.org
+    * `SeqFindR official site`_ http://mscook.github.io/SeqFindR/
+
 **SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
 undergo bug fixes and feature enhancement.**
 
@@ -436,3 +442,6 @@ Please see the `TODO`_ for future SeqFindR project directions.
 .. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
 .. _site: http://mscook.github.io/SeqFindR/
 .. _Nesoni: http://www.vicbioinformatics.com/software.nesoni.shtml
+.. _SeqFindR documentation: http://seqfindr.rtfd.org
+.. _SeqFindR official site: http://mscook.github.io/SeqFindR/
+
