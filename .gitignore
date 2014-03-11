@@ -4,3 +4,5 @@ dist/*
 SeqFindR.egg-info/*
 *.pyc
 .coverage
+example/Antibiotic_markers_trimmed.fa
+example/consensus/stripped/
