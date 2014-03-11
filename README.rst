@@ -13,10 +13,8 @@ SeqFindR
 
 SeqFindR - easily create informative genomic feature plots.
 
-|
-
 Work in progress:
-    * `SeqFindR documentation`_ seqfindr.rtfd.org
+    * `SeqFindR documentation`_
     * `SeqFindR official site`_ http://mscook.github.io/SeqFindR/
 
 **SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
@@ -25,7 +23,8 @@ undergo bug fixes and feature enhancement.**
 **We have only tested SeqFindR on linux systems.** There has been some 
 success with `MacOSX`_. 
 
-Please see the `changelog`_ for most recent changes/fixes/enhancements.
+Best use "git log" for a changelog as the `changelog`_ for most recent 
+changes/fixes/enhancements may not be up to date.
 
 
 Requirements
@@ -218,7 +217,7 @@ We use the following calculation::
 
 Where:
     * hsp.identities is number of identities in the high-scoring pairs between
-      the query (databse entry) and subject (contig/scaffold/mapping
+      the query (database entry) and subject (contig/scaffold/mapping
       consensus),
     * record.query_length is the length of the database entry and,
     * tol is the cutoff threshold to accept a hit (0.95 default)
@@ -234,9 +233,9 @@ Where:
 Fine grain configuration
 ------------------------
 
-SeqFindR can read a configuartion file. At the moment you can only redefine 
+SeqFindR can read a configuration file. At the moment you can only redefine 
 the category colors (suppose you want to use a set of fixed colors instead of 
-the deault randomly generated). The configuration file is expected to expand 
+the default randomly generated). The configuration file is expected to expand 
 in the future.
 
 To define category colors::
@@ -257,16 +256,16 @@ Short PCR primers
 -----------------
 
 In some cases you may want to screen using PCR primers. Please use the --short 
-option. Here we adjust BLASTn paramaters wordsize = 7 & Expect Value = 1000
+option. Here we adjust BLASTn parameters wordsize = 7 & Expect Value = 1000
 
 
 Tutorial
 --------
 
-**Note:** The version 0.2 API has changed. Please fimilarise yourself with 
+**Note:** The version 0.2 API has changed. Please familiarise yourself with 
 the changes. We also now provide a `script`_ to run all the examples. 
 **Note:** We have changed the color generation code. As a consequence the 
-backgound colors will be different when running this yourself. The results 
+background colors will be different when running this yourself. The results 
 will not change.
 
 Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
@@ -276,7 +275,7 @@ Navigate to the SeqFindR/example directory (from git clone). The following files
     * A consensus directory containing *strain1.fa, strain2.fa and strain3.fa*
       (-m option)
 
-The toy assemblies and consesuses were generated such that:
+The toy assemblies and consensuses were generated such that:
     * **strain1** was missing: 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
       mis-assembly of 70-aphA(1)1310 & 70-tem8674
     * **strain2** was missing: 70-oxa(7)295, 70-pse(4)348 70-ctx143, 
@@ -374,7 +373,7 @@ the effects of missassembly and collapsed repeats.
 
 We use `Nesoni`_. We use the database file (in multi-fasta format) as the 
 reference for mapping. Nesoni has no issues with multifasta files as 
-references (BWA will treat them as separate chomosomes). 
+references (BWA will treat them as separate chromosomes). 
 The workflow is something like this::
 
     $ nesoni make-reference myref ref-sequences.fa
@@ -385,7 +384,7 @@ The workflow is something like this::
 For those of you using a cluster running PBSPro see:
 https://github.com/mscook/SeqFindR_nesoni
 This is a script that generates a job array, submits and cleans up the
-maping results ready for input to SeqFindR.
+mapping results ready for input to SeqFindR.
 
 The output from the described workflow and SeqFindR_nesoni is a consensus.fa 
 file which we term the mapping consensus. This file is a multi-fasta file of 
