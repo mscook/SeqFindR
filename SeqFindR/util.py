@@ -147,7 +147,9 @@ def is_protein(fasta_file):
 def check_database(database_file):
     """
     Check the database conforms to the SeqFindR format
-    
+   
+    .. note:: this is not particulalry extensive
+
     :args database_file: full path to a database file as a string
 
     :type database_file: string
