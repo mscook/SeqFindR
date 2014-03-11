@@ -159,18 +159,16 @@ def check_database(database_file):
             if line.startswith('>'):
                 at_least_one += 1
                 # Do the check
-                if len(line.split(',')) != 4 and\
-                       line.split(',')[-1].count(']') != 1 and\
+                if len(line.split(',')) != 4 or\
+                       line.split(',')[-1].count(']') != 1 or\
                        line.split(',')[-1].count('[') != 1:
-                    print 'Your database is not formatted correctly. See docs'
-                    sys.exit(1)
+                    raise Exception("Database is not formatted correctly")
                 else:
                     tmp = line.split(',')[-1]
                     cur = tmp.split('[')[-1].split(']')[0].strip()
                     stored_categories.append(cur)
     if at_least_one == 0:
-        print "Can't find any fasta sequences. Please check your database file"
-        sys.exit(1)
+        raise Exception("Database contains no fasta headers")
     # Check that the categories maintain the correct order.
     cat_counts = len(set(stored_categories))
     prev = stored_categories[0]
@@ -184,4 +182,5 @@ def check_database(database_file):
         print ("Please ensure that your classifications ([ element ]) are "
                 "grouped")
         sys.exit(1)
+    print "SeqFindR database checks [PASSED]"
 
