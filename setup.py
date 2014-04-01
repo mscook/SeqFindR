@@ -17,7 +17,7 @@ if sys.argv[-1] == 'publish':
 # Ensure that we have the latest pip version.
 pip_support = 'http://pip.readthedocs.org/en/latest/installing.html'
 print "We are going to install pip/upgrade it to the latest."
-print "You may need root/admin to do this."
+print "**You may need root/admin to do this.**"
 print "If it fails please see: %s" % (pip_support)
 urllib.urlretrieve ("https://raw.github.com/pypa/pip/master/contrib/"
                         "get-pip.py", "get-pip.py")

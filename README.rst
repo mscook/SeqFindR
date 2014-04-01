@@ -26,6 +26,14 @@ Best use "git log" for a changelog as the `changelog`_ for most recent
 changes/fixes/enhancements may not be up to date.
 
 
+Cite this Github repository if you use SeqFindR to generate figures 
+for publications:: 
+
+    STANTON-COOK M, NF ALIKHAN, FORDE BM, BEN ZAKOUR NL & BEATSON SA^. 
+    SeqFindR - easily create informative genomic feature plots.
+    https://github.com/mscook/SeqFindR.
+
+
 Quick install (Ubuntu)
 ----------------------
 

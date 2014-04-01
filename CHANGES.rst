@@ -1,6 +1,9 @@
 SeqFindR changelog
 ==================
 
+Please use *git log* in preference to information as it is sporadically 
+updated and may be incomplete.
+
 2013-08-16 Mitchell Stanton-Cook <m.stantoncook@gmail.com>:
     * General refactors & code cleaning/optimisations
     * Split into: blast.py, config.py, imaging.py, SeqFindR.py & util.py

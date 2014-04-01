@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2013 Mitchell Stanton-Cook Licensed under the
+# Copyright 2013-2014 Mitchell Stanton-Cook Licensed under the
 #     Educational Community License, Version 2.0 (the "License"); you may
 #     not use this file except in compliance with the License. You may
 #     obtain a copy of the License at
@@ -39,7 +39,7 @@ from SeqFindR import util
 from SeqFindR import blast
 
 __title__        = 'SeqFindR'
-__version__      = '0.30'
+__version__      = '0.31'
 __description__  = "A tool to easily create informative genomic feature plots" 
 __author__       = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__      = 'ECL 2.0'
@@ -419,7 +419,7 @@ if __name__ == '__main__':
                                 help=('Full path to FASTA file containing a ' 
                                     'set of sequences of interest'))
         parser.add_argument('assembly_dir', action='store', 
-                                help=('Full path to directory containing a' 
+                                help=('Full path to directory containing a ' 
                                       'set of assemblies in FASTA format'))
         algorithm.add_argument('-t', '--tol', action='store', type=float, 
                                     default=0.95, help=('Similarity cutoff ' 

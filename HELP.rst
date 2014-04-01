@@ -1,21 +1,24 @@
-SeqFindR -h
-===========
+SeqFindR 
+========
 
 Something like this::
 
-    usage: SeqFindR [-h] [-R {nucl,prot}] [-X] [-v] [-o OUTPUT] [-p OUTPUT_PREFIX]
-                    [-t TOL] [-m CONS] [-l] [-r] [-g] [--index_file INDEX_FILE]
-                    [--color COLOR] [--DPI DPI] [--seed SEED] [--size SIZE]
-                    [-s STRIP] [--EXISTING_MATRIX] [--BLAST_THREADS BLAST_THREADS]
+    $ SeqFindR -h
+
+    usage: SeqFindR [-h] [-R {nucl,prot}] [-X] [--evalue EVALUE] [--short] [-v]
+                    [-o OUTPUT] [-p OUTPUT_PREFIX] [-t TOL] [-m CONS] [-l] [-r]
+                    [-g] [--index_file INDEX_FILE] [--color COLOR] [--DPI DPI]
+                    [--seed SEED] [--svg] [--size SIZE] [-s STRIP] [-c CAREFUL]
+                    [--EXISTING_MATRIX] [--BLAST_THREADS BLAST_THREADS]
                     seqs_of_interest assembly_dir
 
-    SeqFindR v0.1 - A tool to easily create informative genomic feature plots
+    SeqFindR v0.31 - A tool to easily create informative genomic feature plots
     (http://github.com/mscook/SeqFindR)
 
     positional arguments:
       seqs_of_interest      Full path to FASTA file containing a set of sequences
                             of interest
-      assembly_dir          Full path to directory containing aset of assemblies
+      assembly_dir          Full path to directory containing a set of assemblies
                             in FASTA format
 
     optional arguments:
@@ -38,6 +41,11 @@ Something like this::
       -s STRIP, --strip STRIP
                             Strip the 1st and last N bases of mapping consensuses
                             & database [default = 10]
+      -c CAREFUL, --careful CAREFUL
+                            Manually consider hits that fall (tol-careful) below
+                            the cutoff. [default = 0]. With default tol (0.95) &
+                            careful = 0.2, we will manually inspect all hits in
+                            0.95-0.75 range
 
     Optional input/output options:
       Options relating to input and output
@@ -59,6 +67,7 @@ Something like this::
                             info
       --DPI DPI             DPI of figure [default = 300]
       --seed SEED           Color generation seed
+      --svg                 Draws figure in svg
       --size SIZE           Size of figure [default = 10x12 (inches)]
 
     BLAST options:
@@ -68,7 +77,36 @@ Something like this::
                             Reference Sequence type. If not given will try to
                             detect it
       -X, --tblastx         Run tBLASTx rather than BLASTn
+      --evalue EVALUE       BLAST evalue (Expect)
+      --short               Have short queries i.e. PCR Primers
       --BLAST_THREADS BLAST_THREADS
                             Use this number of threads in BLAST run [default = 1]
 
-    Licence: ECL 2.0 by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
+    Licence: ECL 2.0 by Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan
+    <m.stantoncook@gmail.com>
+
+
+vfdb_to_seqfindr 
+----------------
+
+Something like this::
+
+    $ vfdb_to_seqfindr -h
+
+    usage: vfdb_to_seqfindr [-h] [-i INFILE] [-o OUTFILE] [-c CLASS_FILE] [-b]
+
+    Convert VFDB formatted files (or like) to SeqFindR formatted database files
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -i INFILE, --infile INFILE
+                            [Required] fullpath to the in fasta file
+      -o OUTFILE, --outfile OUTFILE
+                            [Required] fullpath to the out fasta file
+      -c CLASS_FILE, --class_file CLASS_FILE
+                            [Optional] full path to a file containing factor
+                            classifications
+      -b, --blank_class     [Optional] set classification blank even if such exist
+
+    Licence: ECL by Mitchell Stanton-Cook <m.stantoncook@gmail.com>
+
