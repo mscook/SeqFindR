@@ -49,7 +49,7 @@ You'll need to install/have installed:
     * ncbiblast >= 2.2.27
     * python >= 2.7 (**Python 3 is not supported**)
     * `pip`_
-    * `git`_ (depending on your install route) 
+    * git (depending on your install route) 
 
 You can check these are installed by::
     
