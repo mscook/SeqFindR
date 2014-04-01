@@ -17,7 +17,7 @@ Work in progress:
     * `SeqFindR documentation`_
     * `SeqFindR official site`_
 
-**SeqFindR is nearing a stable API. 
+**SeqFindR is nearing a stable API.** 
 
 **We have only tested SeqFindR on linux systems.** There has been some 
 success with `MacOSX`_. 
