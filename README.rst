@@ -17,8 +17,7 @@ Work in progress:
     * `SeqFindR documentation`_
     * `SeqFindR official site`_
 
-**SeqFindR is nearing a stable API. From release 0.2, SeqFindR will primarily 
-undergo bug fixes and feature enhancement.**
+**SeqFindR is nearing a stable API. 
 
 **We have only tested SeqFindR on linux systems.** There has been some 
 success with `MacOSX`_. 
@@ -27,24 +26,33 @@ Best use "git log" for a changelog as the `changelog`_ for most recent
 changes/fixes/enhancements may not be up to date.
 
 
+Quick install (Ubuntu)
+----------------------
+
+Simple install for Ubuntu/Debian systems::
+
+    $ sudo apt-get install python-numpy python-scipy python-matplotlib python-biopython ncbi-blast+ python-dev python-pip libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git && cd ~/ && git clone https://github.com/mscook/SeqFindR.git && pip install -e SeqFindR/
+
+
 Requirements
 ------------
 
 You'll need to install/have installed:
     * ncbiblast >= 2.2.27
-    * python >= 2.7 (Python 3 is not supported)
+    * python >= 2.7 (**Python 3 is not supported**)
     * `pip`_
-    * Freetype (font engine). May be required to build Matplotlib.
+    * `git`_ (depending on your install route) 
 
 You can check these are installed by::
     
     $ python --version
     $ which blastn
     $ which pip
+    $ which git
 
 
-The following python libraries will be (may be) installed automatically if 
-you follow the installation instructions detailed below.
+The following python libraries should be installed automatically if you follow 
+the installation instructions detailed below.
 
 We use the following python `libraries`_:
     * numpy >= 1.6.1
@@ -53,23 +61,27 @@ We use the following python `libraries`_:
     * biopython >= 1.59
     * ghalton>=0.6
 
-The state of python packaging is that bad you could miss many nights sleep. 
-I'm looking at you SciPy. **For the smoothest possible install we recommend 
-installing the requirements using your distributions package manager.** 
+These libraries will also have dependencies (i.e. atlas, lapack, fortran 
+compilers, freetype and png).
 
-For Ubuntu::
+The state of Python packaging (distribution of code) is that bad, you could 
+miss many nights sleep. I'm looking at you SciPy. **For the smoothest possible 
+install we recommend installing the requirements using your distributions 
+package manager.** That is via apt-get, yum or similar.
 
-    sudo apt-get install python-numpy python-scipy python-matplotlib
-    python-biopython ncbi-blast+ python-dev python-pip
+For Ubuntu (fresh server install) you can get requirements using::
+
+    $ sudo apt-get install python-numpy python-scipy python-matplotlib
+    python-biopython ncbi-blast+ python-dev python-pip libatlas-dev
+    liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git
 
 
-Installation
-------------
+Installation (possibly painful)
+-------------------------------
 
-If you're a member of the Beatson Group you'll already have the SeqFindR script 
-in your barrine $PATH. You do not need to install SeqFindR. UQ based 
-researchers should email me (m.stantoncook@gmail.com) for the location 
-of SeqFindR.
+If you are a member of the Beatson Group you'll already have SeqFindR in your 
+$PATH on barrine. You do not need to install SeqFindR. UQ based researchers 
+should email me (m.stantoncook@gmail.com) for the location of SeqFindR.
 
 Option 1a (with root/admin)::
     
@@ -79,10 +91,15 @@ Option 1b (as a standard user)::
 
     $ pip install SeqFindR --user
 
+This assumes you have pip installed (see `pip`_). The SciPy, NumPy and 
+matplotlib installations will break if you are missing libraries such as 
+atlas, lapack, fortran compilers, freetype and png).
+
 
 **You'll need to have git installed** for the following alternative install 
 options. git can be really useful for scientists. See `here`_ for some 
-discussion.
+discussion. Installing this way will provide you with the most recent version 
+of SeqFindR.
 
 Option 2a (with root/admin & git)::
 
@@ -123,7 +140,9 @@ If installed using option 2x::
     $ cd ~/SeqFindR
     $ git pull
     $ sudo python setup.py install
-    $ or
+    $
+    $ # or
+    $
     $ cd ~/SeqFindR
     $ git pull
     $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
@@ -148,15 +167,18 @@ SeqFindR database files
 -----------------------
 
 The SeqFindR database is in multi-fasta format. The header needs to be
-formatted with *4 comma separated* elements.
+formatted with *4 comma separated* elements. We concede that inventing 
+another file format is annoying, but, future versions of SeqFindR will 
+exploit this information.
 
 The elements headers are:
     * identifier,
-    * common name,
+    * common name **(this is taken as the gene label in the plot)**,
     * description and 
     * species
 
-The final element, separated by **[]** contains a classification.
+The final element, separated by **[]** contains a classification. This
+information is used by SeqFindR to draw different coloured blocks.
 
 An example::
 
@@ -168,6 +190,11 @@ An example::
     >70-tetB190, tet(B), Tetracycline Antibiotic resistance (tetracycline), Unknown sp. [Tetracycline]
     CAAAGTGGTTAGCGATATCTTCCGAAGCAATAAATTCACGTAATAACGTTGGCAAGACTGGCATGATAAG
 
+**Note:** if you do not have all information you can simplify the expected 
+database header to::
+
+     >, bla-TEM, , [classification]
+    
 
 The script **vfdb_to_seqfindr** is now included in SeqFindR to convert VFDB 
 formatted files (or like) to SeqFindR formatted database files.
@@ -196,7 +223,7 @@ The -c (--class_file) option is very useful. Suppose you want to annotate your
 sequences of interest with user defined classification values. Simply develop a 
 file containing the scheme as pass using the -c option (3rd example above). 
 A sample file for the situation where you had 7 input sequences with the first 
-3 Fe transporters, the next two  Toxins,  the next a Misc and the final 
+3 Fe transporters, the next two  Toxins, the next a Misc and the final 
 sequence is a Toxin would look like this::
 
     Fe transporter
@@ -221,6 +248,9 @@ Where:
       consensus),
     * record.query_length is the length of the database entry and,
     * tol is the cutoff threshold to accept a hit (0.95 default)
+
+For a database entry of 200 bp you can have up to 10 mismatches/gaps without 
+being penalised.
 
 **Why not just use max identity?**
     * Eliminate effects of scaffolding characters/gaps,
@@ -262,11 +292,9 @@ option. Here we adjust BLASTn parameters wordsize = 7 & Expect Value = 1000
 Tutorial
 --------
 
-**Note:** The version 0.2 API has changed. Please familiarise yourself with 
-the changes. We also now provide a `script`_ to run all the examples. 
-**Note:** We have changed the color generation code. As a consequence the 
-background colors will be different when running this yourself. The results 
-will not change.
+We provide a `script`_ to run all the examples. **Note:** We have changed the 
+color generation code. As a consequence the background colors will be 
+different when running this yourself. The results will not change.
 
 Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
     * A database file called *Antibiotic_markers.fa* 
@@ -289,10 +317,10 @@ Running all the examples at once
 
 Something like this::
 
-    $ #Assuming you git cloned, python setup.py install
+    $ # Assuming you git cloned, python setup.py install
     $ cd SeqFindR/example
     $ ./run_examples.sh
-    $ #See directories run1/ run2/ run3/ run4/
+    $ # See directories run1/ run2/ run3/ run4/
 
 
 Run 1 - Looking at only assemblies
@@ -378,7 +406,8 @@ The workflow is something like this::
 
     $ nesoni make-reference myref ref-sequences.fa
     $ # for each strain
-    $ nesoni analyse-sample: mysample myref pairs: reads1.fastq reads2.fastq
+    $ #     nesoni analyse-sample: mysample myref pairs: reads1.fastq reads2.fastq
+    $ #     extract the consensus.fa file
 
 
 For those of you using a cluster running PBSPro see:
@@ -395,11 +424,11 @@ Caveats:
       no --random yes* to nesoni consensus) (this is default for
       SeqFindR_nesoni), 
     * The (poor) alignment of reads at the start and the end of the database 
-      genes can result in N calls. This can result in downstream false 
+      genes can result in N base calls. This can result in downstream false 
       negatives.
 
-**As of version 0.2 of SeqFindR we now provide a solution to minimise the 
-effects of poor mapping at the start and end of the given  sequences.** 
+**SeqFindR now provides a solution to minimise the effects of poor mapping at 
+the start and end of the given sequences.** 
 
 The SeqFindR option is -s or --STRIP::
 
