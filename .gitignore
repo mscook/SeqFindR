@@ -7,3 +7,4 @@ SeqFindR.egg-info/*
 example/Antibiotic_markers_trimmed.fa
 example/consensus/stripped/
 _build
+.DS_Store
