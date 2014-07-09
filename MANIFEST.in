@@ -1,3 +1,4 @@
+nclude LICENSE
 include requirements.txt
 include README.rst
-include LICENSE
+recursive-include docs/_build/html *
