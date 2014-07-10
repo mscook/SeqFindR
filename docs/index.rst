@@ -1,22 +1,45 @@
-.. SeqFindr documentation master file, created by
-   sphinx-quickstart on Tue Mar 11 11:33:49 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+SeqFindr
+========
 
-Welcome to SeqFindr's documentation!
-====================================
+SeqFindr - easily create informative genomic feature plots.
 
-Contents:
+
+User/Quickstart/Tutorial Documentation
+--------------------------------------
+
+See on `SeqFindr GitHub`_ site.
+
+
+API Documentation
+-----------------
+
+Explore the available methods of SeqFindr
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+
+   modules.rst
+
+
+Developer Documentation
+-----------------------
+
+Learn how to contribute to the development of SeqFindr.
+
+.. toctree::
+   :maxdepth: 1
+
+   developer.rst
 
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
 
+
+
+.. _`SeqFindr GitHub`: https://github.com/mscook/SeqFindr
