@@ -51,6 +51,7 @@ mv API/* .
 rmdir API
 make html
 
+exit
 
 git push
 # tag & push the tag to github
