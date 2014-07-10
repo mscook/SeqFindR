@@ -1,13 +1,13 @@
 SeqFindr
 ========
 
-.. image:: https://travis-ci.org/mscook/SeqFindr.png?branch=master
-        :target: https://travis-ci.org/mscook/SeqFindr
+.. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
+        :target: https://travis-ci.org/mscook/SeqFindR
 
 |
 
-.. image:: https://landscape.io/github/mscook/SeqFindr/master/landscape.png
-   :target: https://landscape.io/github/mscook/SeqFindr/master
+.. image:: https://landscape.io/github/mscook/SeqFindR/master/landscape.png
+   :target: https://landscape.io/github/mscook/SeqFindR/master
    :alt: Code Health
 
 
@@ -479,5 +479,5 @@ Please see the `TODO`_ for future SeqFindr project directions.
 .. _site: http://mscook.github.io/SeqFindr/
 .. _Nesoni: http://www.vicbioinformatics.com/software.nesoni.shtml
 .. _SeqFindr documentation: http://seqfindr.rtfd.org
-.. _SeqFindr official site: http://mscook.github.io/SeqFindr/
+.. _SeqFindr official site: http://mscook.github.io/SeqFindR/
 
