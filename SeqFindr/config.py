@@ -12,16 +12,16 @@
 #     permissions and limitations under the License.
 
 """
-SeqFindR configuration class: 100% test coverage, > 9 PyLint score
+SeqFindr configuration class: 100% test coverage, > 9 PyLint score
 """
 
 import os
 import sys
 import ast
 
-class SeqFindRConfig(object):
+class SeqFindrConfig(object):
     """
-    A SeqFindR configuration class - subtle manipulation to plots
+    A SeqFindr configuration class - subtle manipulation to plots
     """
 
     def __init__(self, alt_location=None):
@@ -49,20 +49,20 @@ class SeqFindRConfig(object):
 
 def read_config(alt_location):
     """
-    Read a SeqFindR configuration file
+    Read a SeqFindr configuration file
 
     Currently only supports category colors in RGB format
 
     category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
     """
     if alt_location == None:
-        cfg_location = os.path.expanduser('~/')+'.SeqFindR.cfg'
+        cfg_location = os.path.expanduser('~/')+'.SeqFindr.cfg'
     else:
         cfg_location = os.path.expanduser(alt_location)
     cfg = {}
     try:
         with open(os.path.expanduser(cfg_location)) as fin:
-            sys.stderr.write("Using a SeqFindR config file: %s\n" %
+            sys.stderr.write("Using a SeqFindr config file: %s\n" %
                                     (cfg_location))
             colors, line_count = [], 0
             for line in fin:
@@ -99,6 +99,6 @@ def read_config(alt_location):
             if line_count == 0:
                 sys.stderr.write("\tEmpty configuration file\n")
     except IOError:
-        sys.stderr.write("No SeqFindR config file found at: %s. "
+        sys.stderr.write("No SeqFindr config file found at: %s. "
                             "Using defaults\n" % (cfg_location))
     return cfg

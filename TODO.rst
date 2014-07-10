@@ -1,4 +1,4 @@
-SeqFindR release map
+SeqFindr release map
 ====================
 
 See open `issues`_. Feel free to fork, clone, fix, test, push and send a pull
@@ -27,7 +27,7 @@ Major
 Current major fixes/improvements:
     * make into a web app
     * more extensive tests
-    * SeqFindR-d3js
+    * SeqFindr-d3js
 
-.. _issues: https://github.com/mscook/SeqFindR/issues?direction=desc&sort=created&state=open
+.. _issues: https://github.com/mscook/SeqFindr/issues?direction=desc&sort=created&state=open
 .. _tutorial: https://help.github.com/articles/syncing-a-fork

@@ -1,19 +1,19 @@
-SeqFindR 
+SeqFindr 
 ========
 
 Something like this::
 
-    $ SeqFindR -h
+    $ SeqFindr -h
 
-    usage: SeqFindR [-h] [-R {nucl,prot}] [-X] [--evalue EVALUE] [--short] [-v]
+    usage: SeqFindr [-h] [-R {nucl,prot}] [-X] [--evalue EVALUE] [--short] [-v]
                     [-o OUTPUT] [-p OUTPUT_PREFIX] [-t TOL] [-m CONS] [-l] [-r]
                     [-g] [--index_file INDEX_FILE] [--color COLOR] [--DPI DPI]
                     [--seed SEED] [--svg] [--size SIZE] [-s STRIP] [-c CAREFUL]
                     [--EXISTING_MATRIX] [--BLAST_THREADS BLAST_THREADS]
                     seqs_of_interest assembly_dir
 
-    SeqFindR v0.31 - A tool to easily create informative genomic feature plots
-    (http://github.com/mscook/SeqFindR)
+    SeqFindr v 0.31.0 - A tool to easily create informative genomic feature plots
+    (http://github.com/mscook/SeqFindr)
 
     positional arguments:
       seqs_of_interest      Full path to FASTA file containing a set of sequences
@@ -26,7 +26,7 @@ Something like this::
       -v, --verbose         verbose output
 
     Optional algorithm options:
-      Options relating to the SeqFindR algorithm
+      Options relating to the SeqFindr algorithm
 
       -t TOL, --tol TOL     Similarity cutoff [default = 0.95]
       -m CONS, --cons CONS  Full path to directory containing mapping consensuses
@@ -54,7 +54,7 @@ Something like this::
                             Output the results to this location
       -p OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
                             Give all result files this prefix
-      --EXISTING_MATRIX     Use existing SeqFindR matrix (reformat the plot)
+      --EXISTING_MATRIX     Use existing SeqFindr matrix (reformat the plot)
                             [default = False]
 
     Figure options:
@@ -95,7 +95,7 @@ Something like this::
 
     usage: vfdb_to_seqfindr [-h] [-i INFILE] [-o OUTFILE] [-c CLASS_FILE] [-b]
 
-    Convert VFDB formatted files (or like) to SeqFindR formatted database files
+    Convert VFDB formatted files (or like) to SeqFindr formatted database files
 
     optional arguments:
       -h, --help            show this help message and exit

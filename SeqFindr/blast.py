@@ -12,7 +12,7 @@
 #     permissions and limitations under the License.
 
 """
-SeqFindR BLAST methods
+SeqFindr BLAST methods
 """
 
 import subprocess
@@ -25,7 +25,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbitblastnCommandline
 from Bio.Blast.Applications import NcbitblastxCommandline
 
-import SeqFindR.util
+import SeqFindr.util
 
 def make_BLAST_database(fasta_file):
     """
@@ -80,7 +80,7 @@ def run_BLAST(query, database, args):
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype == None:
-        if SeqFindR.util.is_protein(query) != -1:
+        if SeqFindr.util.is_protein(query) != -1:
             protein = True
             sys.stderr.write('%s is protein' % (query))
     elif args.reftype == 'prot':
@@ -97,15 +97,15 @@ def run_BLAST(query, database, args):
             sys.stderr.write('Using tblastx\n')
             run_command = NcbitblastxCommandline(query=query, seg='no',
                         db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                        max_target_seqs=1, evalue=args.evalue, 
+                        max_target_seqs=1, evalue=args.evalue,
                         out='blast.xml')
         else:
             sys.stderr.write('Using blastn\n')
             if args.short == False:
                 run_command = NcbiblastnCommandline(query=query, dust='no',
-                            db=database, outfmt=5, 
+                            db=database, outfmt=5,
                             num_threads=args.BLAST_THREADS,
-                            max_target_seqs=1, evalue=args.evalue, 
+                            max_target_seqs=1, evalue=args.evalue,
                             out='blast.xml')
             else:
                 sys.stderr.write('Optimising for short query sequences\n')
@@ -146,7 +146,7 @@ def parse_BLAST(blast_results, tol, careful):
                     # New method for the --careful option
                     elif cutoff >= tol-careful:
                         print "Please confirm this hit:"
-                        print "Name,SeqFindR score,Len(align),Len(query),Identities,Gaps"
+                        print "Name,SeqFindr score,Len(align),Len(query),Identities,Gaps"
                         print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
                         accept = raw_input("Should this be considered a "
                                             "hit? (y/N)")

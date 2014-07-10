@@ -1,37 +1,37 @@
-SeqFindR
+SeqFindr
 ========
 
-.. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
-        :target: https://travis-ci.org/mscook/SeqFindR
+.. image:: https://travis-ci.org/mscook/SeqFindr.png?branch=master
+        :target: https://travis-ci.org/mscook/SeqFindr
 
 |
 
-.. image:: https://landscape.io/github/mscook/SeqFindR/master/landscape.png
-   :target: https://landscape.io/github/mscook/SeqFindR/master
+.. image:: https://landscape.io/github/mscook/SeqFindr/master/landscape.png
+   :target: https://landscape.io/github/mscook/SeqFindr/master
    :alt: Code Health
 
 
-SeqFindR - easily create informative genomic feature plots.
+SeqFindr - easily create informative genomic feature plots.
 
 Work in progress:
-    * `SeqFindR documentation`_
-    * `SeqFindR official site`_
+    * `SeqFindr documentation`_
+    * `SeqFindr official site`_
 
-**SeqFindR is nearing a stable API.** 
+**SeqFindr is nearing a stable API.** 
 
-**We have only tested SeqFindR on linux systems.** There has been some 
+**We have only tested SeqFindr on linux systems.** There has been some 
 success with `MacOSX`_. 
 
 Best use "git log" for a changelog as the `changelog`_ for most recent 
 changes/fixes/enhancements may not be up to date.
 
 
-Cite this Github repository if you use SeqFindR to generate figures 
+Cite this Github repository if you use SeqFindr to generate figures 
 for publications:: 
 
     STANTON-COOK M, NF ALIKHAN, FORDE BM, BEN ZAKOUR NL & BEATSON SA^. 
-    SeqFindR - easily create informative genomic feature plots.
-    https://github.com/mscook/SeqFindR.
+    SeqFindr - easily create informative genomic feature plots.
+    https://github.com/mscook/SeqFindr.
 
 
 Quick install (Ubuntu)
@@ -39,7 +39,7 @@ Quick install (Ubuntu)
 
 Simple install for Ubuntu/Debian systems::
 
-    $ sudo apt-get install python-numpy python-scipy python-matplotlib python-biopython ncbi-blast+ python-dev python-pip libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git && cd ~/ && git clone https://github.com/mscook/SeqFindR.git && pip install -e SeqFindR/
+    $ sudo apt-get install python-numpy python-scipy python-matplotlib python-biopython ncbi-blast+ python-dev python-pip libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git && cd ~/ && git clone https://github.com/mscook/SeqFindr.git && pip install -e SeqFindr/
 
 
 Requirements
@@ -87,17 +87,17 @@ For Ubuntu (fresh server install) you can get requirements using::
 Installation (possibly painful)
 -------------------------------
 
-If you are a member of the Beatson Group you'll already have SeqFindR in your 
-$PATH on barrine. You do not need to install SeqFindR. UQ based researchers 
-should email me (m.stantoncook@gmail.com) for the location of SeqFindR.
+If you are a member of the Beatson Group you'll already have SeqFindr in your 
+$PATH on barrine. You do not need to install SeqFindr. UQ based researchers 
+should email me (m.stantoncook@gmail.com) for the location of SeqFindr.
 
 Option 1a (with root/admin)::
     
-    $ pip install SeqFindR
+    $ pip install SeqFindr
 
 Option 1b (as a standard user)::
 
-    $ pip install SeqFindR --user
+    $ pip install SeqFindr --user
 
 This assumes you have pip installed (see `pip`_). The SciPy, NumPy and 
 matplotlib installations will break if you are missing libraries such as 
@@ -107,76 +107,76 @@ atlas, lapack, fortran compilers, freetype and png).
 **You'll need to have git installed** for the following alternative install 
 options. git can be really useful for scientists. See `here`_ for some 
 discussion. Installing this way will provide you with the most recent version 
-of SeqFindR.
+of SeqFindr.
 
 Option 2a (with root/admin & git)::
 
     $ cd ~/
-    $ git clone git://github.com/mscook/SeqFindR.git
-    $ cd SeqFindR
+    $ git clone git://github.com/mscook/SeqFindr.git
+    $ cd SeqFindr
     $ sudo python setup.py install
 
 Option 2b (standard user & git) **replacing INSTALL/HERE with appropriate**::
 
     $ cd ~/
-    $ git clone git://github.com/mscook/SeqFindR.git
-    $ cd SeqFindR
+    $ git clone git://github.com/mscook/SeqFindr.git
+    $ cd SeqFindr
     $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
     $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
     $ source ~/.bashrc
-    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
+    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindr/  
     
 
 If the install went correctly::
 
-   $ which SeqFindR
-   /INSTALLED/HERE/bin/SeqFindR
-   $ SeqFindR -h
+   $ which SeqFindr
+   /INSTALLED/HERE/bin/SeqFindr
+   $ SeqFindr -h
 
 
 **Please regularly check back to make sure you're running the most recent 
-SeqFindR version.** You can upgrade like this:
+SeqFindr version.** You can upgrade like this:
 
 If installed using option 1x::
 
-    $ pip install --upgrade SeqFindR
+    $ pip install --upgrade SeqFindr
     $ # or
-    $ pip install --upgrade SeqFindR --user
+    $ pip install --upgrade SeqFindr --user
 
 If installed using option 2x::
 
-    $ cd ~/SeqFindR
+    $ cd ~/SeqFindr
     $ git pull
     $ sudo python setup.py install
     $
     $ # or
     $
-    $ cd ~/SeqFindR
+    $ cd ~/SeqFindr
     $ git pull
     $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
     $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
     $ source ~/.bashrc
-    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindR/  
+    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindr/  
 
 
-Example figure produced by SeqFindR
+Example figure produced by SeqFindr
 -----------------------------------
 
-SeqFindR CU fimbriae genes image. 110 E. *coli* strains were investigated. 
+SeqFindr CU fimbriae genes image. 110 E. *coli* strains were investigated. 
 Order is according to phylogenetic analysis. Black blocks represent gene 
 presence.
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/CU_fimbriae.png
-    :alt: SeqFindR CU fimbriae genes image
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/CU_fimbriae.png
+    :alt: SeqFindr CU fimbriae genes image
     :align: center
 
 
-SeqFindR database files
+SeqFindr database files
 -----------------------
 
-The SeqFindR database is in multi-fasta format. The header needs to be
+The SeqFindr database is in multi-fasta format. The header needs to be
 formatted with *4 comma separated* elements. We concede that inventing 
-another file format is annoying, but, future versions of SeqFindR will 
+another file format is annoying, but, future versions of SeqFindr will 
 exploit this information.
 
 The elements headers are:
@@ -186,7 +186,7 @@ The elements headers are:
     * species
 
 The final element, separated by **[]** contains a classification. This
-information is used by SeqFindR to draw different coloured blocks.
+information is used by SeqFindr to draw different coloured blocks.
 
 An example::
 
@@ -204,8 +204,8 @@ database header to::
      >, bla-TEM, , [classification]
     
 
-The script **vfdb_to_seqfindr** is now included in SeqFindR to convert VFDB 
-formatted files (or like) to SeqFindR formatted database files.
+The script **vfdb_to_seqfindr** is now included in SeqFindr to convert VFDB 
+formatted files (or like) to SeqFindr formatted database files.
 
 VFDB: Virulence Factors Database (www.mgc.ac.cn/VFs/) is a reference database 
 for bacterial virulence factors.
@@ -224,7 +224,7 @@ Example usage of **vfdb_to_seqfindr**::
 
     # Reads a user defined classification. 1 per in same order as input 
     # sequences
-    $ python convert_vfdb_to_SeqFindR.py -i TOTAL_Strep_VFs.fas -o TOTAL_Strep_VFs.sqf -c user.class
+    $ python convert_vfdb_to_SeqFindr.py -i TOTAL_Strep_VFs.fas -o TOTAL_Strep_VFs.sqf -c user.class
 
 
 The -c (--class_file) option is very useful. Suppose you want to annotate your 
@@ -243,7 +243,7 @@ sequence is a Toxin would look like this::
     Toxin
 
 
-How does SeqFindR determine positive hits
+How does SeqFindr determine positive hits
 -----------------------------------------
 
 We use the following calculation::
@@ -271,15 +271,15 @@ being penalised.
 Fine grain configuration
 ------------------------
 
-SeqFindR can read a configuration file. At the moment you can only redefine 
+SeqFindr can read a configuration file. At the moment you can only redefine 
 the category colors (suppose you want to use a set of fixed colors instead of 
 the default randomly generated). The configuration file is expected to expand 
 in the future.
 
 To define category colors::
 
-    touch ~/.SeqFindR.cfg
-    vi ~/.SeqFindR.cfg
+    touch ~/.SeqFindr.cfg
+    vi ~/.SeqFindr.cfg
     # Add something like
     category_colors = [(100,60,201), (255,0,99)]
 
@@ -304,7 +304,7 @@ We provide a `script`_ to run all the examples. **Note:** We have changed the
 color generation code. As a consequence the background colors will be 
 different when running this yourself. The results will not change.
 
-Navigate to the SeqFindR/example directory (from git clone). The following files should be present:
+Navigate to the SeqFindr/example directory (from git clone). The following files should be present:
     * A database file called *Antibiotic_markers.fa* 
     * A ordering file called *dummy.order* (-i option)
     * An assemblies directory containing *strain1.fa, strain2.fa and strain3.fa*
@@ -326,7 +326,7 @@ Running all the examples at once
 Something like this::
 
     $ # Assuming you git cloned, python setup.py install
-    $ cd SeqFindR/example
+    $ cd SeqFindr/example
     $ ./run_examples.sh
     $ # See directories run1/ run2/ run3/ run4/
 
@@ -336,9 +336,9 @@ Run 1 - Looking at only assemblies
 
 Command::
 
-    SeqFindR Antibiotic_markers.fa assemblies/ -o run1 -l 
+    SeqFindr Antibiotic_markers.fa assemblies/ -o run1 -l 
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run1_small.png
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/run1_small.png
     :alt: run1
     :align: center
 
@@ -351,9 +351,9 @@ Run 2 - Combining assembly and mapping consensus data
 
 Command::
 
-    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run2 -l
+    SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run2 -l
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run2_small.png
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/run2_small.png
     :alt: run2
     :align: center
 
@@ -366,9 +366,9 @@ Run 3 - Combining assembly and mapping consensus data with differentiation betwe
 
 Command::
 
-    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run3 -l -r
+    SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run3 -l -r
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run3_small.png
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/run3_small.png
     :alt: run3
     :align: center
 
@@ -378,7 +378,7 @@ Link to full size `run3`_.
 
 The clustering dendrogram looks like this:
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3_small.png
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/dendrogram_run3_small.png
     :alt: run3 dendrogram
     :align: center
 
@@ -391,9 +391,9 @@ Run 4 - Combining assembly and mapping consensus data with defined ordering
 
 Command::
 
-    SeqFindR Antibiotic_markers.fa assemblies/ -m consensus/ -o run4 -l -r --index_file dummy.order
+    SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run4 -l -r --index_file dummy.order
 
-.. image:: https://raw.github.com/mscook/SeqFindR/master/example/run4_small.png
+.. image:: https://raw.github.com/mscook/SeqFindr/master/example/run4_small.png
     :alt: run4
     :align: center
 
@@ -419,26 +419,26 @@ The workflow is something like this::
 
 
 For those of you using a cluster running PBSPro see:
-https://github.com/mscook/SeqFindR_nesoni
+https://github.com/mscook/SeqFindr_nesoni
 This is a script that generates a job array, submits and cleans up the
-mapping results ready for input to SeqFindR.
+mapping results ready for input to SeqFindr.
 
-The output from the described workflow and SeqFindR_nesoni is a consensus.fa 
+The output from the described workflow and SeqFindr_nesoni is a consensus.fa 
 file which we term the mapping consensus. This file is a multi-fasta file of 
 the consensus base calls relative to the database sequences.
 
 Caveats: 
     * you will probably want to allow multi-mapping reads (giving *--monogamous
       no --random yes* to nesoni consensus) (this is default for
-      SeqFindR_nesoni), 
+      SeqFindr_nesoni), 
     * The (poor) alignment of reads at the start and the end of the database 
       genes can result in N base calls. This can result in downstream false 
       negatives.
 
-**SeqFindR now provides a solution to minimise the effects of poor mapping at 
+**SeqFindr now provides a solution to minimise the effects of poor mapping at 
 the start and end of the given sequences.** 
 
-The SeqFindR option is -s or --STRIP::
+The SeqFindr option is -s or --STRIP::
 
     -s STRIP, --strip STRIP Strip the 1st and last N bases of mapping consensuses & database [default = 10]
 
@@ -449,35 +449,35 @@ a script we developed to compare the effects of different values of -s on the
 resultant figures. 
 
 
-SeqFindR usage options
+SeqFindr usage options
 ----------------------
 
 See the help `listing`_. You can get this yourself with::
 
-    $ SeqFindR -h
+    $ SeqFindr -h
 
 
 Future
 ------
 
-Please see the `TODO`_ for future SeqFindR project directions.
+Please see the `TODO`_ for future SeqFindr project directions.
 
 .. _pip: http://www.pip-installer.org/en/latest/
-.. _libraries: https://github.com/mscook/SeqFindR/blob/master/requirements.txt
-.. _MacOSX: https://github.com/mscook/SeqFindR/issues/11
-.. _script: https://github.com/mscook/SeqFindR/blob/master/example/run_examples.sh
+.. _libraries: https://github.com/mscook/SeqFindr/blob/master/requirements.txt
+.. _MacOSX: https://github.com/mscook/SeqFindr/issues/11
+.. _script: https://github.com/mscook/SeqFindr/blob/master/example/run_examples.sh
 .. _image-compare: https://github.com/mscook/image-compare
-.. _listing: https://github.com/mscook/SeqFindR/blob/master/HELP.rst
+.. _listing: https://github.com/mscook/SeqFindr/blob/master/HELP.rst
 .. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
-.. _changelog: https://github.com/mscook/SeqFindR/blob/master/CHANGES.rst
-.. _TODO:  https://github.com/mscook/SeqFindR/blob/master/TODO.rst
-.. _run1: https://raw.github.com/mscook/SeqFindR/master/example/run1.png
-.. _run2: https://raw.github.com/mscook/SeqFindR/master/example/run2.png
-.. _run3: https://raw.github.com/mscook/SeqFindR/master/example/run3.png
-.. _dendrogram: https://raw.github.com/mscook/SeqFindR/master/example/dendrogram_run3.png
-.. _run4: https://raw.github.com/mscook/SeqFindR/master/example/run4.png
-.. _site: http://mscook.github.io/SeqFindR/
+.. _changelog: https://github.com/mscook/SeqFindr/blob/master/CHANGES.rst
+.. _TODO:  https://github.com/mscook/SeqFindr/blob/master/TODO.rst
+.. _run1: https://raw.github.com/mscook/SeqFindr/master/example/run1.png
+.. _run2: https://raw.github.com/mscook/SeqFindr/master/example/run2.png
+.. _run3: https://raw.github.com/mscook/SeqFindr/master/example/run3.png
+.. _dendrogram: https://raw.github.com/mscook/SeqFindr/master/example/dendrogram_run3.png
+.. _run4: https://raw.github.com/mscook/SeqFindr/master/example/run4.png
+.. _site: http://mscook.github.io/SeqFindr/
 .. _Nesoni: http://www.vicbioinformatics.com/software.nesoni.shtml
-.. _SeqFindR documentation: http://seqfindr.rtfd.org
-.. _SeqFindR official site: http://mscook.github.io/SeqFindR/
+.. _SeqFindr documentation: http://seqfindr.rtfd.org
+.. _SeqFindr official site: http://mscook.github.io/SeqFindr/
 

@@ -1,12 +1,12 @@
-    >>> from SeqFindR import util
+    >>> from SeqFindr import util
     >>>
     >>> # A good file
     >>> util.check_database('util/sample_DB.fa')
-    SeqFindR database checks [PASSED]
+    SeqFindr database checks [PASSED]
     >>>
     >>> # A good file (single entry)
     >>> util.check_database('util/sample_DB.fa.1')
-    SeqFindR database checks [PASSED]
+    SeqFindr database checks [PASSED]
     >>>
     >>> # A BAD file (missing a comma)
     >>> util.check_database('util/sample_DB.fa.2')

@@ -12,7 +12,7 @@
 #     permissions and limitations under the License.
 
 """
-SeqFindR utility methods
+SeqFindr utility methods
 """
 
 import os
@@ -25,11 +25,11 @@ from Bio import SeqIO
 def ensure_paths_for_args(args):
     """
     Ensure all arguments with paths are absolute & have simplification removed
-    
+
     Just apply os.path.abspath & os.path.expanduser
 
     :param args: the arguments given from argparse
-    
+
     :returns: an updated args
     """
     args.seqs_of_interest = os.path.abspath(os.path.expanduser(args.seqs_of_interest))
@@ -82,7 +82,7 @@ def order_inputs(order_index_file, dir_listing):
     """
     Given an order index file, maintain this order in the matrix plot
 
-    **This implies no clustering.** Typically used when you already have 
+    **This implies no clustering.** Typically used when you already have
     a phlogenetic tree.
 
     :param order_index_file: full path to a ordered file (1 entry per line)
@@ -129,7 +129,7 @@ def is_protein(fasta_file):
 
     TODO: Abiguity characters?
     TODO: exception if mix of protein/nucleotide?
-    
+
     :param fasta_file: path to input FASTA file
 
     :type fasta_file: string
@@ -146,8 +146,8 @@ def is_protein(fasta_file):
 
 def check_database(database_file):
     """
-    Check the database conforms to the SeqFindR format
-   
+    Check the database conforms to the SeqFindr format
+
     .. note:: this is not particulalry extensive
 
     :args database_file: full path to a database file as a string
@@ -184,5 +184,5 @@ def check_database(database_file):
         print ("Please ensure that your classifications ([ element ]) are "
                 "grouped")
         sys.exit(1)
-    print "SeqFindR database checks [PASSED]"
+    print "SeqFindr database checks [PASSED]"
 

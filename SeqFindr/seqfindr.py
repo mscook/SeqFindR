@@ -33,25 +33,25 @@ from   scipy.spatial.distance  import pdist
 
 from Bio import SeqIO
 
-from SeqFindR import imaging
-from SeqFindR import config
-from SeqFindR import util
-from SeqFindR import blast
+from SeqFindr import imaging
+from SeqFindr import config
+from SeqFindr import util
+from SeqFindr import blast
 
-__title__        = 'SeqFindR'
-__version__      = '0.31'
-__description__  = "A tool to easily create informative genomic feature plots" 
+__title__        = 'SeqFindr'
+__version__      = '0.31.0'
+__description__  = "A tool to easily create informative genomic feature plots"
 __author__       = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__      = 'ECL 2.0'
 __author_email__ = "m.stantoncook@gmail.com"
-__url__         = 'http://github.com/mscook/SeqFindR'
+__url__         = 'http://github.com/mscook/SeqFindr'
 
-epi = "Licence: %s by %s <%s>" % (__license__, 
+epi = "Licence: %s by %s <%s>" % (__license__,
                                   __author__,
                                   __author_email__)
-__doc__ = " %s v%s - %s (%s)" % ( __title__, 
-                                  __version__, 
-                                  __description__, 
+__doc__ = " %s v%s - %s (%s)" % ( __title__,
+                                  __version__,
+                                  __description__,
                                   __url__)
 
 
@@ -68,7 +68,7 @@ def prepare_queries(args):
 
     Location of sequence of interest file is defined by args.seqs_of_interest
 
-    :param args: the argparse args containing args.seqs_of_interest 
+    :param args: the argparse args containing args.seqs_of_interest
                  (fullpath) to a sequence of interest DB (mfa file)
 
     :type args: argparse args
@@ -97,19 +97,19 @@ def strip_bases(args):
     """
     Strip the 1st and last 'N' bases from mapping consensuses
 
-    Uses: 
+    Uses:
         * args.cons
         * args.seqs_of_interest
         * arg.strip
 
-    To avoid the effects of lead in and lead out coverage resulting in 
+    To avoid the effects of lead in and lead out coverage resulting in
     uncalled bases
-    
+
     :param args: the argparse args containing args.strip value
 
     :type args: argparse args
 
-    :rtype: the updated args to reflect the args.cons & 
+    :rtype: the updated args to reflect the args.cons &
             args.seqs_of_interest location
     """
     # Get in the fasta files in the consensus directory
@@ -148,18 +148,18 @@ def strip_bases(args):
 
 def build_matrix_row(all_vfs, accepted_hits , score=None):
     """
-    Populate row given all possible hits, accepted hits and an optional score 
-    
+    Populate row given all possible hits, accepted hits and an optional score
+
     :param all_vfs: a list of all virulence factor ids
     :param accepted_hits: a list of a hits that passed the cutoof
-    :param score: the value to fill the matrix with (default = None which 
+    :param score: the value to fill the matrix with (default = None which
                   implies 0.5)
 
     :type all_vfs: list
     :type accepted_hits: list
     :type score: float
 
-    :rtype: a list of floats 
+    :rtype: a list of floats
     """
     if score == None:
         score = 0.0
@@ -174,14 +174,14 @@ def build_matrix_row(all_vfs, accepted_hits , score=None):
 def match_matrix_rows(ass_mat, cons_mat):
     """
     Reorder a second matrix based on the first row element of the 1st matrix
-    
-    :param ass_mat: a 2D list of scores 
+
+    :param ass_mat: a 2D list of scores
     :param cons_mat: a 2D list scores
 
     :type ass_mat: list
     :type cons_mat: list
-    
-    :rtype: 2 matricies (2D lists)   
+
+    :rtype: 2 matricies (2D lists)
     """
     reordered_ass, reordered_cons = [], []
     for i in range(0, len(ass_mat)):
@@ -209,7 +209,7 @@ def strip_id_from_matrix(mat):
 def cluster_matrix(matrix, y_labels, dpi):
     """
     From a matrix, generate a distance matrix & perform hierarchical clustering
- 
+
     :param matrix: a numpy matrix of scores
     :param y_labels: the virulence factor ids for all row elements
     """
@@ -235,8 +235,8 @@ def cluster_matrix(matrix, y_labels, dpi):
     matrix = np.array(tmp)
     return matrix, updated_ylabels
 
-def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,  
-        show_gene_labels, color_index, config_object, grid, seed, 
+def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
+        show_gene_labels, color_index, config_object, grid, seed,
         dpi, size, svg, aspect='auto'):
     """
     Plot the VF hit matrix
@@ -278,7 +278,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     if len(gene_labels) < 999:
         ax.xaxis.set_major_locator(MultipleLocator(1))
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
-        ax.xaxis.grid(False) 
+        ax.xaxis.grid(False)
     if show_gene_labels:
         ax.set_xticklabels([''] +gene_labels)#, rotation=90)
     for i in xrange(0, len(regions)):
@@ -299,7 +299,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     x, y = size.split('x')
     x, y = float(x), float(y)
     fig.set_size_inches(x, y, dpi=dpi)
-    if svg: 
+    if svg:
         plt.savefig("results.svg", bbox_inches='tight',dpi=dpi)
     else:
         plt.savefig("results.png", bbox_inches='tight',dpi=dpi)
@@ -307,11 +307,11 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
 
 def do_run(args, data_path, match_score, vfs_list):
     """
-    Perform a SeqFindR run
+    Perform a SeqFindr run
     """
     matrix, y_label = [], []
     in_files = util.get_fasta_files(data_path)
-    # Reorder if requested 
+    # Reorder if requested
     if args.index_file != None:
         in_files = util.order_inputs(args.index_file, in_files)
     for subject in in_files:
@@ -329,22 +329,22 @@ def do_run(args, data_path, match_score, vfs_list):
 
 def core(args):
     """
-    The 'core' SeqFindR method
+    The 'core' SeqFindr method
 
     TODO: Exception handling if do_run fails or produces no results
 
     :param args: the arguments given from argparse
     """
     DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
-    args = util.ensure_paths_for_args(args)   
-    configObject = config.SeqFindRConfig()
+    args = util.ensure_paths_for_args(args)
+    configObject = config.SeqFindrConfig()
     util.check_database(args.seqs_of_interest)
     util.init_output_dirs(args.output)
     query_list, query_classes = prepare_queries(args)
     results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
     if args.cons != None:
         args = strip_bases(args)
-        #TODO: Exception handling if do_run fails or produces no results. 
+        #TODO: Exception handling if do_run fails or produces no results.
         # Should be caught here before throwing ugly exceptions downstream.
         results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
         if len(results_m) == len(results_a):
@@ -372,7 +372,7 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', '']+ ylab
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg) 
+    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes, args.color, configObject, args.grid, args.seed, args.DPI, args.size, args.svg)
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -381,24 +381,24 @@ def core(args):
 if __name__ == '__main__':
     try:
         start_time = time.time()
-        
+
         parser = argparse.ArgumentParser(description=__doc__, epilog=epi)
-        algorithm = parser.add_argument_group('Optional algorithm options', 
-                                    ('Options relating to the SeqFindR '
+        algorithm = parser.add_argument_group('Optional algorithm options',
+                                    ('Options relating to the SeqFindr '
                                         'algorithm'))
-        io = parser.add_argument_group('Optional input/output options', 
+        io = parser.add_argument_group('Optional input/output options',
                                     ('Options relating to input and output'))
 
-        fig = parser.add_argument_group('Figure options', ('Options relating ' 
+        fig = parser.add_argument_group('Figure options', ('Options relating '
                                     'to the output figure'))
-        blast_opt = parser.add_argument_group('BLAST options', ('Options relating ' 
+        blast_opt = parser.add_argument_group('BLAST options', ('Options relating '
                                     'to BLAST'))
-        blast_opt.add_argument('-R', '--reftype', action='store', 
-                                help=('Reference Sequence type. If not given ' 
-                                    'will try to detect it'), dest='reftype', 
+        blast_opt.add_argument('-R', '--reftype', action='store',
+                                help=('Reference Sequence type. If not given '
+                                    'will try to detect it'), dest='reftype',
                                 choices=('nucl','prot'), default=None)
-        blast_opt.add_argument('-X', '--tblastx', action='store_true', 
-                                default=False, help=('Run tBLASTx rather than ' 
+        blast_opt.add_argument('-X', '--tblastx', action='store_true',
+                                default=False, help=('Run tBLASTx rather than '
                                                      'BLASTn'))
         blast_opt.add_argument('--evalue', action='store', type=float,
                                 default='0.0001', help=('BLAST evalue '
@@ -406,79 +406,79 @@ if __name__ == '__main__':
         blast_opt.add_argument('--short', action='store_true',
                                 default=False, help=('Have short queries i.e. '
                                                     'PCR Primers'))
-        parser.add_argument('-v', '--verbose', action='store_true', 
+        parser.add_argument('-v', '--verbose', action='store_true',
                                 default=False, help='verbose output')
-        io.add_argument('-o','--output',action='store', 
-                                default=None, help=('Output the results to ' 
+        io.add_argument('-o','--output',action='store',
+                                default=None, help=('Output the results to '
                                     'this location'))
-        io.add_argument('-p','--output_prefix',action='store', 
-                                default=None, help=('Give all result files ' 
+        io.add_argument('-p','--output_prefix',action='store',
+                                default=None, help=('Give all result files '
                                     'this prefix'))
         # Required options now positional arguments
-        parser.add_argument('seqs_of_interest', action='store', 
-                                help=('Full path to FASTA file containing a ' 
+        parser.add_argument('seqs_of_interest', action='store',
+                                help=('Full path to FASTA file containing a '
                                     'set of sequences of interest'))
-        parser.add_argument('assembly_dir', action='store', 
-                                help=('Full path to directory containing a ' 
+        parser.add_argument('assembly_dir', action='store',
+                                help=('Full path to directory containing a '
                                       'set of assemblies in FASTA format'))
-        algorithm.add_argument('-t', '--tol', action='store', type=float, 
-                                    default=0.95, help=('Similarity cutoff ' 
+        algorithm.add_argument('-t', '--tol', action='store', type=float,
+                                    default=0.95, help=('Similarity cutoff '
                                         '[default = 0.95]'))
-        algorithm.add_argument('-m', '--cons', action='store', default=None, 
-                                help=('Full path to directory containing ' 
-                                      'mapping consensuses [default = None]' 
+        algorithm.add_argument('-m', '--cons', action='store', default=None,
+                                help=('Full path to directory containing '
+                                      'mapping consensuses [default = None]'
                                       '. See manual for more info'))
-        fig.add_argument('-l', '--label_genes', action='store_true', 
-                                    default=False, help=('Label the x axis ' 
+        fig.add_argument('-l', '--label_genes', action='store_true',
+                                    default=False, help=('Label the x axis '
                                     +'with the query identifier [default = '
                                     'False]'))
-        algorithm.add_argument('-r', '--reshape', action='store_false', 
-                                default=True, help=('Differentiate ' 
-                                        'between mapping and assembly hits in ' 
-                                        'the figure [default = no ' 
+        algorithm.add_argument('-r', '--reshape', action='store_false',
+                                default=True, help=('Differentiate '
+                                        'between mapping and assembly hits in '
+                                        'the figure [default = no '
                                         'differentiation]'))
-        fig.add_argument('-g', '--grid', action='store_false', default=True, 
-                                help='Figure has grid lines ' 
+        fig.add_argument('-g', '--grid', action='store_false', default=True,
+                                help='Figure has grid lines '
                                     '[default = True]')
-        algorithm.add_argument('--index_file', action='store', default=None, 
-                                help=('Maintain the y axis strain order ' 
-                                        'according to order given in this ' 
-                                        'file. Otherwise clustering by row ' 
-                                        'similarity. [default = do ' 
-                                        'clustering]. See manual for more ' 
+        algorithm.add_argument('--index_file', action='store', default=None,
+                                help=('Maintain the y axis strain order '
+                                        'according to order given in this '
+                                        'file. Otherwise clustering by row '
+                                        'similarity. [default = do '
+                                        'clustering]. See manual for more '
                                         'info'))
         fig.add_argument('--color', action='store', default=None, type=int,
-                                help=('The color index [default = None]. ' 
+                                help=('The color index [default = None]. '
                                         'See manual for more info'))
-        fig.add_argument('--DPI', action='store', type=int, default=300,  
+        fig.add_argument('--DPI', action='store', type=int, default=300,
                                 help='DPI of figure [default = 300]')
-        fig.add_argument('--seed', action='store', type=int, default=99,  
+        fig.add_argument('--seed', action='store', type=int, default=99,
                                 help='Color generation seed')
         fig.add_argument('--svg', action='store_true', default=False, help=('Draws figure in svg'))
-        fig.add_argument('--size', action='store', type=str, default='10x12', 
+        fig.add_argument('--size', action='store', type=str, default='10x12',
                                 help='Size of figure [default = 10x12 '
                                     '(inches)]')
-        algorithm.add_argument('-s', '--strip', action='store', 
-                                default=10, help=('Strip the 1st and last N ' 
-                                        'bases of mapping consensuses & ' 
+        algorithm.add_argument('-s', '--strip', action='store',
+                                default=10, help=('Strip the 1st and last N '
+                                        'bases of mapping consensuses & '
                                         'database [default = 10]'))
         algorithm.add_argument('-c', '--careful', action='store', type=float,
-                                default=0, help=('Manually consider hits ' 
-                                        'that fall (tol-careful) below the  ' 
+                                default=0, help=('Manually consider hits '
+                                        'that fall (tol-careful) below the  '
                                         'cutoff. [default = 0]. '
                                         'With default tol (0.95) & careful = '
                                         '0.2, we will manually inspect all '
                                         'hits in 0.95-0.75 range'))
-        io.add_argument('--EXISTING_MATRIX', action='store_true', 
-                                default=False, help=('Use existing SeqFindR ' 
-                                        'matrix (reformat the plot) ' 
+        io.add_argument('--EXISTING_MATRIX', action='store_true',
+                                default=False, help=('Use existing SeqFindr '
+                                        'matrix (reformat the plot) '
                                         '[default = False]'))
-        blast_opt.add_argument('--BLAST_THREADS', action='store', type=int, 
+        blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
                                 default=1, help=('Use this number of threads '
                                         'in BLAST run [default = 1]'))
         parser.set_defaults(func=core)
         args = parser.parse_args()
-        if args.verbose: 
+        if args.verbose:
             print "Executing @ " + time.asctime()
         args.func(args)
         if args.verbose:
