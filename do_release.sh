@@ -66,3 +66,7 @@ fi
 
 # Upload to PyPI
 twine upload -u mscook -p $PYPIPASS dist/*
+
+
+# Clean up 
+python setup.py clean
