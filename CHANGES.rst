@@ -1,12 +1,20 @@
-SeqFindR changelog
+SeqFindr changelog
 ==================
 
 Please use *git log* in preference to information as it is sporadically 
 updated and may be incomplete.
 
+2014-07-10 Mitchell Stanton-Cook <m.stantoncook@gmail.com>:
+    * Rewrote setup.py
+    * Added a release script
+    * Moved to semantic versioning
+    * SeqFindR --> SeqFindr (as 'R' looks to associate with R)
+    * Improved the doumentation
+    * Added bumpversion and do_release to make releases significantly easier
+
 2013-08-16 Mitchell Stanton-Cook <m.stantoncook@gmail.com>:
     * General refactors & code cleaning/optimisations
-    * Split into: blast.py, config.py, imaging.py, SeqFindR.py & util.py
+    * Split into: blast.py, config.py, imaging.py, SeqFindr.py & util.py
     * fixed meta information
     * Installation should (python setup.py install) should now be more robust)
     * fixed argparse. Required options are now required not optional (database 
