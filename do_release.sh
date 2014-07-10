@@ -51,8 +51,6 @@ mv API/* .
 rmdir API
 make html
 
-exit
-
 git push
 # tag & push the tag to github
 GIT=`git status`
@@ -67,4 +65,4 @@ fi
 
 
 # Upload to PyPI
-twine -u mscook -p $PYPIPASS upload dist/*
+twine upload -u mscook -p $PYPIPASS dist/*
