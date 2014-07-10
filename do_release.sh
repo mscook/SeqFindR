@@ -12,6 +12,7 @@ rm -rf example/run3
 rm -rf example/run4
 rm -rf example/run5
 pip uninstall SeqFindr
+python setup.py clean
 
 
 # Do all the versioning stuff here..
