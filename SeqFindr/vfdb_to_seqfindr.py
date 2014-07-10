@@ -77,8 +77,7 @@ import shutil
 from Bio import SeqIO
 
 
-def main():
-    global args
+def main(args):
     count = 0
     if args.class_file is not None:
         with open(os.path.expanduser(args.class_file)) as class_in:
@@ -112,15 +111,13 @@ def main():
                     fout.write(line.strip().upper()+'\n')
     print 'Wrote %s records' % count
     if not args.blank_class:
-        order_by_class()
+        order_by_class(args)
 
 
-def order_by_class():
+def order_by_class(args):
     """
     Ensure that all particualr classes are in the same block
     """
-    global args
-
     d = {}
     with open(args.outfile, "rU") as fin:
         for record in SeqIO.parse(fin, "fasta"):
@@ -155,6 +152,7 @@ def order_by_class():
 if __name__ == '__main__':
     try:
         start_time = time.time()
+
         desc = __doc__.split('\n\n')[1].strip()
         parser = argparse.ArgumentParser(description=desc, epilog=epi)
         parser.add_argument('-i', '--infile', action='store',
@@ -167,6 +165,7 @@ if __name__ == '__main__':
         parser.add_argument('-b', '--blank_class', action='store_true',
                                   default=False, help='[Optional] set '
                                   'classification blank even if such exist')
+        parser.set_defaults(func=main)
         args = parser.parse_args()
         msg = "Missing required arguments.\nPlease run: vfdb_to_seqfindr -h"
         if args.infile is None:
@@ -175,12 +174,12 @@ if __name__ == '__main__':
         if args.outfile is None:
             print msg
             sys.exit(1)
-
-        print "Executing @ " + time.asctime()
-        main()
-        print "Ended @ " + time.asctime()
-        print 'total time in minutes:',
-        print (time.time() - start_time) / 60.0
+        if args.verbose:
+            print "Executing @ " + time.asctime()
+        args.func(args)
+        if args.verbose:
+            print "Ended @ " + time.asctime()
+            print 'Exec time minutes %f:' % ((time.time() - start_time) / 60.0)
         sys.exit(0)
     except KeyboardInterrupt, e:
         # Ctrl-C
