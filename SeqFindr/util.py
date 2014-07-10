@@ -21,7 +21,6 @@ import re
 from Bio import SeqIO
 
 
-
 def ensure_paths_for_args(args):
     """
     Ensure all arguments with paths are absolute & have simplification removed
@@ -32,13 +31,14 @@ def ensure_paths_for_args(args):
 
     :returns: an updated args
     """
-    args.seqs_of_interest = os.path.abspath(os.path.expanduser(args.seqs_of_interest))
-    args.assembly_dir  = os.path.abspath(os.path.expanduser(args.assembly_dir))
-    if args.output != None:
+    args.seqs_of_interest = os.path.abspath(
+        os.path.expanduser(args.seqs_of_interest))
+    args.assembly_dir = os.path.abspath(os.path.expanduser(args.assembly_dir))
+    if args.output is not None:
         args.output = os.path.abspath(os.path.expanduser(args.output))
-    if args.cons != None:
+    if args.cons is not None:
         args.cons = os.path.abspath(os.path.expanduser(args.cons))
-    if args.index_file != None:
+    if args.index_file is not None:
         args.index_file = os.path.abspath(os.path.expanduser(args.index_file))
     return args
 
@@ -50,7 +50,7 @@ def init_output_dirs(output_dir):
     :param args: the arguments given from argparse
     """
     current_dir = os.getcwd()
-    if output_dir != None:
+    if output_dir is not None:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         else:
@@ -60,6 +60,7 @@ def init_output_dirs(output_dir):
         os.mkdir("DBs")
     except OSError:
         sys.stderr.write("A DBs directory exists. Overwriting\n")
+    return current_dir
 
 
 def get_fasta_files(data_path):
@@ -103,7 +104,7 @@ def order_inputs(order_index_file, dir_listing):
     for l in lines:
         cord = l.strip()
         for d in dir_listing:
-            tmp   = os.path.basename(d.strip())
+            tmp = os.path.basename(d.strip())
             if tmp.find('_') == -1:
                 cur = tmp.split('.')[0]
             else:
@@ -116,7 +117,7 @@ def order_inputs(order_index_file, dir_listing):
         print len(dir_listing)
         sys.stderr.write("In order_inputs(). Not 1-1 matching. Typo?\n")
         sys.stderr.write("In ordered: "+str(ordered)+"\n")
-        sys.stderr.write("In dir listing:" +str(dir_listing)+"\n")
+        sys.stderr.write("In dir listing:" + str(dir_listing)+"\n")
         sys.exit(1)
     return ordered
 
@@ -139,7 +140,7 @@ def is_protein(fasta_file):
     protein_hits = -1
     with open(fasta_file, 'rU') as fin:
         for record in SeqIO.parse(fin, 'fasta'):
-            if re.match('[^ATCGNatcgn]+', str(record.seq)) != None:
+            if re.match('[^ATCGNatcgn]+', str(record.seq)) is not None:
                 protein_hits += 1
     return protein_hits
 
@@ -161,9 +162,7 @@ def check_database(database_file):
             if line.startswith('>'):
                 at_least_one += 1
                 # Do the check
-                if len(line.split(',')) != 4 or\
-                       line.split(',')[-1].count(']') != 1 or\
-                       line.split(',')[-1].count('[') != 1:
+                if len(line.split(',')) != 4 or line.split(',')[-1].count(']') != 1 or line.split(',')[-1].count('[') != 1:
                     raise Exception("Database is not formatted correctly")
                 else:
                     tmp = line.split(',')[-1]
@@ -182,7 +181,7 @@ def check_database(database_file):
         prev = stored_categories[i]
     if cat_counts != detected_cats:
         print ("Please ensure that your classifications ([ element ]) are "
-                "grouped")
+               "grouped")
         sys.exit(1)
     print "SeqFindr database checks [PASSED]"
 

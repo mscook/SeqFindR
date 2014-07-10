@@ -63,17 +63,24 @@ __author__ = "Mitchell Stanton-Cook"
 __licence__ = "ECL"
 __version__ = "0.2"
 __email__ = "m.stantoncook@gmail.com"
-epi = "Licence: "+ __licence__ +  " by " + __author__ + " <" + __email__ + ">"
+epi = "Licence: " + __licence__ + " by " + __author__ + " <" + __email__ + ">"
 USAGE = "vfdb_to_seqfindr -h"
 
 
-import sys, os, traceback, argparse, time, fileinput, shutil
-from   Bio import SeqIO
+import sys
+import os
+import traceback
+import argparse
+import time
+import fileinput
+import shutil
+from Bio import SeqIO
+
 
 def main():
     global args
     count = 0
-    if args.class_file != None:
+    if args.class_file is not None:
         with open(os.path.expanduser(args.class_file)) as class_in:
             class_lines = class_in.readlines()
             args.blank_class = False
@@ -82,32 +89,31 @@ def main():
             classi = '[ ]'
             for line in fin:
                 if line.startswith('>'):
-                    elements    = line.split(' ')
-                    identifier  = elements[0].strip()
+                    elements = line.split(' ')
+                    identifier = elements[0].strip()
                     common_name = elements[1].strip()
                     # For the annotation
-                    tmp   = line.split('-')[1:]
+                    tmp = line.split('-')[1:]
                     rjoin = '-'.join(tmp)
-                    ann   = rjoin.split('[')[0].replace(',', ';').strip()
-                    spec  = line.split('[')[1].split(']')[0].strip()
+                    ann = rjoin.split('[')[0].replace(',', ';').strip()
+                    spec = line.split('[')[1].split(']')[0].strip()
                     # For the classification
                     tmp = elements[-1]
-                    if args.class_file != None:
+                    if args.class_file is not None:
                         classi = '[ %s ]' % (class_lines[count].strip())
                         count = count+1
                     else:
                         count = count+1
-                        if args.blank_class == False:
+                        if args.blank_class is False:
                             if tmp.find('(') != -1:
-                                classi = tmp.strip().replace(
-                                                '(', '[').replace(')', ']')
-                    fout.write('%s, %s, %s, %s %s\n' % (identifier,
-                                                common_name, ann, spec, classi))
+                                classi = tmp.strip().replace('(', '[').replace(')', ']')
+                    fout.write('%s, %s, %s, %s %s\n' % (identifier, common_name, ann, spec, classi))
                 else:
                     fout.write(line.strip().upper()+'\n')
     print 'Wrote %s records' % count
     if not args.blank_class:
         order_by_class()
+
 
 def order_by_class():
     """
@@ -117,7 +123,7 @@ def order_by_class():
 
     d = {}
     with open(args.outfile, "rU") as fin:
-        for record in SeqIO.parse(fin, "fasta") :
+        for record in SeqIO.parse(fin, "fasta"):
             cur_class = record.description.split('[')[-1].split(']')[0].strip()
             if not d.has_key(cur_class):
                 d[cur_class] = []
@@ -145,14 +151,15 @@ def order_by_class():
                 fout.write(line)
     shutil.move(BASE+".tmp", args.outfile)
 
+
 if __name__ == '__main__':
     try:
         start_time = time.time()
         desc = __doc__.split('\n\n')[1].strip()
-        parser = argparse.ArgumentParser(description=desc,epilog=epi)
+        parser = argparse.ArgumentParser(description=desc, epilog=epi)
         parser.add_argument('-i', '--infile', action='store',
                             help='[Required] fullpath to the in fasta file')
-        parser.add_argument('-o','--outfile',action='store',
+        parser.add_argument('-o', '--outfile', action='store',
                             help='[Required] fullpath to the out fasta file')
         parser.add_argument('-c', '--class_file', action='store', default=None,
                             help='[Optional] full path to a file containing '
@@ -162,10 +169,10 @@ if __name__ == '__main__':
                                   'classification blank even if such exist')
         args = parser.parse_args()
         msg = "Missing required arguments.\nPlease run: vfdb_to_seqfindr -h"
-        if args.infile == None:
+        if args.infile is None:
             print msg
             sys.exit(1)
-        if args.outfile == None:
+        if args.outfile is None:
             print msg
             sys.exit(1)
 
@@ -175,12 +182,14 @@ if __name__ == '__main__':
         print 'total time in minutes:',
         print (time.time() - start_time) / 60.0
         sys.exit(0)
-    except KeyboardInterrupt, e: # Ctrl-C
+    except KeyboardInterrupt, e:
+        # Ctrl-C
         raise e
-    except SystemExit, e: # sys.exit()
+    except SystemExit, e:
+        # sys.exit()
         raise e
     except Exception, e:
         print 'ERROR, UNEXPECTED EXCEPTION'
         print str(e)
         traceback.print_exc()
-        os._exit(1)
+        sys.exit(1)

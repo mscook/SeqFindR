@@ -19,6 +19,7 @@ import os
 import sys
 import ast
 
+
 class SeqFindrConfig(object):
     """
     A SeqFindr configuration class - subtle manipulation to plots
@@ -55,7 +56,7 @@ def read_config(alt_location):
 
     category_colors = [(0,0,0),(255,255,255),....,(r,g,b)]
     """
-    if alt_location == None:
+    if alt_location is None:
         cfg_location = os.path.expanduser('~/')+'.SeqFindr.cfg'
     else:
         cfg_location = os.path.expanduser(alt_location)
@@ -63,23 +64,23 @@ def read_config(alt_location):
     try:
         with open(os.path.expanduser(cfg_location)) as fin:
             sys.stderr.write("Using a SeqFindr config file: %s\n" %
-                                    (cfg_location))
+                             (cfg_location))
             colors, line_count = [], 0
             for line in fin:
                 line_count = line_count+1
                 if line.startswith('category_colors'):
                     option, rgb_list = line.split('=')
                     option = option.strip().strip(' ')
-                    rgb_list   = rgb_list.strip().strip(' ')
+                    rgb_list = rgb_list.strip().strip(' ')
                     if rgb_list == '':
                         sys.stderr.write("\tNo options could be parsed. "
-                                            "Using defaults\n")
+                                         "Using defaults\n")
                         break
                     try:
                         rgb_list = ast.literal_eval(rgb_list)
                     except (ValueError, SyntaxError) as exception:
                         sys.stderr.write("\tMalformed settings line: "
-                                            "%s\n" % (str(rgb_list)))
+                                         "%s\n" % (str(rgb_list)))
                         break
                     for element in rgb_list:
                         try:
@@ -88,8 +89,8 @@ def read_config(alt_location):
                                      element[2]/255.0)
                         except IndexError:
                             sys.stderr.write("\tMalformed RGB: %s. "
-                                                "Skipping\n"
-                                                % (str(element)))
+                                             "Skipping\n"
+                                             % (str(element)))
                             break
                         colors.append(fixed)
                     cfg[option] = colors
@@ -100,5 +101,5 @@ def read_config(alt_location):
                 sys.stderr.write("\tEmpty configuration file\n")
     except IOError:
         sys.stderr.write("No SeqFindr config file found at: %s. "
-                            "Using defaults\n" % (cfg_location))
+                         "Using defaults\n" % (cfg_location))
     return cfg

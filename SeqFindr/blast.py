@@ -20,12 +20,13 @@ import shutil
 import os
 import sys
 
-from Bio.Blast              import NCBIXML
+from Bio.Blast import NCBIXML
 from Bio.Blast.Applications import NcbiblastnCommandline
 from Bio.Blast.Applications import NcbitblastnCommandline
 from Bio.Blast.Applications import NcbitblastxCommandline
 
 import SeqFindr.util
+
 
 def make_BLAST_database(fasta_file):
     """
@@ -39,14 +40,14 @@ def make_BLAST_database(fasta_file):
 
     :rtype: the strain id **(must be delimited by '_')**
     """
-    proc = subprocess.Popen([ "makeblastdb", "-in" , fasta_file, "-dbtype",
-                                'nucl' ], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(["makeblastdb", "-in", fasta_file, "-dbtype",
+                             'nucl'], stdout=subprocess.PIPE)
     sys.stderr.write(proc.stdout.read())
     for file_ext in ['.nhr', '.nin', '.nsq']:
         path = fasta_file + file_ext
         shutil.move(path, os.path.join('DBs', os.path.basename(path)))
     sys.stderr.write(("Getting %s and assocaiated database files to the DBs "
-                        "location\n") % (fasta_file))
+                      "location\n") % (fasta_file))
     shutil.copy2(fasta_file, os.path.join('DBs', os.path.basename(fasta_file)))
     return os.path.basename(fasta_file).split('_')[0]
 
@@ -79,7 +80,7 @@ def run_BLAST(query, database, args):
     """
     protein = False
     # File type not specified, determine using util.is_protein()
-    if args.reftype == None:
+    if args.reftype is None:
         if SeqFindr.util.is_protein(query) != -1:
             protein = True
             sys.stderr.write('%s is protein' % (query))
@@ -148,8 +149,7 @@ def parse_BLAST(blast_results, tol, careful):
                         print "Please confirm this hit:"
                         print "Name,SeqFindr score,Len(align),Len(query),Identities,Gaps"
                         print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
-                        accept = raw_input("Should this be considered a "
-                                            "hit? (y/N)")
+                        accept = raw_input("Should this be considered a hit? (y/N)")
                         if accept == '':
                             pass
                         elif accept.lower() == 'n':
