@@ -1,6 +1,10 @@
 SeqFindr
 ========
 
+SeqFindr - easily create informative genomic feature plots.
+
+|
+
 .. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
         :target: https://travis-ci.org/mscook/SeqFindR
 
@@ -11,20 +15,44 @@ SeqFindr
    :alt: Code Health
 
 
-SeqFindr - easily create informative genomic feature plots.
+Documentation
+-------------
 
-Work in progress:
+Please use this README.rst as the core SeqFindr user documentation. 
+
+These are these works in progress:
     * `SeqFindr documentation`_
     * `SeqFindr official site`_
 
-**SeqFindr is nearing a stable API.** 
 
-**We have only tested SeqFindr on linux systems.** There has been some 
-success with `MacOSX`_. 
+News
+----
 
-Best use "git log" for a changelog as the `changelog`_ for most recent 
+**Important:** Were you using a specific SeqFindr version as a dependency 
+for you project and it has disappeared from PyPI? 
+
+We recently activated a name change of SeqFind*R* to SeqFind*r*. This was to 
+avoid potential users believing this was a R package. Unfortunately, PyPI 
+while aware that SeqFindR and SeqFindr were different packages did not like 
+the potential confusion. As a consequence the only resolution was to delete 
+SeqFind*R* completely (and losing all PyPI published releases) and registering 
+SeqFind*r* and starting fresh. All previous 10 releases, while not available 
+on PyPi are still available on GitHub. If you require a previous release you 
+can actually do something like this (SeqFindr v0.26)::
+
+    pip install -e git://github.com/mscook/SeqFindr.git@v0.26
+
+
+**Version 0.31.1 released on 10 July 2014.**
+
+**We are not testing SeqFindr builds on on Linux systems & MacOSX systems.**
+
+Best use "git log" for a changelog as the changelog_ for most recent 
 changes/fixes/enhancements may not be up to date.
 
+
+Citation
+--------
 
 Cite this Github repository if you use SeqFindr to generate figures 
 for publications:: 
@@ -34,35 +62,48 @@ for publications::
     https://github.com/mscook/SeqFindr.
 
 
-Quick install (Ubuntu)
-----------------------
-
-Simple install for Ubuntu/Debian systems::
-
-    $ sudo apt-get install python-numpy python-scipy python-matplotlib python-biopython ncbi-blast+ python-dev python-pip libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git && cd ~/ && git clone https://github.com/mscook/SeqFindr.git && pip install -e SeqFindr/
-
-
-Requirements
+Installation
 ------------
 
-You'll need to install/have installed:
+SeqFindr is a commandline application. If you're not familiar with the 
+commandline we recommend you ask local IT support to help you install it.
+
+We now test SeqFindr builds on both Linux (Ubuntu >= 12.04) and MacOSX 
+(Mavericks) systems. 
+
+You will need to install/have installed:
     * ncbiblast >= 2.2.27
     * python >= 2.7 (**Python 3 is not supported**)
-    * `pip`_
-    * git (depending on your install route) 
 
 You can check these are installed by::
     
     $ python --version
-    $ which blastn
+    $ blastn -version
+
+Installation of python or blastn (without a package manager) is beyond the 
+scope of this document.
+
+If you have both python and blastn you need to (if not already present) 
+install pip_.
+
+You can check if pip_ exists with::
+
     $ which pip
-    $ which git
+
+If you get a "not found", please read the `pip installation instructions`_. 
+
+**If you already have pip we do suggest you upgrade it.** We are using version 
+1.5.6 at the time of writing this document. 
+
+You can upgrade pip_ like this::
+
+    $ pip install --upgrade pip
 
 
-The following python libraries should be installed automatically if you follow 
+The following python libraries_ should be installed (automatically) if you follow 
 the installation instructions detailed below.
 
-We use the following python `libraries`_:
+We use the following python libraries_:
     * numpy >= 1.6.1
     * scipy >= 0.10.1
     * matplotlib >= 1.1.0
@@ -70,93 +111,92 @@ We use the following python `libraries`_:
     * ghalton>=0.6
 
 These libraries will also have dependencies (i.e. atlas, lapack, fortran 
-compilers, freetype and png).
+compilers, freetype and png). **These most likely won't be installed on 
+your computer. Please install these before attempting the installation.**
 
-The state of Python packaging (distribution of code) is that bad, you could 
-miss many nights sleep. I'm looking at you SciPy. **For the smoothest possible 
-install we recommend installing the requirements using your distributions 
-package manager.** That is via apt-get, yum or similar.
+Linux (Ubuntu)
+~~~~~~~~~~~~~~
 
-For Ubuntu (fresh server install) you can get requirements using::
+SeqFindr uses 3rd party packages that are extremely important for scientific 
+computing but are notoriously difficult to install. While *pip install * 
+*--user SeqFindr* may work we recommend you install these 3rd party packages 
+using apt-get.
 
-    $ sudo apt-get install python-numpy python-scipy python-matplotlib
-    python-biopython ncbi-blast+ python-dev python-pip libatlas-dev
-    liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev git
+Run::
 
+    $ sudo apt-get install python-numpy python-scipy python-matplotlib python-biopython python-dev libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev 
 
-Installation (possibly painful)
--------------------------------
-
-If you are a member of the Beatson Group you'll already have SeqFindr in your 
-$PATH on barrine. You do not need to install SeqFindr. UQ based researchers 
-should email me (m.stantoncook@gmail.com) for the location of SeqFindr.
-
-Option 1a (with root/admin)::
+Now pip_ install SeqFindr::
     
-    $ pip install SeqFindr
+    $ pip install --user SeqFindr
 
-Option 1b (as a standard user)::
+We use the --user option of pip_ to put SeqFindr in: /home/$USER/.local/bin/
+You need to add this location to you ~/.bash_profile. 
 
-    $ pip install SeqFindr --user
+Add SeqFindr to your path::
 
-This assumes you have pip installed (see `pip`_). The SciPy, NumPy and 
-matplotlib installations will break if you are missing libraries such as 
-atlas, lapack, fortran compilers, freetype and png).
+    $ echo 'export PATH=$PATH:/home/$USER/.local/bin/' >> ~/.bash_profile
 
+Finally install BLAST+::
 
-**You'll need to have git installed** for the following alternative install 
-options. git can be really useful for scientists. See `here`_ for some 
-discussion. Installing this way will provide you with the most recent version 
-of SeqFindr.
+    $ sudo apt-get install ncbi-blast+ 
 
-Option 2a (with root/admin & git)::
+**Test it:**
 
-    $ cd ~/
-    $ git clone git://github.com/mscook/SeqFindr.git
-    $ cd SeqFindr
-    $ sudo python setup.py install
-
-Option 2b (standard user & git) **replacing INSTALL/HERE with appropriate**::
-
-    $ cd ~/
-    $ git clone git://github.com/mscook/SeqFindr.git
-    $ cd SeqFindr
-    $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
-    $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
-    $ source ~/.bashrc
-    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindr/  
+Run::
     
+    $ SeqFindr -h 
+    $ python -c 'import SeqFindr; print SeqFindr'
 
-If the install went correctly::
 
-   $ which SeqFindr
-   /INSTALLED/HERE/bin/SeqFindr
-   $ SeqFindr -h
+MacOSX (Mavericks)
+~~~~~~~~~~~~~~~~~~
+
+**You'll need to have the equivalents of python-dev libatlas-dev liblapack-dev 
+gfortran libfreetype6-dev libfreetype6 & libpng-dev installed.** We had no 
+problems installing SeqFindr on a recently acquired OSX Mavericks machine 
+using the homebrew package manager.
+
+The installed packages on this machine via::
+
+    $ brew list 
+
+Are availabale at this gist_.
+
+ pip install SeqFindr::
+    
+    $ pip install --user SeqFindr
+
+We use the --user option of pip_ to put SeqFindr in: /home/$USER/.local/bin/
+You need to add this location to you ~/.bash_profile. 
+
+Add SeqFindr to your path::
+
+    $ echo 'export PATH=$PATH:/home/$USER/.local/bin/' >> ~/.bash_profile
+
+Finally install BLAST+::
+
+    $ sudo brew install blast 
+
+**Test it:**
+
+Run::
+    
+    $ SeqFindr -h 
+    $ python -c 'import SeqFindr; print SeqFindr'
+
+
+Upgrading SeqFindr 
+~~~~~~~~~~~~~~~~~~
+
+You can upgrade like this:
+    
+    pip install --upgrade SeqFindr
 
 
 **Please regularly check back to make sure you're running the most recent 
-SeqFindr version.** You can upgrade like this:
+SeqFindr version.**
 
-If installed using option 1x::
-
-    $ pip install --upgrade SeqFindr
-    $ # or
-    $ pip install --upgrade SeqFindr --user
-
-If installed using option 2x::
-
-    $ cd ~/SeqFindr
-    $ git pull
-    $ sudo python setup.py install
-    $
-    $ # or
-    $
-    $ cd ~/SeqFindr
-    $ git pull
-    $ echo 'export PYTHONPATH=$PYTHONPATH:~/INSTALL/HERE/lib/python2.7/site-packages' >> ~/.bashrc
-    $ echo 'export PATH=$PATH:~/INSTALL/HERE/bin' >> ~/.bashrc
-    $ source ~/.bashrc
-    $ python setup.py install --prefix=~/INSTALL/HERE/SeqFindr/  
 
 
 Example figure produced by SeqFindr
@@ -300,7 +340,7 @@ option. Here we adjust BLASTn parameters wordsize = 7 & Expect Value = 1000
 Tutorial
 --------
 
-We provide a `script`_ to run all the examples. **Note:** We have changed the 
+We provide a script_ to run all the examples. **Note:** We have changed the 
 color generation code. As a consequence the background colors will be 
 different when running this yourself. The results will not change.
 
@@ -343,7 +383,7 @@ Command::
     :align: center
 
 
-Link to full size `run1`_.
+Link to full size run1_.
 
 
 Run 2 - Combining assembly and mapping consensus data
@@ -358,7 +398,7 @@ Command::
     :align: center
 
 
-Link to full size `run2`_.
+Link to full size run2_.
 
 
 Run 3 - Combining assembly and mapping consensus data with differentiation between hits
@@ -373,7 +413,7 @@ Command::
     :align: center
 
 
-Link to full size `run3`_.
+Link to full size run3_.
 
 
 The clustering dendrogram looks like this:
@@ -383,7 +423,7 @@ The clustering dendrogram looks like this:
     :align: center
 
 
-Link to full size `dendrogram`_.
+Link to full size dendrogram_.
 
 
 Run 4 - Combining assembly and mapping consensus data with defined ordering
@@ -398,7 +438,7 @@ Command::
     :align: center
 
 
-Link to full size `run4`_.
+Link to full size run4_.
 
 
 How to generate mapping consensus data
@@ -407,8 +447,8 @@ How to generate mapping consensus data
 **We strongly recommend that you use mapping consensus data.** It minimises 
 the effects of missassembly and collapsed repeats.
 
-We use `Nesoni`_. We use the database file (in multi-fasta format) as the 
-reference for mapping. Nesoni has no issues with multifasta files as 
+We use Nesoni_. We use the database file (in multi-fasta format) as the 
+reference for mapping. Nesoni_ has no issues with multifasta files as 
 references (BWA will treat them as separate chromosomes). 
 The workflow is something like this::
 
@@ -444,7 +484,7 @@ The SeqFindr option is -s or --STRIP::
 
 By default this strips the 1st and last 10 bases from the mapping consensuses. 
 We have had good results with this value. Feel free to experiment with 
-different values (say, -s 0, -s 5, -s 10, -s 15). Please see `image-compare`_ 
+different values (say, -s 0, -s 5, -s 10, -s 15). Please see image-compare_ 
 a script we developed to compare the effects of different values of -s on the 
 resultant figures. 
 
@@ -452,7 +492,7 @@ resultant figures.
 SeqFindr usage options
 ----------------------
 
-See the help `listing`_. You can get this yourself with::
+See the help listing_. You can get this yourself with::
 
     $ SeqFindr -h
 
@@ -460,15 +500,16 @@ See the help `listing`_. You can get this yourself with::
 Future
 ------
 
-Please see the `TODO`_ for future SeqFindr project directions.
+Please see the TODO_ for future SeqFindr project directions.
+
+
+
+
 
 .. _pip: http://www.pip-installer.org/en/latest/
 .. _libraries: https://github.com/mscook/SeqFindr/blob/master/requirements.txt
-.. _MacOSX: https://github.com/mscook/SeqFindr/issues/11
-.. _script: https://github.com/mscook/SeqFindr/blob/master/example/run_examples.sh
 .. _image-compare: https://github.com/mscook/image-compare
 .. _listing: https://github.com/mscook/SeqFindr/blob/master/HELP.rst
-.. _here: http://blogs.biomedcentral.com/bmcblog/2013/02/28/version-control-for-scientific-research/
 .. _changelog: https://github.com/mscook/SeqFindr/blob/master/CHANGES.rst
 .. _TODO:  https://github.com/mscook/SeqFindr/blob/master/TODO.rst
 .. _run1: https://raw.github.com/mscook/SeqFindr/master/example/run1.png
@@ -476,8 +517,8 @@ Please see the `TODO`_ for future SeqFindr project directions.
 .. _run3: https://raw.github.com/mscook/SeqFindr/master/example/run3.png
 .. _dendrogram: https://raw.github.com/mscook/SeqFindr/master/example/dendrogram_run3.png
 .. _run4: https://raw.github.com/mscook/SeqFindr/master/example/run4.png
-.. _site: http://mscook.github.io/SeqFindr/
 .. _Nesoni: http://www.vicbioinformatics.com/software.nesoni.shtml
 .. _SeqFindr documentation: http://seqfindr.rtfd.org
 .. _SeqFindr official site: http://mscook.github.io/SeqFindR/
-
+.. _gist: https://gist.github.com/mscook/ef7499fc9d2138f17c7f
+.. _pip installation instructions: http://pip.readthedocs.org/en/latest/installing.html
