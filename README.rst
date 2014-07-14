@@ -163,7 +163,7 @@ The installed packages on this machine via::
 
 Are availabale at this gist_.
 
- pip install SeqFindr::
+pip install SeqFindr::
     
     $ pip install --user SeqFindr
 
@@ -189,7 +189,7 @@ Run::
 Upgrading SeqFindr 
 ~~~~~~~~~~~~~~~~~~
 
-You can upgrade like this:
+You can upgrade like this::
     
     pip install --upgrade SeqFindr
 
