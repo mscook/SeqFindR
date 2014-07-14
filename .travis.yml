@@ -5,7 +5,7 @@ before_install:
     # We do this to make sure we get dependencies
     - sudo apt-get update -qq
     - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-biopython python-dev libatlas-dev liblapack-dev gfortran libfreetype6-dev libfreetype6 libpng-dev
-install: python setup.py install
+install: pip install -r requirements.txt && python setup.py install
 notifications:
   email: true
 #script: cd tests && sh TEST.sh
