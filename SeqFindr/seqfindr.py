@@ -258,11 +258,7 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     else:
         colors = imaging.generate_colors(len(set(vfs_classes)), seed)
     if color_index is not None:
-        print color_index
-        print colors
         colors = [colors[(color_index)]]
-        print colors
-        print "\n"
     # Build the regions to be shaded differently
     regions, prev = [], 0
     for i in xrange(0, len(vfs_classes)-1):
