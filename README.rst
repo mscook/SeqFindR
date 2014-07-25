@@ -11,16 +11,13 @@ SeqFindr - easily create informative genomic feature plots.
         :target: https://pypi.python.org/pypi/SeqFindr/
         :alt: Downloads
 
-|
-
-.. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
+.. image:: https://travis-ci.org/mscook/SeqFindR.svg?branch=master
         :target: https://travis-ci.org/mscook/SeqFindR
-
-|
+        :alt: Build status
 
 .. image:: https://landscape.io/github/mscook/SeqFindR/master/landscape.png
-   :target: https://landscape.io/github/mscook/SeqFindR/master
-   :alt: Code Health
+        :target: https://landscape.io/github/mscook/SeqFindR/master
+        :alt: Code Health
 
 
 Documentation
