@@ -126,7 +126,7 @@ def is_protein(fasta_file):
     """
     Checks if a FASTA file is protein or nucleotide.
 
-    -1 if no protein detected
+    Will return -1 if no protein detected
 
     TODO: Abiguity characters?
     TODO: exception if mix of protein/nucleotide?
@@ -135,7 +135,7 @@ def is_protein(fasta_file):
 
     :type fasta_file: string
 
-    :rtype: number of protein sequences in fasta_file (int)
+    :returns: number of protein sequences in fasta_file (int)
     """
     protein_hits = -1
     with open(fasta_file, 'rU') as fin:
@@ -177,11 +177,10 @@ def check_database(database_file):
     detected_cats = 1
     for i in range(1, len(stored_categories)):
         if stored_categories[i] != prev:
-            detected_cats +=1
+            detected_cats += 1
         prev = stored_categories[i]
     if cat_counts != detected_cats:
         print ("Please ensure that your classifications ([ element ]) are "
                "grouped")
         sys.exit(1)
     print "SeqFindr database checks [PASSED]"
-
