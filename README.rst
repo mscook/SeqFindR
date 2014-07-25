@@ -3,6 +3,14 @@ SeqFindr
 
 SeqFindr - easily create informative genomic feature plots.
 
+.. image:: https://pypip.in/version/SeqFindr/badge.svg
+        :target: https://pypi.python.org/pypi/SeqFindr/
+        :alt: Latest Version
+
+.. image:: https://pypip.in/download/SeqFindr/badge.svg
+        :target: https://pypi.python.org/pypi/SeqFindr/
+        :alt: Downloads
+
 |
 
 .. image:: https://travis-ci.org/mscook/SeqFindR.png?branch=master
