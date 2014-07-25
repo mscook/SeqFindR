@@ -281,7 +281,8 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
         ax.xaxis.grid(False)
     if show_gene_labels:
-        ax.set_xticklabels([''] + gene_labels)
+        ax.set_xticklabels(['',''] + gene_labels)
+        #ax.set_xticklabels(gene_labels)
         # ax.set_xticklabels([''] + gene_labels), rotation=90)
     for i in xrange(0, len(regions)):
         plt.axvspan(regions[i][0], regions[i][1], facecolor=colors[i],
@@ -369,7 +370,7 @@ def core(args):
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
-    matrix = np.vstack([newrow, matrix])
+    #matrix = np.vstack([newrow, matrix])
     matrix = np.vstack([newrow, matrix])
     # Handle new option to only show presence
     if args.reshape is True:
