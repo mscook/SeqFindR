@@ -20,7 +20,7 @@ Documentation
 
 Please use this README.rst as the core SeqFindr user documentation. 
 
-These are these works in progress:
+These are works in progress:
     * `SeqFindr documentation`_
     * `SeqFindr official site`_
 
@@ -524,6 +524,7 @@ Please see the TODO_ for future SeqFindr project directions.
 .. _listing: https://github.com/mscook/SeqFindr/blob/master/HELP.rst
 .. _changelog: https://github.com/mscook/SeqFindr/blob/master/CHANGES.rst
 .. _TODO:  https://github.com/mscook/SeqFindr/blob/master/TODO.rst
+.. _script: https://raw.github.com/mscook/SeqFindr/master/example/run_examples.sh
 .. _run1: https://raw.github.com/mscook/SeqFindr/master/example/run1.png
 .. _run2: https://raw.github.com/mscook/SeqFindr/master/example/run2.png
 .. _run3: https://raw.github.com/mscook/SeqFindr/master/example/run3.png
