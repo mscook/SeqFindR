@@ -161,7 +161,7 @@ The installed packages on this machine via::
 
     $ brew list 
 
-Are availabale at this gist_.
+Are available at this gist_.
 
 pip install SeqFindr::
     
@@ -346,10 +346,18 @@ different when running this yourself. The results will not change.
 
 Navigate to the SeqFindr/example directory (from git clone). The following files should be present:
     * A database file called *Antibiotic_markers.fa* 
-    * A ordering file called *dummy.order* (-i option)
+    * An ordering file called *dummy.order* (-i option)
     * An assemblies directory containing *strain1.fa, strain2.fa and strain3.fa*
     * A consensus directory containing *strain1.fa, strain2.fa and strain3.fa*
       (-m option)
+
+**Note:** the assembly and consensus directories contain:
+    * the same number of files (3 each)
+    * there is a 1-1 filename mapping (strain1.fa, strain2.fa, strain3.fa == 
+      strain1.fa, strain2.fa, strain3.fa)
+    * there are only fasta files. If you wish to include complete genomes 
+      either download the genomes in fasta format OR convert the Genbank or 
+      EMBL files to fasta format. 
 
 The toy assemblies and consensuses were generated such that:
     * **strain1** was missing: 70-shv86, 70-ctx143 and 70-aac3(IV)380 with 
@@ -428,6 +436,10 @@ Link to full size dendrogram_.
 
 Run 4 - Combining assembly and mapping consensus data with defined ordering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Note:** the ordering file is defined using the option *--index_file*. The 
+ordering file **must** contain the same number of strains as the assemblies 
+directory and the strain names must agree (TODO - add a script to flag issues).
 
 Command::
 
