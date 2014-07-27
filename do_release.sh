@@ -50,6 +50,7 @@ sphinx-apidoc -o API ../SeqFindr
 mv API/* .
 rmdir API
 make html
+cd ..
 
 git push
 # tag & push the tag to github
