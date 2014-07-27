@@ -33,6 +33,10 @@ These are works in progress:
 News
 ----
 
+**28/07/14:** Fixed a bug where axes were shifted when using newer versions 
+of matplotlib. 
+
+
 **Important:** Were you using a specific SeqFindr version as a dependency 
 for you project and it has disappeared from PyPI? 
 
