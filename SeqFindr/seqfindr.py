@@ -370,7 +370,7 @@ def core(args):
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
-    #matrix = np.vstack([newrow, matrix])
+    # matrix = np.vstack([newrow, matrix])
     matrix = np.vstack([newrow, matrix])
     # Handle new option to only show presence
     if args.reshape is True:
@@ -378,6 +378,12 @@ def core(args):
             if x < 0.99:
                 x[...] = -1.0
     ylab = ['', ''] + ylab
+    if args.invert:
+        for elem in np.nditer(matrix, op_flags=['readwrite']):
+            if elem < 0.99:
+                elem[...] = -1.0
+        matrix[0,:] *= -1
+        matrix = matrix*-1
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
                 args.size, args.svg)
@@ -453,6 +459,9 @@ if __name__ == '__main__':
         fig.add_argument('--color', action='store', default=None, type=int,
                          help=('The color index [default = None]. See manual '
                                'for more info'))
+        fig.add_argument('--invert', action='store_true', default=False,
+                         help=('Invert the shading so that missing hits are '
+                               'black [default = False].'))
         fig.add_argument('--DPI', action='store', type=int, default=300,
                          help='DPI of figure [default = 300]')
         fig.add_argument('--seed', action='store', type=int, default=99,
