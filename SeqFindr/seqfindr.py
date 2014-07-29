@@ -373,16 +373,21 @@ def core(args):
     # matrix = np.vstack([newrow, matrix])
     matrix = np.vstack([newrow, matrix])
     # Handle new option to only show presence
+    cutoff = 0.49
     if args.reshape is True:
+        cutoff = 0.99
         for x in np.nditer(matrix, op_flags=['readwrite']):
-            if x < 0.99:
+            if x < cutoff:
                 x[...] = -1.0
     ylab = ['', ''] + ylab
     if args.invert:
         for elem in np.nditer(matrix, op_flags=['readwrite']):
-            if elem < 0.99:
-                elem[...] = -1.0
+            if elem < cutoff:
+                elem[...] = -cutoff-0.01
         matrix[0,:] *= -1
+        if args.reshape is False:
+            matrix[0,:] *= 0.0
+            matrix[0,:] += -0.5
         matrix = matrix*-1
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
