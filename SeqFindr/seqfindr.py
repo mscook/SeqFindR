@@ -42,7 +42,7 @@ from SeqFindr import util
 from SeqFindr import blast
 
 __title__ = 'SeqFindr'
-__version__ = '0.31.3'
+__version__ = '0.31.4'
 __description__ = "A tool to easily create informative genomic feature plots"
 __author__ = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__ = 'ECL 2.0'
