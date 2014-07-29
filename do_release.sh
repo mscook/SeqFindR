@@ -68,9 +68,11 @@ else
 fi 
 
 
-# Upload to PyPI
-twine upload -u mscook -p $PYPIPASS dist/*
+# Upload to PyPI & clean
+twine upload -u mscook -p $PYPIPASS dist/* && python setup.py clean
 
+# Update mirrors
+cd ../BeatsonLab-MicrobialGenomics/MIRRORS/
+sh update.sh
+cd ../../SeqFindR/
 
-# Clean up 
-python setup.py clean
