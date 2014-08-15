@@ -145,7 +145,7 @@ def parse_BLAST(blast_results, tol, careful):
                         hit_name = record.query.split(',')[1].strip()
                     except IndexError:
                     # Database is in NCBI format, IndexError thrown on .split(',')[1]
-                        hit_name = record.query.split('|')[2].strip()
+                        hit_name = record.query.split('|')[1].strip()
                     
                     cutoff = hsp.identities/float(record.query_length)
                     if cutoff >= tol:
