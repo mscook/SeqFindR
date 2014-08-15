@@ -154,20 +154,37 @@ def check_database(database_file):
     :args database_file: full path to a database file as a string
 
     :type database_file: string
+   
+    :returns: format type of database, "NCBI" or "SeqFindr"
     """
+
     at_least_one = 0
     stored_categories = []
+    format_type = ""
     with open(database_file) as db_in:
         for line in db_in:
             if line.startswith('>'):
                 at_least_one += 1
-                # Do the check
-                if len(line.split(',')) != 4 or line.split(',')[-1].count(']') != 1 or line.split(',')[-1].count('[') != 1:
-                    raise Exception("Database is not formatted correctly")
-                else:
-                    tmp = line.split(',')[-1]
-                    cur = tmp.split('[')[-1].split(']')[0].strip()
-                    stored_categories.append(cur)
+                # otherwise Do the check
+                try:
+                # Check whether formatted correctly.
+                    line.split(',')[1] # just used to generate an exception.
+                    if len(line.split(',')) != 4 or line.split(',')[-1].count(']') != 1 or line.split(',')[-1].count('[') != 1:
+                        raise Exception("Database is not formatted correctly")
+                    else:
+                        tmp = line.split(',')[-1]
+                        cur = tmp.split('[')[-1].split(']')[0].strip()
+                        stored_categories.append(cur)
+                        format_type = "SeqFindr"
+                except IndexError:
+                # If IndexError is raised on .split(',')[x], check for NCBI formatting
+                    if "|" in line:
+                        if len(line.split('|')) != 5:
+                            raise Exception("Database is not formatted correctly")
+                        stored_categories.append("DummyCategory")
+                        format_type = "NCBI"
+                    else:
+                        raise Exception("Database is not formatted correctly")
     if at_least_one == 0:
         raise Exception("Database contains no fasta headers")
     # Check that the categories maintain the correct order.
@@ -184,3 +201,6 @@ def check_database(database_file):
                "grouped")
         sys.exit(1)
     print "SeqFindr database checks [PASSED]"
+    return format_type
+  
+

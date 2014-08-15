@@ -140,7 +140,13 @@ def parse_BLAST(blast_results, tol, careful):
         for record in NCBIXML.parse(open(blast_results)):
             for align in record.alignments:
                 for hsp in align.hsps:
-                    hit_name = record.query.split(',')[1].strip()
+                    try:
+                    # Database is in well-formed format
+                        hit_name = record.query.split(',')[1].strip()
+                    except IndexError:
+                    # Database is in NCBI format, IndexError thrown on .split(',')[1]
+                        hit_name = record.query.split('|')[2].strip()
+                    
                     cutoff = hsp.identities/float(record.query_length)
                     if cutoff >= tol:
                         hits.append(hit_name.strip())

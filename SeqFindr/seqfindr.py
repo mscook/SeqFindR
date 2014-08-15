@@ -38,9 +38,11 @@ from Bio import SeqIO
 
 from SeqFindr import imaging
 from SeqFindr import config
-from SeqFindr import util
-from SeqFindr import blast
-
+#from SeqFindr import util
+#temporarily for testing purposes...
+import util
+#from SeqFindr import blast
+import blast
 __title__ = 'SeqFindr'
 __version__ = '0.31.4'
 __description__ = "A tool to easily create informative genomic feature plots"
@@ -58,7 +60,7 @@ __doc__ = " %s v%s - %s (%s)" % (__title__,
                                  __url__)
 
 
-def prepare_queries(args):
+def prepare_queries(args, format_type):
     """
     Given a set of sequences of interest, extract all query & query classes
 
@@ -84,8 +86,15 @@ def prepare_queries(args):
         records = SeqIO.parse(fin, "fasta")
         for rec in records:
             cur = rec.description
-            query_list.append(cur.split(',')[1].strip())
-            query_classes.append(cur.split('[')[-1].split(']')[0].strip())
+            try:
+            # Handle well-formed DB input       
+                query_list.append(cur.split(',')[1].strip())
+                query_classes.append(cur.split('[')[-1].split(']')[0].strip())     
+            except IndexError:
+            # Handle NCBI-formatted input.
+                query_list.append(cur.split('|')[1].strip())
+                query_classes.append("DummyCategory")            
+
     unique = list(set(query_list))
     sys.stderr.write("Investigating %i features\n" % (len(unique)))
     for e in unique:
@@ -94,7 +103,6 @@ def prepare_queries(args):
             sys.stderr.write("Fix duplicates\n")
             sys.exit(1)
     return query_list, query_classes
-
 
 def strip_bases(args):
     """
@@ -344,9 +352,9 @@ def core(args):
     DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
     args = util.ensure_paths_for_args(args)
     configObject = config.SeqFindrConfig()
-    util.check_database(args.seqs_of_interest)
+    format_type = util.check_database(args.seqs_of_interest)
     util.init_output_dirs(args.output)
-    query_list, query_classes = prepare_queries(args)
+    query_list, query_classes = prepare_queries(args, format_type)
     results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
     if args.cons is not None:
         args = strip_bases(args)
@@ -364,6 +372,9 @@ def core(args):
         args.reshape = False
         results_a = strip_id_from_matrix(results_a)
         matrix = np.array(results_a)
+    if matrix is None:
+        print "Matrix is empty"
+        sys.exit(1)
     # cluster if not ordered
     if args.index_file is None:
         matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
