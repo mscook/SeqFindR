@@ -1,7 +1,12 @@
 SeqFindr
 ========
 
-SeqFindr - easily create informative genomic feature plots.
+SeqFindr - easily create informative genomic feature plots. It's a 
+bioinfomagicians tool to detect the presence or absence of genomic features 
+given a database describing these features & a set of draft and/or complete 
+genomes. We work with bacterial genomes & as such SeqFindr has only been 
+tested with bacterial genomes.
+
 
 .. image:: https://pypip.in/version/SeqFindr/badge.svg
         :target: https://pypi.python.org/pypi/SeqFindr/
@@ -54,7 +59,7 @@ can actually do something like this (SeqFindr v0.26)::
 
 **Version 0.31.1 released on 10 July 2014.**
 
-**We are not testing SeqFindr builds on on Linux systems & MacOSX systems.**
+**We are now testing SeqFindr builds on both Linux & MacOSX systems.**
 
 Best use "git log" for a changelog as the changelog_ for most recent 
 changes/fixes/enhancements may not be up to date.
@@ -69,6 +74,8 @@ for publications::
     STANTON-COOK M, NF ALIKHAN, FORDE BM, BEN ZAKOUR NL & BEATSON SA^. 
     SeqFindr - easily create informative genomic feature plots.
     https://github.com/mscook/SeqFindr.
+
+TODO: Couple SeqFindr with ZENODO!
 
 
 Installation
