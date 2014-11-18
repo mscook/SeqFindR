@@ -200,6 +200,16 @@ def del_from_list(target, index_positions):
     :returns: a list with the elements removed defined by the index_positions
               list
     """
+    if target == []:
+        raise ValueError("target list must not be empty")
+    if len(index_positions) > len(target):
+        raise ValueError("target list contains less elements then "
+                         "to be removed")
+    if not all(x >= 0 for x in index_positions):
+        raise ValueError("index_positions need to be positive")
+    for e in index_positions:
+        if e >= len(target):
+            raise ValueError("index_positions > len target list")
     for offset, index in enumerate(index_positions):
         index -= offset
         del target[index]
