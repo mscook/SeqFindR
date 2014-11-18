@@ -337,7 +337,7 @@ def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
     else:
         find = 1.0
     if invert:
-        find*-1
+        find = find*-1.0
     for idx, column in enumerate(matrix.T):
         target = len(column)
         count = 0
