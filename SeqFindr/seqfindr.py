@@ -281,8 +281,8 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
         ax.xaxis.grid(False)
     if show_gene_labels:
-        ax.set_xticklabels(['',''] + gene_labels)
-        #ax.set_xticklabels(gene_labels)
+        ax.set_xticklabels(['', ''] + gene_labels)
+        # ax.set_xticklabels(gene_labels)
         # ax.set_xticklabels([''] + gene_labels), rotation=90)
     for i in xrange(0, len(regions)):
         plt.axvspan(regions[i][0], regions[i][1], facecolor=colors[i],
@@ -307,6 +307,49 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         plt.savefig("results.svg", bbox_inches='tight', dpi=dpi)
     else:
         plt.savefig("results.png", bbox_inches='tight', dpi=dpi)
+
+
+def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
+    """
+    Remove any columns where all elements in every position are absent
+
+    Also handles the query classes and x_lables.
+
+    .. attention:: new feature added in version 0.4.0
+
+    Toogle using: **args.remove_empty_cols**
+
+    :param matrix: the SeqFindr hit matrix
+    :param query_classes: a list of query classes
+    :param query_list: a query list (x labels)
+    :param cons: whether the Seqfindr run is using mapping consensus data
+                 or not
+    :param invert: whether the Seqfindr run is inverting (missing hits to
+                   be shown as black bars.
+
+    :returns: a tuple with three elements which are the: updated SeqFindr
+              matrix, the updated query_classes list and the updated
+              query_list respectively.
+    """
+    to_remove = []
+    if cons is None:
+        find = 0.5
+    else:
+        find = 1.0
+    if invert:
+        find*-1
+    for idx, column in enumerate(matrix.T):
+        target = len(column)
+        count = 0
+        for elem in column:
+            if elem == find:
+                count += 1
+        if count == target:
+            to_remove.append(idx)
+    new = np.delete(matrix, to_remove, 1)
+    query_classes = util.del_from_list(query_classes, to_remove)
+    query_list = util. del_from_list(query_list, to_remove)
+    return new, query_classes, query_list
 
 
 def do_run(args, data_path, match_score, vfs_list):
@@ -389,6 +432,13 @@ def core(args):
             matrix[0,:] *= 0.0
             matrix[0,:] += -0.5
         matrix = matrix*-1
+    # Remove empty columns
+    if args.remove_empty_cols:
+        matrix, query_classes, query_list = strip_uninteresting(matrix,
+                                                                query_classes,
+                                                                query_list,
+                                                                args.cons,
+                                                                args.invert)
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
                 args.size, args.svg)
@@ -467,6 +517,9 @@ if __name__ == '__main__':
         fig.add_argument('--invert', action='store_true', default=False,
                          help=('Invert the shading so that missing hits are '
                                'black [default = False].'))
+        fig.add_argument('--remove_empty_cols', action='store_true',
+                         default=False, help=('Remove columns that have no '
+                                              'hits [default = False].'))
         fig.add_argument('--DPI', action='store', type=int, default=300,
                          help='DPI of figure [default = 300]')
         fig.add_argument('--seed', action='store', type=int, default=99,

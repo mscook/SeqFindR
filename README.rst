@@ -38,6 +38,10 @@ These are works in progress:
 News
 ----
 
+**18/11/14:** Version 0.4.0 now has new option --remove_empty_cols. It will 
+strip out entire columns where no hits were detected.
+
+
 **28/07/14:** Fixed a bug where axes were shifted when using newer versions 
 of matplotlib. 
 
