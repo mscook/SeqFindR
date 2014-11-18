@@ -12,7 +12,7 @@ Something like this::
                     [--EXISTING_MATRIX] [--BLAST_THREADS BLAST_THREADS]
                     seqs_of_interest assembly_dir
 
-    SeqFindr v 0.32.0 - A tool to easily create informative genomic feature plots
+    SeqFindr v 0.32.1 - A tool to easily create informative genomic feature plots
     (http://github.com/mscook/SeqFindr)
 
     positional arguments:
