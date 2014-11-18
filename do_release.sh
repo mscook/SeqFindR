@@ -14,12 +14,20 @@ rm -rf example/run5
 rm -rf example/run6
 rm -rf example/run7
 rm -rf example/run8
+rm -rf example/run9
+rm -rf example/run10
+rm -rf example/run11
+rm -rf example/run12
+rm -rf example/run13
+rm -rf example/run14
+rm -rf example/run15
+rm -rf example/run16
 pip uninstall SeqFindr
 python setup.py clean
 
 
 # Do all the versioning stuff here..
-bumpversion minor
+bumpversion patch
 
 
 # Clean, test, build the source distribution & pip install it
