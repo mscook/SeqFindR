@@ -309,6 +309,29 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         plt.savefig("results.png", bbox_inches='tight', dpi=dpi)
 
 
+def determine_nohit_score(cons, invert):
+    """
+    Determine the value in the matrix assigned to nohit given SeqFindr options
+
+    :param cons: whether the Seqfindr run is using mapping consensus data
+                 or not
+    :param invert: whether the Seqfindr run is inverting (missing hits to
+                   be shown as black bars.
+
+    :type cons: None of boolean
+    :type cons: boolean
+
+    :returns: the value defined as no hit in the results matrix
+    """
+    if cons is None:
+        nohit = 0.5
+    else:
+        nohit = 1.0
+    if invert:
+        nohit = nohit*-1.0
+    return nohit
+
+
 def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
     """
     Remove any columns where all elements in every position are absent
@@ -331,18 +354,13 @@ def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
               matrix, the updated query_classes list and the updated
               query_list respectively.
     """
+    nohit = determine_nohit_score(cons, invert)
     to_remove = []
-    if cons is None:
-        find = 0.5
-    else:
-        find = 1.0
-    if invert:
-        find = find*-1.0
     for idx, column in enumerate(matrix.T):
         target = len(column)
         count = 0
         for elem in column:
-            if elem == find:
+            if elem == nohit:
                 count += 1
         if count == target:
             to_remove.append(idx)
@@ -350,6 +368,17 @@ def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
     query_classes = util.del_from_list(query_classes, to_remove)
     query_list = util. del_from_list(query_list, to_remove)
     return new, query_classes, query_list
+
+
+def check_singularity(matrix, cons, invert):
+    """
+    Check if there are any informative sites in the matrix
+    """
+    nohit = determine_nohit_score(cons, invert)
+    if np.all(matrix==nohit):
+        msg = ("There are no informative sites (no hits) in the SeqFindr "
+               "matrix. Consider lowering hit tolerance (-t/--t")
+        raise ValueError(msg)
 
 
 def do_run(args, data_path, match_score, vfs_list):
@@ -439,6 +468,8 @@ def core(args):
                                                                 query_list,
                                                                 args.cons,
                                                                 args.invert)
+    # Check for singular matrix
+    check_singularity(matrix, args.cons, args.invert)
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
                 args.size, args.svg)

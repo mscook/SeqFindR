@@ -38,3 +38,16 @@ def test_strip_uninteresting():
     assert newqc == ['a', 'c']
     assert newql == ['a1', 'c1']
     assert nm.all() == np.array([(-1.0, -3), (-0.5, -6)]).all()
+
+
+def test_check_singularity():
+    """
+    Test the check_singularity function
+
+    Function signature::
+
+        check_singularity(matrix, cons, invert)
+    """
+    matrix = np.array([(0.5, 0.5, 0.5), (0.5, 0.5, 0.5)])
+    with pytest.raises(ValueError):
+        seqfindr.check_singularity(matrix, None, False)
