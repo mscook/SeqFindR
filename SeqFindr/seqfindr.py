@@ -22,6 +22,7 @@ import os
 import traceback
 import argparse
 import time
+import copy
 
 import matplotlib
 matplotlib.use('Agg')
@@ -210,13 +211,25 @@ def strip_id_from_matrix(mat):
     return new_mat
 
 
-def cluster_matrix(matrix, y_labels, dpi):
+def cluster_matrix(matrix, labels, dpi, by_cols):
     """
     From a matrix, generate a distance matrix & perform hierarchical clustering
 
     :param matrix: a numpy matrix of scores
-    :param y_labels: the virulence factor ids for all row elements
+    :param labels: the ids for all row elements or column elements
+    :param dpi: the resolution to save the diagram at
+    :param by_cols: whether to perform the clustering by row similarity
+                    (default) or column similarity.
+
+    :type matrix: numpy matrix
+    :type labels: list
+    :type dpi: int
+    :type by_cols: boolean (default == False)
+
+    :returns: a tuple of the updated (clustered) matrix & the updated labels
     """
+    if by_cols:
+        matrix = matrix.transpose()
     print "Clustering the matrix"
     # Clear any matplotlib formatting
     plt.clf()
@@ -228,21 +241,23 @@ def cluster_matrix(matrix, y_labels, dpi):
     plt.xticks(fontsize=6)
     Y = pdist(matrix)
     Z = linkage(Y)
-    dend = dendrogram(Z, labels=y_labels)
+    dend = dendrogram(Z, labels=labels)
     plt.savefig("dendrogram.png", dpi=dpi)
     # Reshape
     ordered_index = dend['leaves']
-    updated_ylabels = dend['ivl']
+    updated_labels = dend['ivl']
     tmp = []
     for i in range(0, len(ordered_index)):
         tmp.append(list(matrix[ordered_index[i], :]))
     matrix = np.array(tmp)
-    return matrix, updated_ylabels
+    if by_cols:
+        matrix = matrix.transpose()
+    return matrix, updated_labels
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                 show_gene_labels, color_index, config_object, grid, seed,
-                dpi, size, svg, aspect='auto'):
+                dpi, size, svg, cluster_column, aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -260,13 +275,16 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     if color_index is not None:
         colors = [colors[(color_index)]]
     # Build the regions to be shaded differently
-    regions, prev = [], 0
-    for i in xrange(0, len(vfs_classes)-1):
-        if vfs_classes[i] != vfs_classes[i+1]:
-            regions.append([prev+0.5, i+0.5])
-            prev = i
-    regions.append([prev+0.5, len(vfs_classes)-0.5])
-    regions[0][0] = regions[0][0]-1.0
+    if not cluster_column:
+        regions, prev = [], 0
+        for i in xrange(0, len(vfs_classes)-1):
+            if vfs_classes[i] != vfs_classes[i+1]:
+                regions.append([prev+0.5, i+0.5])
+                prev = i
+        regions.append([prev+0.5, len(vfs_classes)-0.5])
+        regions[0][0] = regions[0][0]-1.0
+    else:
+        regions = [[-1, len(gene_labels)]]
     plt.clf()
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -375,7 +393,7 @@ def check_singularity(matrix, cons, invert):
     Check if there are any informative sites in the matrix
     """
     nohit = determine_nohit_score(cons, invert)
-    if np.all(matrix==nohit):
+    if np.all(matrix == nohit):
         msg = ("There are no informative sites (no hits) in the SeqFindr "
                "matrix. Consider lowering hit tolerance (-t/--t")
         raise ValueError(msg)
@@ -438,7 +456,15 @@ def core(args):
         matrix = np.array(results_a)
     # cluster if not ordered
     if args.index_file is None:
-        matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
+        if not args.cluster_column:
+            matrix, ylab = cluster_matrix(matrix, ylab, args.DPI,
+                                          args.cluster_column)
+        else:
+            tmp = copy.deepcopy(ylab)
+            matrix, ylab = cluster_matrix(matrix, query_list, args.DPI,
+                                          args.cluster_column)
+            query_list = ylab
+            ylab = tmp
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
@@ -472,7 +498,7 @@ def core(args):
     check_singularity(matrix, args.cons, args.invert)
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
-                args.size, args.svg)
+                args.size, args.svg, args.cluster_column)
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -542,6 +568,9 @@ if __name__ == '__main__':
                                'order given in this file. Otherwise '
                                'clustering by row similarity. [default = do '
                                'clustering]. See manual for more info'))
+        alg.add_argument('--cluster_column', action='store_true',
+                         default=False,
+                         help=('Cluster by column similarity rather than row'))
         fig.add_argument('--color', action='store', default=None, type=int,
                          help=('The color index [default = None]. See manual '
                                'for more info'))
