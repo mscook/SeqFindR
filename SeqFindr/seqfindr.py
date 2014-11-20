@@ -241,7 +241,7 @@ def cluster_matrix(matrix, labels, dpi, by_cols):
     plt.xticks(fontsize=6)
     Y = pdist(matrix)
     Z = linkage(Y)
-    dend = dendrogram(Z, labels=labels)
+    dend = dendrogram(Z, labels=labels, link_color_func=None)
     plt.savefig("dendrogram.png", dpi=dpi)
     # Reshape
     ordered_index = dend['leaves']
