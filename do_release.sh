@@ -27,7 +27,7 @@ python setup.py clean
 
 
 # Do all the versioning stuff here..
-bumpversion patch
+bumpversion minor
 
 
 # Clean, test, build the source distribution & pip install it
