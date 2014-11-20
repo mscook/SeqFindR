@@ -78,6 +78,9 @@ def run_BLAST(query, database, args):
 
     :returns: the path of the blast.xml file
     """
+    tmp1 = os.path.splitext(query.split('/')[-1])[0]
+    tmp2 = os.path.splitext(database.split('/')[-1])[0]
+    outfile = tmp1+"_"+tmp2+"_blast.xml"
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype is None:
