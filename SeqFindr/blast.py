@@ -80,7 +80,7 @@ def run_BLAST(query, database, args):
     """
     tmp1 = os.path.splitext(query.split('/')[-1])[0]
     tmp2 = os.path.splitext(database.split('/')[-1])[0]
-    outfile = tmp1+"_"+tmp2+"_blast.xml"
+    outfile = os.path.join("BLAST_results/", tmp1+"_"+tmp2+"_blast.xml")
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype is None:
@@ -95,14 +95,14 @@ def run_BLAST(query, database, args):
         sys.stderr.write('Using tblastn\n')
         run_command = NcbitblastnCommandline(query=query, seg='no',
                     db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                    max_target_seqs=1, evalue=args.evalue, out='blast.xml')
+                    max_target_seqs=1, evalue=args.evalue, out=outfile)
     else:
         if args.tblastx:
             sys.stderr.write('Using tblastx\n')
             run_command = NcbitblastxCommandline(query=query, seg='no',
                         db=database, outfmt=5, num_threads=args.BLAST_THREADS,
                         max_target_seqs=1, evalue=args.evalue,
-                        out='blast.xml')
+                        out=outfile)
         else:
             sys.stderr.write('Using blastn\n')
             if args.short == False:
@@ -110,17 +110,17 @@ def run_BLAST(query, database, args):
                             db=database, outfmt=5,
                             num_threads=args.BLAST_THREADS,
                             max_target_seqs=1, evalue=args.evalue,
-                            out='blast.xml')
+                            out=outfile)
             else:
                 sys.stderr.write('Optimising for short query sequences\n')
                 run_command = NcbiblastnCommandline(query=query, dust='no',
                             db=database, outfmt=5, word_size=7,
                             num_threads=args.BLAST_THREADS, evalue=1000,
-                            max_target_seqs=1, out='blast.xml')
+                            max_target_seqs=1, out=outfile)
 
     sys.stderr.write(str(run_command)+"\n")
     run_command()
-    return os.path.join(os.getcwd(), 'blast.xml')
+    return os.path.join(os.getcwd(), outfile)
 
 
 def parse_BLAST(blast_results, tol, careful):
