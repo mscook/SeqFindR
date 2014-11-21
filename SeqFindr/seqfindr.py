@@ -500,7 +500,7 @@ def core(args):
                 args.color, configObject, args.grid, args.seed, args.DPI,
                 args.size, args.svg, args.cluster_column)
     # Handle labels here
-    os.system("rm blast.xml")
+    #os.system("rm blast.xml")
     os.system("rm DBs/*")
 
 

@@ -60,6 +60,10 @@ def init_output_dirs(output_dir):
         os.mkdir("DBs")
     except OSError:
         sys.stderr.write("A DBs directory exists. Overwriting\n")
+    try:
+        os.mkdir("BLAST_results")
+    except OSError:
+        sys.stderr.write("A BLAST_results directory exists.")
     return current_dir
 
 
