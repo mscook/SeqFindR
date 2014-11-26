@@ -9,3 +9,4 @@ example/consensus/stripped/
 _build
 .DS_Store
 *.spec
+.idea/

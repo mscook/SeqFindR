@@ -22,6 +22,7 @@ import os
 import traceback
 import argparse
 import time
+import copy
 
 import matplotlib
 matplotlib.use('Agg')
@@ -44,7 +45,7 @@ import util
 #from SeqFindr import blast
 import blast
 __title__ = 'SeqFindr'
-__version__ = '0.31.4'
+__version__ = '0.33.1'
 __description__ = "A tool to easily create informative genomic feature plots"
 __author__ = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__ = 'ECL 2.0'
@@ -218,13 +219,25 @@ def strip_id_from_matrix(mat):
     return new_mat
 
 
-def cluster_matrix(matrix, y_labels, dpi):
+def cluster_matrix(matrix, labels, dpi, by_cols):
     """
     From a matrix, generate a distance matrix & perform hierarchical clustering
 
     :param matrix: a numpy matrix of scores
-    :param y_labels: the virulence factor ids for all row elements
+    :param labels: the ids for all row elements or column elements
+    :param dpi: the resolution to save the diagram at
+    :param by_cols: whether to perform the clustering by row similarity
+                    (default) or column similarity.
+
+    :type matrix: numpy matrix
+    :type labels: list
+    :type dpi: int
+    :type by_cols: boolean (default == False)
+
+    :returns: a tuple of the updated (clustered) matrix & the updated labels
     """
+    if by_cols:
+        matrix = matrix.transpose()
     print "Clustering the matrix"
     # Clear any matplotlib formatting
     plt.clf()
@@ -236,21 +249,23 @@ def cluster_matrix(matrix, y_labels, dpi):
     plt.xticks(fontsize=6)
     Y = pdist(matrix)
     Z = linkage(Y)
-    dend = dendrogram(Z, labels=y_labels)
+    dend = dendrogram(Z, labels=labels, link_color_func=None)
     plt.savefig("dendrogram.png", dpi=dpi)
     # Reshape
     ordered_index = dend['leaves']
-    updated_ylabels = dend['ivl']
+    updated_labels = dend['ivl']
     tmp = []
     for i in range(0, len(ordered_index)):
         tmp.append(list(matrix[ordered_index[i], :]))
     matrix = np.array(tmp)
-    return matrix, updated_ylabels
+    if by_cols:
+        matrix = matrix.transpose()
+    return matrix, updated_labels
 
 
 def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
                 show_gene_labels, color_index, config_object, grid, seed,
-                dpi, size, svg, aspect='auto'):
+                dpi, size, svg, cluster_column, aspect='auto'):
     """
     Plot the VF hit matrix
 
@@ -268,13 +283,16 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     if color_index is not None:
         colors = [colors[(color_index)]]
     # Build the regions to be shaded differently
-    regions, prev = [], 0
-    for i in xrange(0, len(vfs_classes)-1):
-        if vfs_classes[i] != vfs_classes[i+1]:
-            regions.append([prev+0.5, i+0.5])
-            prev = i
-    regions.append([prev+0.5, len(vfs_classes)-0.5])
-    regions[0][0] = regions[0][0]-1.0
+    if not cluster_column:
+        regions, prev = [], 0
+        for i in xrange(0, len(vfs_classes)-1):
+            if vfs_classes[i] != vfs_classes[i+1]:
+                regions.append([prev+0.5, i+0.5])
+                prev = i
+        regions.append([prev+0.5, len(vfs_classes)-0.5])
+        regions[0][0] = regions[0][0]-1.0
+    else:
+        regions = [[-1, len(gene_labels)]]
     plt.clf()
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -289,8 +307,8 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
         ax.xaxis.grid(False)
     if show_gene_labels:
-        ax.set_xticklabels(['',''] + gene_labels)
-        #ax.set_xticklabels(gene_labels)
+        ax.set_xticklabels(['', ''] + gene_labels)
+        # ax.set_xticklabels(gene_labels)
         # ax.set_xticklabels([''] + gene_labels), rotation=90)
     for i in xrange(0, len(regions)):
         plt.axvspan(regions[i][0], regions[i][1], facecolor=colors[i],
@@ -315,6 +333,78 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
         plt.savefig("results.svg", bbox_inches='tight', dpi=dpi)
     else:
         plt.savefig("results.png", bbox_inches='tight', dpi=dpi)
+
+
+def determine_nohit_score(cons, invert):
+    """
+    Determine the value in the matrix assigned to nohit given SeqFindr options
+
+    :param cons: whether the Seqfindr run is using mapping consensus data
+                 or not
+    :param invert: whether the Seqfindr run is inverting (missing hits to
+                   be shown as black bars.
+
+    :type cons: None of boolean
+    :type cons: boolean
+
+    :returns: the value defined as no hit in the results matrix
+    """
+    if cons is None:
+        nohit = 0.5
+    else:
+        nohit = 1.0
+    if invert:
+        nohit = nohit*-1.0
+    return nohit
+
+
+def strip_uninteresting(matrix, query_classes, query_list, cons, invert):
+    """
+    Remove any columns where all elements in every position are absent
+
+    Also handles the query classes and x_lables.
+
+    .. attention:: new feature added in version 0.4.0
+
+    Toogle using: **args.remove_empty_cols**
+
+    :param matrix: the SeqFindr hit matrix
+    :param query_classes: a list of query classes
+    :param query_list: a query list (x labels)
+    :param cons: whether the Seqfindr run is using mapping consensus data
+                 or not
+    :param invert: whether the Seqfindr run is inverting (missing hits to
+                   be shown as black bars.
+
+    :returns: a tuple with three elements which are the: updated SeqFindr
+              matrix, the updated query_classes list and the updated
+              query_list respectively.
+    """
+    nohit = determine_nohit_score(cons, invert)
+    to_remove = []
+    for idx, column in enumerate(matrix.T):
+        target = len(column)
+        count = 0
+        for elem in column:
+            if elem == nohit:
+                count += 1
+        if count == target:
+            to_remove.append(idx)
+    new = np.delete(matrix, to_remove, 1)
+    query_classes = util.del_from_list(query_classes, to_remove)
+    query_list = util. del_from_list(query_list, to_remove)
+    return new, query_classes, query_list
+
+
+def check_singularity(matrix, cons, invert):
+    """
+    Check if there are any informative sites in the matrix
+    """
+    nohit = determine_nohit_score(cons, invert)
+    if np.all(matrix == nohit):
+        msg = ("There are no informative sites (no hits) in the SeqFindr "
+               "matrix. Consider lowering hit tolerance (-t/--t")
+        raise ValueError(msg)
 
 
 def do_run(args, data_path, match_score, vfs_list):
@@ -377,7 +467,15 @@ def core(args):
         sys.exit(1)
     # cluster if not ordered
     if args.index_file is None:
-        matrix, ylab = cluster_matrix(matrix, ylab, args.DPI)
+        if not args.cluster_column:
+            matrix, ylab = cluster_matrix(matrix, ylab, args.DPI,
+                                          args.cluster_column)
+        else:
+            tmp = copy.deepcopy(ylab)
+            matrix, ylab = cluster_matrix(matrix, query_list, args.DPI,
+                                          args.cluster_column)
+            query_list = ylab
+            ylab = tmp
     np.savetxt("matrix.csv", matrix, delimiter=",")
     # Add the buffer
     newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
@@ -400,9 +498,18 @@ def core(args):
             matrix[0,:] *= 0.0
             matrix[0,:] += -0.5
         matrix = matrix*-1
+    # Remove empty columns
+    if args.remove_empty_cols:
+        matrix, query_classes, query_list = strip_uninteresting(matrix,
+                                                                query_classes,
+                                                                query_list,
+                                                                args.cons,
+                                                                args.invert)
+    # Check for singular matrix
+    check_singularity(matrix, args.cons, args.invert)
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
                 args.color, configObject, args.grid, args.seed, args.DPI,
-                args.size, args.svg)
+                args.size, args.svg, args.cluster_column)
     # Handle labels here
     os.system("rm blast.xml")
     os.system("rm DBs/*")
@@ -472,12 +579,18 @@ if __name__ == '__main__':
                                'order given in this file. Otherwise '
                                'clustering by row similarity. [default = do '
                                'clustering]. See manual for more info'))
+        alg.add_argument('--cluster_column', action='store_true',
+                         default=False,
+                         help=('Cluster by column similarity rather than row'))
         fig.add_argument('--color', action='store', default=None, type=int,
                          help=('The color index [default = None]. See manual '
                                'for more info'))
         fig.add_argument('--invert', action='store_true', default=False,
                          help=('Invert the shading so that missing hits are '
                                'black [default = False].'))
+        fig.add_argument('--remove_empty_cols', action='store_true',
+                         default=False, help=('Remove columns that have no '
+                                              'hits [default = False].'))
         fig.add_argument('--DPI', action='store', type=int, default=300,
                          help='DPI of figure [default = 300]')
         fig.add_argument('--seed', action='store', type=int, default=99,

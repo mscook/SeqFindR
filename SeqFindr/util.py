@@ -202,5 +202,33 @@ def check_database(database_file):
         sys.exit(1)
     print "SeqFindr database checks [PASSED]"
     return format_type
-  
 
+
+def del_from_list(target, index_positions):
+    """
+    Deletes the elements in a list given by a index_positions list
+
+    :param target: a target list to have items removed
+    :param index_positions: a list of index positions to be removed from
+                            the target list
+
+    :type target: list
+    :type index_positions: list
+
+    :returns: a list with the elements removed defined by the index_positions
+              list
+    """
+    if target == []:
+        raise ValueError("target list must not be empty")
+    if len(index_positions) > len(target):
+        raise ValueError("target list contains less elements then "
+                         "to be removed")
+    if not all(x >= 0 for x in index_positions):
+        raise ValueError("index_positions need to be positive")
+    for e in index_positions:
+        if e >= len(target):
+            raise ValueError("index_positions > len target list")
+    for offset, index in enumerate(index_positions):
+        index -= offset
+        del target[index]
+    return target
