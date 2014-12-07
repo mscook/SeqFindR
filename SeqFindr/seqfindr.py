@@ -47,7 +47,7 @@ from SeqFindr import blast
 sys.setrecursionlimit(1000000)
 
 __title__ = 'SeqFindr'
-__version__ = '0.34.0'
+__version__ = '0.35.0'
 __description__ = "A tool to easily create informative genomic feature plots"
 __author__ = 'Mitchell Stanton-Cook, Nabil Alikhan & Hamza Khan'
 __license__ = 'ECL 2.0'
