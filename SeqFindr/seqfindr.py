@@ -400,7 +400,7 @@ def check_singularity(matrix, cons, invert):
         raise ValueError(msg)
 
 
-def do_run(args, data_path, match_score, vfs_list):
+def do_run(args, data_path, match_score, vfs_list, cons_run):
     """
     Perform a SeqFindr run
     """
@@ -413,7 +413,7 @@ def do_run(args, data_path, match_score, vfs_list):
     if args.existing_data is not None:
         cleaned, blastxml_tmp = [], []
         blast_xml = glob.glob(os.path.abspath(args.existing_data)+"/BLAST_results/*")
-        if not args.cons:
+        if not cons_run:
             for e in blast_xml:
                 if e.find("cons_DB=") == -1:
                     blastxml_tmp.append(e)
@@ -421,8 +421,8 @@ def do_run(args, data_path, match_score, vfs_list):
             for e in blast_xml:
                 if e.find("cons_DB=") != -1:
                     blastxml_tmp.append(e)
-        blastxml = []
-        blastxml = blastxml_tmp
+        blast_xml = []
+        blast_xml = blastxml_tmp
         for e in blast_xml:
             sid = e.split("ID=")[-1].split("_blast.xml")[0]
             cleaned.append(sid)
@@ -443,7 +443,7 @@ def do_run(args, data_path, match_score, vfs_list):
             strain_id = blast.make_BLAST_database(subject)
             y_label.append(strain_id)
             database = os.path.basename(subject)
-            blast_xml = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database),args)
+            blast_xml = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args, cons_run)
             accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol), args.careful)
         else:
             strain_id = y_label[idx]
@@ -463,17 +463,19 @@ def core(args):
     :param args: the arguments given from argparse
     """
     DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
+    cons_run = False
     args = util.ensure_paths_for_args(args)
     configObject = config.SeqFindrConfig()
     util.check_database(args.seqs_of_interest)
     util.init_output_dirs(args.output)
     query_list, query_classes = prepare_queries(args)
-    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
+    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list, cons_run)
     if args.cons is not None:
+        cons_run = True
         args = strip_bases(args)
         # TODO: Exception handling if do_run fails or produces no results.
         # Should be caught here before throwing ugly exceptions downstream.
-        results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
+        results_m, _ = do_run(args, args.cons, CONS_WT, query_list, cons_run)
         if len(results_m) == len(results_a):
             results_a, results_m = match_matrix_rows(results_a, results_m)
             DEFAULT_NO_HIT = 1.0

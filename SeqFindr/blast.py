@@ -52,7 +52,7 @@ def make_BLAST_database(fasta_file):
     return os.path.basename(fasta_file).split('_')[0]
 
 
-def run_BLAST(query, database, args):
+def run_BLAST(query, database, args, cons_run):
     """
     Given a mfa of query sequences of interest & a database, search for them.
 
@@ -71,19 +71,23 @@ def run_BLAST(query, database, args):
     :param query: the fullpath to the vf.mfa
     :param database: the full path of the databse to search for the vf in
     :param args: the arguments parsed to argparse
+    :param cons_run: part of a mapping consensus run
 
     :type query: string
     :type database: string
     :type args: argparse args (dictionary)
+    :type cons_run: boolean
 
     :returns: the path of the blast.xml file
     """
     tmp1 = os.path.splitext(query.split('/')[-1])[0]
     tmp2 = os.path.splitext(database.split('/')[-1])[0]
-    if not args.cons:
-        outfile = os.path.join("BLAST_results/", "DB="+tmp1+"ID="+tmp2+"_blast.xml")
+    if not cons_run:
+        outfile = os.path.join("BLAST_results/",
+                               "DB="+tmp1+"ID="+tmp2+"_blast.xml")
     else:
-        outfile = os.path.join("BLAST_results/", "cons_DB="+tmp1+"ID="+tmp2+"_blast.xml")
+        outfile = os.path.join("BLAST_results/",
+                               "cons_DB="+tmp1+"ID="+tmp2+"_blast.xml")
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype is None:
