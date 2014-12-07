@@ -1,4 +1,4 @@
-#VERSION=0.33.1
+#VERSION=0.34.0
 
 # Lets run the examples first...
 pip uninstall SeqFindr
