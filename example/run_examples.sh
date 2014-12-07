@@ -18,3 +18,5 @@ SeqFindr Antibiotic_markers.fa assemblies/ -o run16 -l --index_file dummy.order 
 # Existing data
 SeqFindr Antibiotic_markers.fa assemblies/ -o run17 -l --existing_data run1
 SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run18 -l -r --existing_data run4
+# UPGMA clustering
+SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run19 -l --UPGMA_clustering

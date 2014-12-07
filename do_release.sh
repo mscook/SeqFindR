@@ -24,6 +24,7 @@ rm -rf example/run15
 rm -rf example/run16
 rm -rf example/run17
 rm -rf example/run18
+rm -rf example/run19
 pip uninstall SeqFindr
 python setup.py clean
 
