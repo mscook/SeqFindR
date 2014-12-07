@@ -40,6 +40,8 @@ def ensure_paths_for_args(args):
         args.cons = os.path.abspath(os.path.expanduser(args.cons))
     if args.index_file is not None:
         args.index_file = os.path.abspath(os.path.expanduser(args.index_file))
+    if args.existing_data is not None:
+        args.existing_data = os.path.abspath(os.path.expanduser(args.existing_data))
     return args
 
 

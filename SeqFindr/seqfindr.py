@@ -231,7 +231,7 @@ def cluster_matrix(matrix, labels, dpi, by_cols):
     """
     if by_cols:
         matrix = matrix.transpose()
-    print "Clustering the matrix"
+    print "\nClustering the matrix\n"
     # Clear any matplotlib formatting
     plt.clf()
     fig = plt.figure()
@@ -481,7 +481,7 @@ def core(args):
             DEFAULT_NO_HIT = 1.0
             matrix = np.array(results_a) + np.array(results_m)
         else:
-            print "Assemblies and mapping consensuses don't match"
+            print "\nAssemblies and mapping consensuses don't match\n"
             sys.exit(1)
     else:
         args.reshape = False

@@ -15,3 +15,6 @@ SeqFindr Antibiotic_markers.fa assemblies/ -o run13 -l --careful 0.1 --remove_em
 SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run14 -l -r --index_file dummy.order --invert --remove_empty_cols
 SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run15 -l --index_file dummy.order --invert --remove_empty_cols
 SeqFindr Antibiotic_markers.fa assemblies/ -o run16 -l --index_file dummy.order --invert --remove_empty_cols
+# Existing data
+SeqFindr Antibiotic_markers.fa assemblies/ -o run17 -l --existing_data run1
+SeqFindr Antibiotic_markers.fa assemblies/ -m consensus/ -o run18 -l -r --existing_data run4
