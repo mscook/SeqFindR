@@ -8,6 +8,18 @@ genomes. We work with bacterial genomes & as such SeqFindr has only been
 tested with bacterial genomes.
 
 
+**I am on vacation from 08/12/14 -> 06/01/15**. User support will not happen 
+in this period. **Stupidly I've done some releases the day/night before I 
+leave.** 
+
+If you have problems::
+
+    $ # (sudo if neded)
+    $ pip uninstall SeqFindr
+    $ # Run the above command numerous times to ensure it's gone
+    # pip install SeqFindr==0.33.1
+
+
 .. image:: https://pypip.in/version/SeqFindr/badge.svg
         :target: https://pypi.python.org/pypi/SeqFindr/
         :alt: Latest Version
@@ -37,6 +49,18 @@ These are works in progress:
 
 News
 ----
+
+**07/12/14: I am on vacation from 08/12/14 -> 06/01/15**. User support will 
+not happen in this period. **Stupidly I've done some releases the day/night 
+before I leave.** 
+
+If you have problems::
+
+    $ # (sudo if neded)
+    $ pip uninstall SeqFindr
+    $ # Run the above command numerous times to ensure it's gone
+    # pip install SeqFindr==0.33.1
+
 
 **18/11/14:** Version 0.4.0 now has new option --remove_empty_cols. It will 
 strip out entire columns where no hits were detected.
