@@ -237,7 +237,7 @@ def cluster_matrix(matrix, labels, dpi, by_cols, algorithm):
     """
     if by_cols:
         matrix = matrix.transpose()
-    print "\nClustering the matrix\n"
+    print "\nClustering the matrix"
     # Clear any matplotlib formatting
     plt.clf()
     fig = plt.figure()
@@ -249,8 +249,10 @@ def cluster_matrix(matrix, labels, dpi, by_cols, algorithm):
     Y = pdist(matrix)
     if not algorithm:
         Z = linkage(Y)
+        print "Linkage algorithm\n"
     else:
         Z = average(Y)
+        print "UPGMA algorithm\n"
     dend = dendrogram(Z, labels=labels, link_color_func=None)
     plt.savefig("dendrogram.png", dpi=dpi)
     # Reshape
