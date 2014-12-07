@@ -23,6 +23,7 @@ import traceback
 import argparse
 import time
 import copy
+import glob
 
 import matplotlib
 matplotlib.use('Agg')
@@ -403,20 +404,50 @@ def do_run(args, data_path, match_score, vfs_list):
     """
     Perform a SeqFindr run
     """
-    matrix, y_label = [], []
+    matrix, y_label, exist_ord = [], [], []
     in_files = util.get_fasta_files(data_path)
     # Reorder if requested
     if args.index_file is not None:
         in_files = util.order_inputs(args.index_file, in_files)
-    for subject in in_files:
-        strain_id = blast.make_BLAST_database(subject)
-        y_label.append(strain_id)
-        database = os.path.basename(subject)
-        blast_xml = blast.run_BLAST(args.seqs_of_interest,
-                                    os.path.join(os.getcwd(), "DBs/"+database),
-                                    args)
-        accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol),
-                                          args.careful)
+    # Handle and existing run
+    if args.existing_data is not None:
+        cleaned, blastxml_tmp = [], []
+        blast_xml = glob.glob(os.path.abspath(args.existing_data)+"/BLAST_results/*")
+        if not args.cons:
+            for e in blast_xml:
+                if e.find("cons_DB=") == -1:
+                    blastxml_tmp.append(e)
+        else:
+            for e in blast_xml:
+                if e.find("cons_DB=") != -1:
+                    blastxml_tmp.append(e)
+        blastxml = []
+        blastxml = blastxml_tmp
+        for e in blast_xml:
+            sid = e.split("ID=")[-1].split("_blast.xml")[0]
+            cleaned.append(sid)
+        for i in in_files:
+            for j in cleaned:
+                if i.find(j) != -1:
+                    y_label.append(j)
+                    break
+        for i in blast_xml:
+            for j in y_label:
+                if i.find(j) != -1:
+                    exist_ord.append(i)
+                    break
+        in_files = exist_ord
+    # Make sure XML are right order
+    for idx, subject in enumerate(in_files):
+        if args.existing_data is None:
+            strain_id = blast.make_BLAST_database(subject)
+            y_label.append(strain_id)
+            database = os.path.basename(subject)
+            blast_xml = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database),args)
+            accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol), args.careful)
+        else:
+            strain_id = y_label[idx]
+            accepted_hits = blast.parse_BLAST(in_files[idx], float(args.tol), args.careful)
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
         row.insert(0, strain_id)
         matrix.append(row)
@@ -501,7 +532,7 @@ def core(args):
                 args.size, args.svg, args.cluster_column)
     # Handle labels here
     #os.system("rm blast.xml")
-    os.system("rm DBs/*")
+    #os.system("rm DBs/*")
 
 
 if __name__ == '__main__':
@@ -598,10 +629,11 @@ if __name__ == '__main__':
                                ' With default tol (0.95) & careful = 0.2, we '
                                'will manually inspect all hits in 0.95-0.75 '
                                'range'))
-        io.add_argument('--EXISTING_MATRIX', action='store_true',
-                        default=False,
-                        help=('Use existing SeqFindr matrix (reformat the '
-                              'plot) [default = False]'))
+        io.add_argument('-e', '--existing_data', action='store',
+                        default=None,
+                        help=('Full path to an existing SeqFindr run '
+                              'directory. Must contain a BLAST_results '
+                              'directory'))
         blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
                                default=1, help=('Use this number of threads '
                                                 'in BLAST run [default = 1]'))
