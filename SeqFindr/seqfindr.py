@@ -33,7 +33,7 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 import numpy as np
 
-from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import linkage, average, dendrogram
 from scipy.spatial.distance import pdist
 
 from Bio import SeqIO
@@ -42,6 +42,9 @@ from SeqFindr import imaging
 from SeqFindr import config
 from SeqFindr import util
 from SeqFindr import blast
+
+# Stop clustering going nuts...
+sys.setrecursionlimit(1000000)
 
 __title__ = 'SeqFindr'
 __version__ = '0.34.0'
@@ -212,7 +215,7 @@ def strip_id_from_matrix(mat):
     return new_mat
 
 
-def cluster_matrix(matrix, labels, dpi, by_cols):
+def cluster_matrix(matrix, labels, dpi, by_cols, algorithm):
     """
     From a matrix, generate a distance matrix & perform hierarchical clustering
 
@@ -221,11 +224,14 @@ def cluster_matrix(matrix, labels, dpi, by_cols):
     :param dpi: the resolution to save the diagram at
     :param by_cols: whether to perform the clustering by row similarity
                     (default) or column similarity.
+    :param algorithm: the clustering algorithm (linkage (default, False)
+                      or UPGMA)
 
     :type matrix: numpy matrix
     :type labels: list
     :type dpi: int
     :type by_cols: boolean (default == False)
+    :type algorithm: boolean
 
     :returns: a tuple of the updated (clustered) matrix & the updated labels
     """
@@ -241,7 +247,10 @@ def cluster_matrix(matrix, labels, dpi, by_cols):
     ax.set_yticks([])
     plt.xticks(fontsize=6)
     Y = pdist(matrix)
-    Z = linkage(Y)
+    if not algorithm:
+        Z = linkage(Y)
+    else:
+        Z = average(Y)
     dend = dendrogram(Z, labels=labels, link_color_func=None)
     plt.savefig("dendrogram.png", dpi=dpi)
     # Reshape
@@ -491,11 +500,13 @@ def core(args):
     if args.index_file is None:
         if not args.cluster_column:
             matrix, ylab = cluster_matrix(matrix, ylab, args.DPI,
-                                          args.cluster_column)
+                                          args.cluster_column,
+                                          args.UPGMA_clustering)
         else:
             tmp = copy.deepcopy(ylab)
             matrix, ylab = cluster_matrix(matrix, query_list, args.DPI,
-                                          args.cluster_column)
+                                          args.cluster_column,
+                                          args.UPGMA_clustering)
             query_list = ylab
             ylab = tmp
     np.savetxt("matrix.csv", matrix, delimiter=",")
@@ -639,6 +650,9 @@ if __name__ == '__main__':
         blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
                                default=1, help=('Use this number of threads '
                                                 'in BLAST run [default = 1]'))
+        alg.add_argument('--UPGMA_clustering', action='store_true', default=False,
+                         help=('Use UPGMA the clustering algorithm. '
+                               'Default is the linkage algorithm'))
         parser.set_defaults(func=core)
         args = parser.parse_args()
         if args.verbose:
