@@ -80,7 +80,10 @@ def run_BLAST(query, database, args):
     """
     tmp1 = os.path.splitext(query.split('/')[-1])[0]
     tmp2 = os.path.splitext(database.split('/')[-1])[0]
-    outfile = os.path.join("BLAST_results/", "DB="+tmp1+"ID="+tmp2+"_blast.xml")
+    if not args.cons:
+        outfile = os.path.join("BLAST_results/", "DB="+tmp1+"ID="+tmp2+"_blast.xml")
+    else:
+        outfile = os.path.join("BLAST_results/", "cons_DB="+tmp1+"ID="+tmp2+"_blast.xml")
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype is None:
