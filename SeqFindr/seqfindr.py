@@ -446,6 +446,11 @@ def core(args):
     util.init_output_dirs(args.output)
     query_list, query_classes = prepare_queries(args, format_type)
     results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
+
+    augmat = copy.deepcopy(results_a)
+    augmat.insert(0, query_list)
+    
+
     if args.cons is not None:
         args = strip_bases(args)
         # TODO: Exception handling if do_run fails or produces no results.
@@ -505,6 +510,11 @@ def core(args):
                                                                 query_list,
                                                                 args.cons,
                                                                 args.invert)
+
+    with open("augmatrix.csv", 'w') as f:
+       for l in augmat:
+            f.write("%s\n" % l)
+
     # Check for singular matrix
     check_singularity(matrix, args.cons, args.invert)
     plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
