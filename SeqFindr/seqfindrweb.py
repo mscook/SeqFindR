@@ -14,7 +14,7 @@
 #     permissions and limitations under the License.
 
 """
-A tool to easily create informative genomic feature plots
+A clone of seqfindr for seqfindr-web access.
 """
 
 import sys
@@ -23,6 +23,8 @@ import traceback
 import argparse
 import time
 import copy
+from celery import Celery
+import celery.task
 
 import matplotlib
 matplotlib.use('Agg')
@@ -430,7 +432,7 @@ def do_run(args, data_path, match_score, vfs_list):
         matrix.append(row)
     return matrix, y_label
 
-
+@celery.task
 def core_async(self, args):
     """
     The 'core' SeqFindr method run asynchronously.
@@ -481,99 +483,12 @@ def core_async(self, args):
     return {'result': matrixjs, 'current': len(in_files), 'total': len(in_files),
             'status': 'Task completed!'}
 
+def do_argparsing(parser):
+        
 
-def core(args):
-    """
-    The 'core' SeqFindr method
+    return
 
-    TODO: Exception handling if do_run fails or produces no results
 
-    :param args: the arguments given from argparse
-    """
-    DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
-    args = util.ensure_paths_for_args(args)
-    configObject = config.SeqFindrConfig()
-    format_type = util.check_database(args.seqs_of_interest)
-    util.init_output_dirs(args.output)
-    query_list, query_classes = prepare_queries(args, format_type)
-    results_a, ylab = do_run(args, args.assembly_dir, ASS_WT, query_list)
-
-    augmat = copy.deepcopy(results_a)
-    augmat.insert(0, query_list)
-    
-
-    if args.cons is not None:
-        args = strip_bases(args)
-        # TODO: Exception handling if do_run fails or produces no results.
-        # Should be caught here before throwing ugly exceptions downstream.
-        results_m, _ = do_run(args, args.cons, CONS_WT, query_list)
-        if len(results_m) == len(results_a):
-            results_a, results_m = match_matrix_rows(results_a, results_m)
-            DEFAULT_NO_HIT = 1.0
-            matrix = np.array(results_a) + np.array(results_m)
-        else:
-            print "Assemblies and mapping consensuses don't match"
-            sys.exit(1)
-    else:
-        args.reshape = False
-        results_a = strip_id_from_matrix(results_a)
-        matrix = np.array(results_a)
-    if matrix is None:
-        print "Matrix is empty"
-        sys.exit(1)
-    # cluster if not ordered
-    if args.index_file is None:
-        if not args.cluster_column:
-            matrix, ylab = cluster_matrix(matrix, ylab, args.DPI,
-                                          args.cluster_column)
-        else:
-            tmp = copy.deepcopy(ylab)
-            matrix, ylab = cluster_matrix(matrix, query_list, args.DPI,
-                                          args.cluster_column)
-            query_list = ylab
-            ylab = tmp
-    np.savetxt("matrix.csv", matrix, delimiter=",")
-    # Add the buffer
-    newrow = [DEFAULT_NO_HIT] * matrix.shape[1]
-    # matrix = np.vstack([newrow, matrix])
-    matrix = np.vstack([newrow, matrix])
-    # Handle new option to only show presence
-    cutoff = 0.49
-    if args.reshape is True:
-        cutoff = 0.99
-        for x in np.nditer(matrix, op_flags=['readwrite']):
-            if x < cutoff:
-                x[...] = -1.0
-    ylab = ['', ''] + ylab
-    if args.invert:
-        for elem in np.nditer(matrix, op_flags=['readwrite']):
-            if elem < cutoff:
-                elem[...] = -cutoff-0.01
-        matrix[0,:] *= -1
-        if args.reshape is False:
-            matrix[0,:] *= 0.0
-            matrix[0,:] += -0.5
-        matrix = matrix*-1
-    # Remove empty columns
-    if args.remove_empty_cols:
-        matrix, query_classes, query_list = strip_uninteresting(matrix,
-                                                                query_classes,
-                                                                query_list,
-                                                                args.cons,
-                                                                args.invert)
-
-    with open("augmatrix.csv", 'w') as f:
-       for l in augmat:
-            f.write("%s\n" % l)
-
-    # Check for singular matrix
-    check_singularity(matrix, args.cons, args.invert)
-    plot_matrix(matrix, ylab, query_classes, query_list, args.label_genes,
-                args.color, configObject, args.grid, args.seed, args.DPI,
-                args.size, args.svg, args.cluster_column)
-    # Handle labels here
-    os.system("rm blast.xml")
-    os.system("rm DBs/*")
 
 
 if __name__ == '__main__':
@@ -677,7 +592,7 @@ if __name__ == '__main__':
         blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
                                default=1, help=('Use this number of threads '
                                                 'in BLAST run [default = 1]'))
-        parser.set_defaults(func=core)
+        parser.set_defaults(func=core_async)
         args = parser.parse_args()
         if args.verbose:
             print "Executing @ " + time.asctime()
