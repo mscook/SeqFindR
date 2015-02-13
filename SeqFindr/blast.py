@@ -28,7 +28,7 @@ from Bio.Blast.Applications import NcbitblastxCommandline
 import SeqFindr.util
 
 
-def make_BLAST_database(fasta_file):
+def make_BLAST_database(fasta_file, DBPath = None):
     """
     Given a fasta_file, generate a nucleotide BLAST database
 
@@ -45,14 +45,22 @@ def make_BLAST_database(fasta_file):
     sys.stderr.write(proc.stdout.read())
     for file_ext in ['.nhr', '.nin', '.nsq']:
         path = fasta_file + file_ext
-        shutil.move(path, os.path.join('DBs', os.path.basename(path)))
-    sys.stderr.write(("Getting %s and assocaiated database files to the DBs "
+        if not DBPath:
+            shutil.move(path, os.path.join('DBs', os.path.basename(path)))
+        else:
+            shutil.move(path, os.path.join(DBPath, os.path.basename(path)))
+
+    sys.stderr.write(("Getting %s and associated database files to the DBs "
                       "location\n") % (fasta_file))
-    shutil.copy2(fasta_file, os.path.join('DBs', os.path.basename(fasta_file)))
+
+    if not DBPath:
+        shutil.copy2(fasta_file, os.path.join('DBs', os.path.basename(fasta_file)))
+    else:
+        shutil.copy2(fasta_file, os.path.join(DBPath, os.path.basename(fasta_file)))
     return os.path.basename(fasta_file).split('_')[0]
 
 
-def run_BLAST(query, database, args):
+def run_BLAST(query, database, args, cons_run):
     """
     Given a mfa of query sequences of interest & a database, search for them.
 
@@ -71,13 +79,24 @@ def run_BLAST(query, database, args):
     :param query: the fullpath to the vf.mfa
     :param database: the full path of the databse to search for the vf in
     :param args: the arguments parsed to argparse
+    :param cons_run: part of a mapping consensus run
 
     :type query: string
     :type database: string
     :type args: argparse args (dictionary)
+    :type cons_run: boolean
 
     :returns: the path of the blast.xml file
     """
+
+    tmp1 = os.path.splitext(query.split('/')[-1])[0]
+    tmp2 = os.path.splitext(database.split('/')[-1])[0]
+    if not cons_run:
+        outfile = os.path.join("BLAST_results/",
+                               "DB="+tmp1+"ID="+tmp2+"_blast.xml")
+    else:
+        outfile = os.path.join("BLAST_results/",
+                               "cons_DB="+tmp1+"ID="+tmp2+"_blast.xml")
     protein = False
     # File type not specified, determine using util.is_protein()
     if args.reftype is None:
@@ -92,14 +111,14 @@ def run_BLAST(query, database, args):
         sys.stderr.write('Using tblastn\n')
         run_command = NcbitblastnCommandline(query=query, seg='no',
                     db=database, outfmt=5, num_threads=args.BLAST_THREADS,
-                    max_target_seqs=1, evalue=args.evalue, out='blast.xml')
+                    max_target_seqs=1, evalue=args.evalue, out=outfile)
     else:
         if args.tblastx:
             sys.stderr.write('Using tblastx\n')
             run_command = NcbitblastxCommandline(query=query, seg='no',
                         db=database, outfmt=5, num_threads=args.BLAST_THREADS,
                         max_target_seqs=1, evalue=args.evalue,
-                        out='blast.xml')
+                        out=outfile)
         else:
             sys.stderr.write('Using blastn\n')
             if args.short == False:
@@ -107,17 +126,17 @@ def run_BLAST(query, database, args):
                             db=database, outfmt=5,
                             num_threads=args.BLAST_THREADS,
                             max_target_seqs=1, evalue=args.evalue,
-                            out='blast.xml')
+                            out=outfile)
             else:
                 sys.stderr.write('Optimising for short query sequences\n')
                 run_command = NcbiblastnCommandline(query=query, dust='no',
                             db=database, outfmt=5, word_size=7,
                             num_threads=args.BLAST_THREADS, evalue=1000,
-                            max_target_seqs=1, out='blast.xml')
+                            max_target_seqs=1, out=outfile)
 
     sys.stderr.write(str(run_command)+"\n")
     run_command()
-    return os.path.join(os.getcwd(), 'blast.xml')
+    return os.path.join(os.getcwd().split(" ")[-1], outfile)
 
 
 def parse_BLAST(blast_results, tol, careful):
@@ -140,13 +159,7 @@ def parse_BLAST(blast_results, tol, careful):
         for record in NCBIXML.parse(open(blast_results)):
             for align in record.alignments:
                 for hsp in align.hsps:
-                    try:
-                    # Database is in well-formed format
-                        hit_name = record.query.split(',')[1].strip()
-                    except IndexError:
-                    # Database is in NCBI format, IndexError thrown on .split(',')[1]
-                        hit_name = record.query.split('|')[1].strip()
-                    
+                    hit_name = record.query.split(',')[1].strip()
                     cutoff = hsp.identities/float(record.query_length)
                     if cutoff >= tol:
                         hits.append(hit_name.strip())

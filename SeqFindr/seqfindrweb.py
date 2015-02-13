@@ -432,14 +432,16 @@ def do_run(args, data_path, match_score, vfs_list):
         matrix.append(row)
     return matrix, y_label
 
-@celery.task
 def core_async(self, args):
     """
     The 'core' SeqFindr method run asynchronously.
     This is used by SeqFindr-web ONLY.    
 
     """
-    
+   
+
+    print "We're in in core_async"
+ 
     DEFAULT_NO_HIT, ASS_WT, CONS_WT = 0.5, -0.15, -0.85
     args = util.ensure_paths_for_args(args)
     configObject = config.SeqFindrConfig()
@@ -454,6 +456,7 @@ def core_async(self, args):
     if args.index_file is not None:
         in_files = util.order_inputs(args.index_file, in_files)
     for i, subject in enumerate(in_files):
+        print "in the loop"
         strain_id = blast.make_BLAST_database(subject)
         y_label.append(strain_id)
         database = os.path.basename(subject)
@@ -472,135 +475,142 @@ def core_async(self, args):
     if matrix is none:
         # also need to signal to the application that matrix was empty.
         print "Error: matrix is empty"
+        self.update_status(state='ERROR')
         sys.exit(1)    
 
 
     # Post-processing. Usually performed in 'core', sf-web skips that stuff.
     matrix.insert(0, query_list)
 
-    matrixjs = json.dumps(matrix)     
+    matrixjs = json.dumps(matrix)
+    
+    self.update_status(state='SUCCESS',
+                        meta={'result': matrixjs, 'current': len(in_files), 'total': len(in_files),
+                              'status': 'Task completed!'})
+
+    return
+
+    #return {'result': matrixjs, 'current': len(in_files), 'total': len(in_files), 'status': 'Task completed!'}
+
+@celery.task
+def do_main(self):
+    start_time = time.time()
+
+    parser = argparse.ArgumentParser(description=__doc__, epilog=epi)
+    alg = parser.add_argument_group('Optional algorithm options',
+                                    ('Options relating to the SeqFindr '
+                                     'algorithm'))
+    io = parser.add_argument_group('Optional input/output options',
+                                   ('Options relating to input and '
+                                    'output'))
+    fig = parser.add_argument_group('Figure options',
+                                    ('Options relating to the output '
+                                     'figure'))
+    blast_opt = parser.add_argument_group('BLAST options',
+                                          ('Options relating to BLAST'))
+    blast_opt.add_argument('-R', '--reftype', action='store',
+                           help=('Reference Sequence type. If not given '
+                                 'will try to detect it'), dest='reftype',
+                           choices=('nucl', 'prot'), default=None)
+    blast_opt.add_argument('-X', '--tblastx', action='store_true',
+                           default=False,
+                           help=('Run tBLASTx rather than BLASTn'))
+    blast_opt.add_argument('--evalue', action='store', type=float,
+                           default='0.0001',
+                           help=('BLAST evalue (Expect)'))
+    blast_opt.add_argument('--short', action='store_true',
+                           default=False, help=('Have short queries i.e. '
+                                                'PCR Primers'))
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        default=False, help='verbose output')
+    io.add_argument('-o', '--output', action='store', default=None,
+                    help=('Output the results to this location'))
+    io.add_argument('-p', '--output_prefix', action='store', default=None,
+                    help=('Give all result files this prefix'))
+    # Required options now positional arguments
+    parser.add_argument('seqs_of_interest', action='store',
+                        help=('Full path to FASTA file containing a '
+                              'set of sequences of interest'))
+    parser.add_argument('assembly_dir', action='store',
+                        help=('Full path to directory containing a '
+                              'set of assemblies in FASTA format'))
+    alg.add_argument('-t', '--tol', action='store', type=float,
+                     default=0.95,
+                     help=('Similarity cutoff [default = 0.95]'))
+    alg.add_argument('-m', '--cons', action='store', default=None,
+                     help=('Full path to directory containing mapping '
+                           'consensuses [default = None]. See manual for '
+                           'more info'))
+    fig.add_argument('-l', '--label_genes', action='store_true',
+                     default=False,
+                     help=('Label the x axis with the query identifier '
+                           '[default = False]'))
+    alg.add_argument('-r', '--reshape', action='store_false', default=True,
+                     help=('Differentiate between mapping and assembly '
+                           'hits in the figure [default = no '
+                           'differentiation]'))
+    fig.add_argument('-g', '--grid', action='store_false', default=True,
+                     help='Figure has grid lines [default = True]')
+    alg.add_argument('--index_file', action='store', default=None,
+                     help=('Maintain the y axis strain order according to '
+                           'order given in this file. Otherwise '
+                           'clustering by row similarity. [default = do '
+                           'clustering]. See manual for more info'))
+    alg.add_argument('--cluster_column', action='store_true',
+                     default=False,
+                     help=('Cluster by column similarity rather than row'))
+    fig.add_argument('--color', action='store', default=None, type=int,
+                     help=('The color index [default = None]. See manual '
+                           'for more info'))
+    fig.add_argument('--invert', action='store_true', default=False,
+                     help=('Invert the shading so that missing hits are '
+                           'black [default = False].'))
+    fig.add_argument('--remove_empty_cols', action='store_true',
+                     default=False, help=('Remove columns that have no '
+                                          'hits [default = False].'))
+    fig.add_argument('--DPI', action='store', type=int, default=300,
+                     help='DPI of figure [default = 300]')
+    fig.add_argument('--seed', action='store', type=int, default=99,
+                     help='Color generation seed')
+    fig.add_argument('--svg', action='store_true', default=False,
+                     help=('Draws figure in svg'))
+    fig.add_argument('--size', action='store', type=str, default='10x12',
+                     help='Size of figure [default = 10x12 (inches)]')
+    alg.add_argument('-s', '--strip', action='store', default=10,
+                     help=('Strip the 1st and last N bases of mapping '
+                           'consensuses & database [default = 10]'))
+    alg.add_argument('-c', '--careful', action='store', type=float,
+                     default=0,
+                     help=('Manually consider hits that fall '
+                           '(tol-careful) below the cutoff. [default = 0].'
+                           ' With default tol (0.95) & careful = 0.2, we '
+                           'will manually inspect all hits in 0.95-0.75 '
+                           'range'))
+    io.add_argument('--EXISTING_MATRIX', action='store_true',
+                    default=False,
+                    help=('Use existing SeqFindr matrix (reformat the '
+                          'plot) [default = False]'))
+    blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
+                           default=1, help=('Use this number of threads '
+                                            'in BLAST run [default = 1]'))
+    parser.set_defaults(func=core_async)
+    args = parser.parse_args()
+    if args.verbose:
+        print "Executing @ " + time.asctime()
+    args.func(self, args) # TODO: 'self' is modified in core_args
+    if args.verbose:
+        print "Ended @ " + time.asctime()
+        print 'Exec time minutes %f:' % ((time.time() - start_time) / 60.0)
 
     return {'result': matrixjs, 'current': len(in_files), 'total': len(in_files),
             'status': 'Task completed!'}
 
-def do_argparsing(parser):
-        
-
-    return
-
-
-
 
 if __name__ == '__main__':
     try:
-        start_time = time.time()
-
-        parser = argparse.ArgumentParser(description=__doc__, epilog=epi)
-        alg = parser.add_argument_group('Optional algorithm options',
-                                        ('Options relating to the SeqFindr '
-                                         'algorithm'))
-        io = parser.add_argument_group('Optional input/output options',
-                                       ('Options relating to input and '
-                                        'output'))
-        fig = parser.add_argument_group('Figure options',
-                                        ('Options relating to the output '
-                                         'figure'))
-        blast_opt = parser.add_argument_group('BLAST options',
-                                              ('Options relating to BLAST'))
-        blast_opt.add_argument('-R', '--reftype', action='store',
-                               help=('Reference Sequence type. If not given '
-                                     'will try to detect it'), dest='reftype',
-                               choices=('nucl', 'prot'), default=None)
-        blast_opt.add_argument('-X', '--tblastx', action='store_true',
-                               default=False,
-                               help=('Run tBLASTx rather than BLASTn'))
-        blast_opt.add_argument('--evalue', action='store', type=float,
-                               default='0.0001',
-                               help=('BLAST evalue (Expect)'))
-        blast_opt.add_argument('--short', action='store_true',
-                               default=False, help=('Have short queries i.e. '
-                                                    'PCR Primers'))
-        parser.add_argument('-v', '--verbose', action='store_true',
-                            default=False, help='verbose output')
-        io.add_argument('-o', '--output', action='store', default=None,
-                        help=('Output the results to this location'))
-        io.add_argument('-p', '--output_prefix', action='store', default=None,
-                        help=('Give all result files this prefix'))
-        # Required options now positional arguments
-        parser.add_argument('seqs_of_interest', action='store',
-                            help=('Full path to FASTA file containing a '
-                                  'set of sequences of interest'))
-        parser.add_argument('assembly_dir', action='store',
-                            help=('Full path to directory containing a '
-                                  'set of assemblies in FASTA format'))
-        alg.add_argument('-t', '--tol', action='store', type=float,
-                         default=0.95,
-                         help=('Similarity cutoff [default = 0.95]'))
-        alg.add_argument('-m', '--cons', action='store', default=None,
-                         help=('Full path to directory containing mapping '
-                               'consensuses [default = None]. See manual for '
-                               'more info'))
-        fig.add_argument('-l', '--label_genes', action='store_true',
-                         default=False,
-                         help=('Label the x axis with the query identifier '
-                               '[default = False]'))
-        alg.add_argument('-r', '--reshape', action='store_false', default=True,
-                         help=('Differentiate between mapping and assembly '
-                               'hits in the figure [default = no '
-                               'differentiation]'))
-        fig.add_argument('-g', '--grid', action='store_false', default=True,
-                         help='Figure has grid lines [default = True]')
-        alg.add_argument('--index_file', action='store', default=None,
-                         help=('Maintain the y axis strain order according to '
-                               'order given in this file. Otherwise '
-                               'clustering by row similarity. [default = do '
-                               'clustering]. See manual for more info'))
-        alg.add_argument('--cluster_column', action='store_true',
-                         default=False,
-                         help=('Cluster by column similarity rather than row'))
-        fig.add_argument('--color', action='store', default=None, type=int,
-                         help=('The color index [default = None]. See manual '
-                               'for more info'))
-        fig.add_argument('--invert', action='store_true', default=False,
-                         help=('Invert the shading so that missing hits are '
-                               'black [default = False].'))
-        fig.add_argument('--remove_empty_cols', action='store_true',
-                         default=False, help=('Remove columns that have no '
-                                              'hits [default = False].'))
-        fig.add_argument('--DPI', action='store', type=int, default=300,
-                         help='DPI of figure [default = 300]')
-        fig.add_argument('--seed', action='store', type=int, default=99,
-                         help='Color generation seed')
-        fig.add_argument('--svg', action='store_true', default=False,
-                         help=('Draws figure in svg'))
-        fig.add_argument('--size', action='store', type=str, default='10x12',
-                         help='Size of figure [default = 10x12 (inches)]')
-        alg.add_argument('-s', '--strip', action='store', default=10,
-                         help=('Strip the 1st and last N bases of mapping '
-                               'consensuses & database [default = 10]'))
-        alg.add_argument('-c', '--careful', action='store', type=float,
-                         default=0,
-                         help=('Manually consider hits that fall '
-                               '(tol-careful) below the cutoff. [default = 0].'
-                               ' With default tol (0.95) & careful = 0.2, we '
-                               'will manually inspect all hits in 0.95-0.75 '
-                               'range'))
-        io.add_argument('--EXISTING_MATRIX', action='store_true',
-                        default=False,
-                        help=('Use existing SeqFindr matrix (reformat the '
-                              'plot) [default = False]'))
-        blast_opt.add_argument('--BLAST_THREADS', action='store', type=int,
-                               default=1, help=('Use this number of threads '
-                                                'in BLAST run [default = 1]'))
-        parser.set_defaults(func=core_async)
-        args = parser.parse_args()
-        if args.verbose:
-            print "Executing @ " + time.asctime()
-        args.func(args)
-        if args.verbose:
-            print "Ended @ " + time.asctime()
-            print 'Exec time minutes %f:' % ((time.time() - start_time) / 60.0)
-        sys.exit(0)
+        do_main()
+        "we're done with main now!"
+        exit(0)
     except KeyboardInterrupt, e:
         # Ctrl-C
         raise e

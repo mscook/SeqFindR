@@ -34,8 +34,9 @@ def ensure_paths_for_args(args):
     args.seqs_of_interest = os.path.abspath(
         os.path.expanduser(args.seqs_of_interest))
     args.assembly_dir = os.path.abspath(os.path.expanduser(args.assembly_dir))
-    if args.output is not None:
-        args.output = os.path.abspath(os.path.expanduser(args.output))
+    if args.output is not None: #TODO: Review this hack, might break existing SeqFindr
+        args.output = args.output.strip(" ")
+        #args.output = os.path.abspath(os.path.expanduser(args.output))
     if args.cons is not None:
         args.cons = os.path.abspath(os.path.expanduser(args.cons))
     if args.index_file is not None:
