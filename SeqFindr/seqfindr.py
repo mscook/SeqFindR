@@ -301,11 +301,19 @@ def plot_matrix(matrix, strain_labels, vfs_classes, gene_labels,
     fig = plt.figure()
     ax = fig.add_subplot(111)
     # aspect auto to widen
-    ax.matshow(matrix, cmap=cm.gray, aspect=aspect)
+    # ax.matshow(matrix, cmap=cm.gray, aspect=aspect)
+    
+    numRows, numCols = matrix.shape
+    X = -0.5 + np.arange(numCols+1)
+    Y = -0.5 + np.arange(numRows+1)
+    ax.pcolormesh(X,Y,matrix, cmap=cm.gray) # allow matrix to be in vector format rather than image
+    ax.invert_yaxis() # revert inversion of y-axis caused by pcolormesh
+    
     # Make sure every strain
     ax.yaxis.set_major_locator(MultipleLocator(1))
     ax.yaxis.set_major_formatter(FormatStrFormatter('%s'))
-    ax.set_yticklabels(strain_labels)
+    # ax.set_yticklabels(strain_labels)
+    ax.set_yticklabels([''],strain_labels) # adjust alignment of labels on the y-axis to match with x-axis
     if len(gene_labels) < 999:
         ax.xaxis.set_major_locator(MultipleLocator(1))
         ax.xaxis.set_major_formatter(FormatStrFormatter('%s'))
