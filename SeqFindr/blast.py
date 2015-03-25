@@ -151,11 +151,15 @@ def parse_BLAST(blast_results, tol, careful):
             for align in record.alignments:
                 for hsp in align.hsps:
                     hit_name = record.query.split(',')[1].strip()
-                    cutoff = hsp.identities/float(record.query_length)
-                    if cutoff >= tol:
+                    # cutoff = hsp.identities/float(record.query_length)
+                    # cutoff is now calculated with reference to the alignment length
+                    cutoff = hsp.identities/float(hsp.align_length)
+                    # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
+                    if cutoff >= tol and record.query_length <= hsp.align_length:
                         hits.append(hit_name.strip())
                     # New method for the --careful option
-                    elif cutoff >= tol-careful:
+                    # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
+                    elif cutoff >= tol-careful and record.query_length <= hsp.align_length:
                         print "Please confirm this hit:"
                         print "Name,SeqFindr score,Len(align),Len(query),Identities,Gaps"
                         print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
