@@ -156,12 +156,12 @@ def parse_BLAST(blast_results, tol, cov, careful):
                     
                     # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
                     # added coverage option allowing the alignment length to be shorter than the length of the target sequence (DEFAULT=1) 
-                    if cutoff >= tol and record.query_length <= (hsp.align_length * cov):
+                    if cutoff >= tol and (record.query_length * cov) <= hsp.align_length:
                         hits.append(hit_name.strip())
-                    
+
                     # New method for the --careful option
                     # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
-                    elif cutoff >= tol-careful and record.query_length <= (hsp.align_length * cov):
+                    elif cutoff >= tol-careful and (record.query_length * cov) <= hsp.align_length:
                         print "Please confirm this hit:"
                         print "Name,SeqFindr score,Len(align),Len(query),Identities,Gaps"
                         print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)
