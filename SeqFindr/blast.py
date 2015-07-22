@@ -136,9 +136,12 @@ def parse_BLAST(blast_results, tol, cov, careful):
 
     :param blast_results: full path to a blast run output file (in XML format)
     :param tol: the cutoff threshold (see above for explaination)
+	:param cov: alignement coverage cut-off (see above for explaination)
 
     :type blast_results: string
     :type tol: float
+    :type cov: float
+
 
     :rtype: list of satifying hit names
     """
