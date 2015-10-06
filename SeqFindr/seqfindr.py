@@ -596,8 +596,8 @@ if __name__ == '__main__':
                          default=0.95,
                          help=('Similarity cutoff [default = 0.95]'))
         alg.add_argument('--cov', action='store', type=float,
-                         default=1,
-                         help=('Proportion of query covered cutoff [default = 1]'))
+                         default=1.0,
+                         help=('Proportion of query covered cutoff [default = 1.0]'))
         alg.add_argument('-m', '--cons', action='store', default=None,
                          help=('Full path to directory containing mapping '
                                'consensuses [default = None]. See manual for '
