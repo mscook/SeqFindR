@@ -169,7 +169,7 @@ def check_database(database_file):
                 at_least_one += 1
                 # Do the check
                 if len(line.split(',')) != 4 or line.split(',')[-1].count(']') != 1 or line.split(',')[-1].count('[') != 1:
-                    raise Exception("Database is not formatted correctly")
+                    raise Exception("Database is not formatted correctly at this line: " + line)
                 else:
                     tmp = line.split(',')[-1]
                     cur = tmp.split('[')[-1].split(']')[0].strip()
