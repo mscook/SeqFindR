@@ -130,18 +130,18 @@ def run_BLAST(query, database, args, cons_run):
     return os.path.join(os.getcwd(), outfile)
 
 
-def parse_BLAST(blast_results, tol, careful):
+def parse_BLAST(blast_results, tol, cov, careful):
     """
     Using NCBIXML parse the BLAST results, storing & returning good hits
 
-    Here good hits are:
-        * hsp.identities/float(record.query_length) >= tol
-
     :param blast_results: full path to a blast run output file (in XML format)
     :param tol: the cutoff threshold (see above for explaination)
+    :param cov: alignement coverage cut-off (see above for explaination)
 
     :type blast_results: string
     :type tol: float
+    :type cov: float
+
 
     :rtype: list of satifying hit names
     """
@@ -151,11 +151,17 @@ def parse_BLAST(blast_results, tol, careful):
             for align in record.alignments:
                 for hsp in align.hsps:
                     hit_name = record.query.split(',')[1].strip()
-                    cutoff = hsp.identities/float(record.query_length)
-                    if cutoff >= tol:
+                    # cutoff is now calculated with reference to the alignment length
+                    cutoff = hsp.identities/float(hsp.align_length)
+                    
+                    # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
+                    # added coverage option allowing the alignment length to be shorter than the length of the target sequence (DEFAULT=1) 
+                    if cutoff >= tol and (record.query_length * cov) <= hsp.align_length:
                         hits.append(hit_name.strip())
+
                     # New method for the --careful option
-                    elif cutoff >= tol-careful:
+                    # added condition that the alignment length (hsp.align_length) must be at least equal to the length of the target sequence
+                    elif cutoff >= tol-careful and (record.query_length * cov) <= hsp.align_length:
                         print "Please confirm this hit:"
                         print "Name,SeqFindr score,Len(align),Len(query),Identities,Gaps"
                         print "%s,%f,%i,%i,%i,%i" % (hit_name, cutoff, hsp.align_length, record.query_length, hsp.identities, hsp.gaps)

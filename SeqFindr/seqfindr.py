@@ -455,10 +455,10 @@ def do_run(args, data_path, match_score, vfs_list, cons_run):
             y_label.append(strain_id)
             database = os.path.basename(subject)
             blast_xml = blast.run_BLAST(args.seqs_of_interest, os.path.join(os.getcwd(), "DBs/"+database), args, cons_run)
-            accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol), args.careful)
+            accepted_hits = blast.parse_BLAST(blast_xml, float(args.tol), float(args.cov), args.careful)
         else:
             strain_id = y_label[idx]
-            accepted_hits = blast.parse_BLAST(in_files[idx], float(args.tol), args.careful)
+            accepted_hits = blast.parse_BLAST(in_files[idx], float(args.tol), float(args.cov), args.careful)
         row = build_matrix_row(vfs_list, accepted_hits, match_score)
         row.insert(0, strain_id)
         matrix.append(row)
@@ -595,6 +595,9 @@ if __name__ == '__main__':
         alg.add_argument('-t', '--tol', action='store', type=float,
                          default=0.95,
                          help=('Similarity cutoff [default = 0.95]'))
+        alg.add_argument('--cov', action='store', type=float,
+                         default=1,
+                         help=('Proportion of query covered cutoff [default = 1]'))
         alg.add_argument('-m', '--cons', action='store', default=None,
                          help=('Full path to directory containing mapping '
                                'consensuses [default = None]. See manual for '
