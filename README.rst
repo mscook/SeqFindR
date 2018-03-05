@@ -20,11 +20,11 @@ If you have problems::
     # pip install SeqFindr==0.33.1
 
 
-.. image:: https://pypip.in/version/SeqFindr/badge.svg
+.. image:: https://img.shields.io/pypi/v/SeqFindr.svg
         :target: https://pypi.python.org/pypi/SeqFindr/
         :alt: Latest Version
 
-.. image:: https://pypip.in/download/SeqFindr/badge.svg
+.. image:: https://img.shields.io/pypi/dm/SeqFindr.svg
         :target: https://pypi.python.org/pypi/SeqFindr/
         :alt: Downloads
 
